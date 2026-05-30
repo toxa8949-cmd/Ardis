@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Star, ArrowUpRight } from "lucide-react";
 import { BikeArt } from "./BikeArt";
+import { AddToCartButton } from "./AddToCartButton";
 import { uah } from "@/lib/site";
 import { BADGE_LABELS, type Product } from "@/types";
 
@@ -96,12 +97,16 @@ export function ProductCard({ p }: { p: Product }) {
               <span className="text-sm font-medium text-gray-400 line-through">{uah(p.old_price)}</span>
             )}
           </div>
-          <Link
-            href={`/bikes/${p.slug}`}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-ink py-3 text-sm font-bold text-white transition-all hover:bg-accent active:scale-95"
-          >
-            Детальніше
-          </Link>
+          <div className="mt-3 flex gap-2">
+            <AddToCartButton product={p} colorIndex={active} label="У кошик" />
+            <Link
+              href={`/bikes/${p.slug}`}
+              className="grid shrink-0 place-items-center rounded-xl border border-black/10 px-3 text-sm font-bold text-gray-600 transition-colors hover:border-accent hover:text-accent"
+              aria-label="Детальніше"
+            >
+              <ArrowUpRight size={18} />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
