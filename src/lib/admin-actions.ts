@@ -8,6 +8,12 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 interface ColorInput {
   name: string;
   hue: number;
+  hex: string;
+}
+
+interface SpecInput {
+  label: string;
+  value: string;
 }
 
 interface ProductFormData {
@@ -30,6 +36,7 @@ interface ProductFormData {
   description: string | null;
   in_stock: boolean;
   colors: ColorInput[];
+  specs: SpecInput[];
 }
 
 // Перевірка авторизації — кожна дія має пересвідчитись, що це адмін
@@ -61,6 +68,13 @@ function parseForm(formData: FormData): ProductFormData {
     colors = [];
   }
 
+  let specs: SpecInput[] = [];
+  try {
+    specs = JSON.parse(String(formData.get("specs") ?? "[]"));
+  } catch {
+    specs = [];
+  }
+
   const badgeRaw = str("badge");
   const badge = (["hit", "new", "sale"].includes(badgeRaw) ? badgeRaw : null) as ProductFormData["badge"];
 
@@ -84,6 +98,7 @@ function parseForm(formData: FormData): ProductFormData {
     description: strOrNull("description"),
     in_stock: formData.get("in_stock") === "on",
     colors: colors.filter((c) => c.name?.trim()),
+    specs: specs.filter((sp) => sp.label?.trim() && sp.value?.trim()),
   };
 }
 
@@ -100,6 +115,7 @@ async function saveColors(
         product_id: productId,
         name: c.name.trim(),
         hue: Number(c.hue) || 24,
+        hex: c.hex || null,
         sort_order: i,
       }))
     );
@@ -138,6 +154,7 @@ export async function createProduct(formData: FormData) {
       speeds: d.speeds,
       drivetrain: d.drivetrain,
       brakes: d.brakes,
+      specs: d.specs,
       description: d.description,
       in_stock: d.in_stock,
     })
@@ -176,6 +193,7 @@ export async function updateProduct(id: string, formData: FormData) {
       speeds: d.speeds,
       drivetrain: d.drivetrain,
       brakes: d.brakes,
+      specs: d.specs,
       description: d.description,
       in_stock: d.in_stock,
     })

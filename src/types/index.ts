@@ -23,11 +23,17 @@ export interface Category {
   sort_order: number;
 }
 
+export interface SpecItem {
+  label: string;
+  value: string;
+}
+
 export interface ProductColor {
   id: string;
   product_id: string;
   name: string;
   hue: number;
+  hex: string | null;
   sort_order: number;
 }
 
@@ -52,6 +58,7 @@ export interface Product {
   speeds: number | null;
   drivetrain: string;
   brakes: string;
+  specs: SpecItem[];
   description: string | null;
   rating: number;
   reviews: number;

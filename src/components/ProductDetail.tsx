@@ -13,12 +13,16 @@ export function ProductDetail({ product: p }: { product: Product }) {
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "" };
 
-  const specs = [
+  const baseSpecs = [
     { label: "Рама", value: p.frame },
     { label: "Колеса", value: p.wheel },
     { label: "Трансмісія", value: p.drivetrain },
     { label: "Гальма", value: p.brakes },
+    ...(p.speeds ? [{ label: "Швидкості", value: String(p.speeds) }] : []),
   ].filter((s) => s.value);
+  // Додаткові характеристики з адмінки (вилка, обода, вага тощо)
+  const extraSpecs = (p.specs ?? []).filter((s) => s.label && s.value);
+  const specs = [...baseSpecs, ...extraSpecs];
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
@@ -47,7 +51,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
                 >
                   <span
                     className="h-4 w-4 rounded-full"
-                    style={{ backgroundColor: c.hue === 0 ? "#0f1115" : `hsl(${c.hue} 80% 50%)` }}
+                    style={{ backgroundColor: c.hex ?? (c.hue === 0 ? "#0f1115" : `hsl(${c.hue} 80% 50%)`) }}
                   />
                   {c.name}
                 </button>

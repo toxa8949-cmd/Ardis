@@ -85,7 +85,7 @@ export function ProductCard({ p }: { p: Product }) {
                   onClick={() => setActive(i)}
                   title={c.name}
                   aria-label={c.name}
-                  style={{ backgroundColor: c.hue === 0 ? "#0f1115" : `hsl(${c.hue} 80% 50%)` }}
+                  style={{ backgroundColor: c.hex ?? (c.hue === 0 ? "#0f1115" : `hsl(${c.hue} 80% 50%)`) }}
                   className={`h-5 w-5 rounded-full ring-offset-2 transition-transform ${
                     active === i ? "scale-110 ring-2 ring-accent" : "opacity-70 hover:opacity-100"
                   }`}

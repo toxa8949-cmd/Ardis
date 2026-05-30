@@ -5,7 +5,34 @@ import { Plus, X, Save } from "lucide-react";
 import { createProduct, updateProduct } from "@/lib/admin-actions";
 import type { Product, Brand, Category } from "@/types";
 
-interface ColorRow { name: string; hue: number }
+interface ColorRow { name: string; hue: number; hex: string }
+interface SpecRow { label: string; value: string }
+
+// Готова палітра кольорів (назва + hex + приблизний hue для SVG)
+const PALETTE: { name: string; hex: string; hue: number }[] = [
+  { name: "Чорний", hex: "#1f2937", hue: 0 },
+  { name: "Графіт", hex: "#4b5563", hue: 210 },
+  { name: "Білий", hex: "#f3f4f6", hue: 210 },
+  { name: "Червоний", hex: "#dc2626", hue: 0 },
+  { name: "Помаранчевий", hex: "#f97316", hue: 24 },
+  { name: "Жовтий", hex: "#eab308", hue: 48 },
+  { name: "Зелений", hex: "#16a34a", hue: 140 },
+  { name: "Лайм", hex: "#84cc16", hue: 85 },
+  { name: "Синій", hex: "#2563eb", hue: 220 },
+  { name: "Блакитний", hex: "#06b6d4", hue: 190 },
+  { name: "Фіолетовий", hex: "#7c3aed", hue: 270 },
+  { name: "Рожевий", hex: "#ec4899", hue: 320 },
+  { name: "Бордовий", hex: "#9f1239", hue: 345 },
+  { name: "Сріблястий", hex: "#cbd5e1", hue: 210 },
+];
+
+// Часті характеристики велосипеда — для швидкого додавання
+const SPEC_PRESETS = [
+  "Вилка", "Хід вилки", "Задній перемикач", "Передній перемикач", "Шифтери",
+  "Система (шатуни)", "Каретка", "Касета", "Втулки", "Обода", "Покришки",
+  "Сідло", "Кермо", "Виніс керма", "Вага", "Макс. навантаження",
+  "Модельний рік", "Країна виробництва", "Гарантія", "Артикул",
+];
 
 export function ProductForm({
   product,
@@ -17,23 +44,42 @@ export function ProductForm({
   categories: Category[];
 }) {
   const isEdit = !!product;
+
   const [colors, setColors] = useState<ColorRow[]>(
-    product?.colors.map((c) => ({ name: c.name, hue: c.hue })) ?? [{ name: "", hue: 24 }]
+    product?.colors.map((c) => ({
+      name: c.name,
+      hue: c.hue,
+      hex: c.hex ?? "#1f2937",
+    })) ?? [{ name: "Чорний", hue: 0, hex: "#1f2937" }]
   );
+
+  const [specs, setSpecs] = useState<SpecRow[]>(
+    product?.specs?.length ? product.specs.map((s) => ({ label: s.label, value: s.value })) : []
+  );
+
   const [submitting, setSubmitting] = useState(false);
 
   const bikeCats = categories.filter((c) => c.group === "velosypedy");
   const partCats = categories.filter((c) => c.group !== "velosypedy");
 
-  const addColor = () => setColors([...colors, { name: "", hue: 24 }]);
+  // --- Кольори ---
+  const addColor = () => setColors([...colors, { name: "Чорний", hue: 0, hex: "#1f2937" }]);
   const removeColor = (i: number) => setColors(colors.filter((_, idx) => idx !== i));
-  const updateColor = (i: number, patch: Partial<ColorRow>) =>
-    setColors(colors.map((c, idx) => (idx === i ? { ...c, ...patch } : c)));
+  const pickPalette = (i: number, p: typeof PALETTE[number]) =>
+    setColors(colors.map((c, idx) => (idx === i ? { name: p.name, hue: p.hue, hex: p.hex } : c)));
+  const updateColorName = (i: number, name: string) =>
+    setColors(colors.map((c, idx) => (idx === i ? { ...c, name } : c)));
 
-  // Server action обгортка: додаємо кольори у formData
+  // --- Характеристики ---
+  const addSpec = (label = "") => setSpecs([...specs, { label, value: "" }]);
+  const removeSpec = (i: number) => setSpecs(specs.filter((_, idx) => idx !== i));
+  const updateSpec = (i: number, patch: Partial<SpecRow>) =>
+    setSpecs(specs.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+
   const action = async (formData: FormData) => {
     setSubmitting(true);
     formData.set("colors", JSON.stringify(colors.filter((c) => c.name.trim())));
+    formData.set("specs", JSON.stringify(specs.filter((s) => s.label.trim() && s.value.trim())));
     if (isEdit) await updateProduct(product!.id, formData);
     else await createProduct(formData);
   };
@@ -112,9 +158,9 @@ export function ProductForm({
         </label>
       </div>
 
-      {/* Характеристики */}
+      {/* Основні характеристики (фіксовані поля для фільтрів) */}
       <div className="rounded-2xl border border-black/5 bg-white p-6">
-        <h2 className="mb-4 font-bold">Характеристики</h2>
+        <h2 className="mb-4 font-bold">Основні характеристики</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={label}>Рама</label>
@@ -125,11 +171,11 @@ export function ProductForm({
             <input name="wheel" defaultValue={product?.wheel} className={field} placeholder='29"' />
           </div>
           <div>
-            <label className={label}>Діаметр коліс (для фільтра)</label>
+            <label className={label}>Діаметр коліс (фільтр)</label>
             <input name="wheel_size" defaultValue={product?.wheel_size ?? ""} className={field} placeholder="29" />
           </div>
           <div>
-            <label className={label}>Розмір рами (для фільтра)</label>
+            <label className={label}>Розмір рами (фільтр)</label>
             <input name="frame_size" defaultValue={product?.frame_size ?? ""} className={field} placeholder="19" />
           </div>
           <div>
@@ -160,7 +206,56 @@ export function ProductForm({
         </div>
       </div>
 
-      {/* Кольори */}
+      {/* Додаткові характеристики (довільні пари назва/значення) */}
+      <div className="rounded-2xl border border-black/5 bg-white p-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-bold">Додаткові характеристики</h2>
+          <button type="button" onClick={() => addSpec()} className="flex items-center gap-1 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-200">
+            <Plus size={14} /> Рядок
+          </button>
+        </div>
+        <p className="mb-3 text-xs text-gray-400">Вилка, шатуни, обода, покришки, вага тощо. Швидко додати:</p>
+        <div className="mb-4 flex flex-wrap gap-1.5">
+          {SPEC_PRESETS.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              onClick={() => addSpec(preset)}
+              className="rounded-lg border border-black/10 px-2.5 py-1 text-xs font-semibold text-gray-500 transition-colors hover:border-accent/40 hover:text-accent-600"
+            >
+              + {preset}
+            </button>
+          ))}
+        </div>
+        <div className="space-y-2">
+          {specs.map((s, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input
+                value={s.label}
+                onChange={(e) => updateSpec(i, { label: e.target.value })}
+                placeholder="Характеристика"
+                className="w-1/3 rounded-lg border border-black/10 bg-paper px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+              />
+              <input
+                value={s.value}
+                onChange={(e) => updateSpec(i, { value: e.target.value })}
+                placeholder="Значення"
+                className="flex-1 rounded-lg border border-black/10 bg-paper px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+              />
+              <button type="button" onClick={() => removeSpec(i)} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-gray-400 hover:bg-rose-50 hover:text-rose-500">
+                <X size={16} />
+              </button>
+            </div>
+          ))}
+          {specs.length === 0 && (
+            <p className="rounded-lg bg-gray-50 px-3 py-3 text-xs text-gray-400">
+              Поки немає додаткових характеристик. Натисніть кнопку вище, щоб додати.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Кольори — вибір із палітри */}
       <div className="rounded-2xl border border-black/5 bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-bold">Кольори</h2>
@@ -168,30 +263,37 @@ export function ProductForm({
             <Plus size={14} /> Додати колір
           </button>
         </div>
-        <p className="mb-3 text-xs text-gray-400">
-          Hue — відтінок 0-360 (0 = чорний/графіт, 24 = помаранчевий, 130 = зелений, 220 = синій).
-        </p>
-        <div className="space-y-2">
+        <div className="space-y-4">
           {colors.map((c, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span className="h-8 w-8 shrink-0 rounded-lg" style={{ backgroundColor: c.hue === 0 ? "#0f1115" : `hsl(${c.hue} 80% 50%)` }} />
-              <input
-                value={c.name}
-                onChange={(e) => updateColor(i, { name: e.target.value })}
-                placeholder="Назва кольору (напр. Графіт)"
-                className="flex-1 rounded-lg border border-black/10 bg-paper px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
-              />
-              <input
-                type="number" min="0" max="360"
-                value={c.hue}
-                onChange={(e) => updateColor(i, { hue: Number(e.target.value) })}
-                className="w-20 rounded-lg border border-black/10 bg-paper px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
-              />
-              {colors.length > 1 && (
-                <button type="button" onClick={() => removeColor(i)} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-gray-400 hover:bg-rose-50 hover:text-rose-500">
-                  <X size={16} />
-                </button>
-              )}
+            <div key={i} className="rounded-xl border border-black/5 bg-gray-50 p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="h-8 w-8 shrink-0 rounded-lg ring-1 ring-black/10" style={{ backgroundColor: c.hex }} />
+                <input
+                  value={c.name}
+                  onChange={(e) => updateColorName(i, e.target.value)}
+                  placeholder="Назва кольору"
+                  className="flex-1 rounded-lg border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/40"
+                />
+                {colors.length > 1 && (
+                  <button type="button" onClick={() => removeColor(i)} className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-gray-400 hover:bg-rose-50 hover:text-rose-500">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {PALETTE.map((p) => (
+                  <button
+                    key={p.name}
+                    type="button"
+                    onClick={() => pickPalette(i, p)}
+                    title={p.name}
+                    className={`h-7 w-7 rounded-lg ring-offset-1 transition-transform hover:scale-110 ${
+                      c.hex === p.hex ? "ring-2 ring-accent" : "ring-1 ring-black/10"
+                    }`}
+                    style={{ backgroundColor: p.hex }}
+                  />
+                ))}
+              </div>
             </div>
           ))}
         </div>
