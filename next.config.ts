@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      // Офіційні фото товарів з ardis.com.ua
+      {
+        protocol: "https",
+        hostname: "ardis.com.ua",
+        pathname: "/upload/**",
+      },
     ],
   },
   // Канонічний домен без www — узгоджено з SEO-налаштуваннями
