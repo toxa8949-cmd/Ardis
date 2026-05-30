@@ -26,19 +26,38 @@ function normalize(row: Record<string, unknown>): Product {
 }
 
 // --- Фільтри каталогу ---
+export type SortOption = "new" | "price_asc" | "price_desc" | "rating";
+
 export interface ProductFilters {
   category?: string;   // category_slug
   brand?: string;      // brand slug
   wheel?: string;      // wheel_size
+  frameSize?: string;  // frame_size
+  priceMin?: number;
+  priceMax?: number;
+  inStock?: boolean;
+  sort?: SortOption;
 }
 
 // Усі товари з опційними фільтрами
 export async function getProducts(filters: ProductFilters = {}): Promise<Product[]> {
   const supabase = await createSupabaseServerClient();
-  let q = supabase.from("products").select(PRODUCT_SELECT).order("created_at", { ascending: false });
+  let q = supabase.from("products").select(PRODUCT_SELECT);
 
   if (filters.category) q = q.eq("category_slug", filters.category);
   if (filters.wheel) q = q.eq("wheel_size", filters.wheel);
+  if (filters.frameSize) q = q.eq("frame_size", filters.frameSize);
+  if (filters.inStock) q = q.eq("in_stock", true);
+  if (typeof filters.priceMin === "number") q = q.gte("price", filters.priceMin);
+  if (typeof filters.priceMax === "number") q = q.lte("price", filters.priceMax);
+
+  // Сортування
+  switch (filters.sort) {
+    case "price_asc": q = q.order("price", { ascending: true }); break;
+    case "price_desc": q = q.order("price", { ascending: false }); break;
+    case "rating": q = q.order("rating", { ascending: false }); break;
+    default: q = q.order("created_at", { ascending: false });
+  }
 
   const { data, error } = await q;
   if (error) {
@@ -53,6 +72,31 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
     result = result.filter((p) => p.brand?.slug === filters.brand);
   }
   return result;
+}
+
+// Ціновий діапазон усього каталогу — для меж повзунка
+export async function getPriceRange(): Promise<{ min: number; max: number }> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("price")
+    .order("price", { ascending: true });
+  if (error || !data || data.length === 0) return { min: 0, max: 50000 };
+  const prices = data.map((r) => r.price as number);
+  return { min: prices[0], max: prices[prices.length - 1] };
+}
+
+// Унікальні розміри рам — для фільтра
+export async function getFrameSizes(): Promise<string[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("frame_size")
+    .not("frame_size", "is", null);
+  if (error || !data) return [];
+  const set = new Set<string>();
+  data.forEach((r) => { if (r.frame_size) set.add(r.frame_size as string); });
+  return Array.from(set).sort();
 }
 
 // Один товар за slug
