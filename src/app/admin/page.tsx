@@ -12,15 +12,16 @@ export default async function AdminDashboard() {
   const supabase = await createSupabaseServerClient();
 
   // Базові лічильники (повна статистика — у Шарі Г)
-  const [{ count: productsCount }, { count: ordersCount }] = await Promise.all([
+  const [{ count: productsCount }, { count: ordersCount }, { count: postsCount }] = await Promise.all([
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("*", { count: "exact", head: true }),
+    supabase.from("posts").select("*", { count: "exact", head: true }),
   ]);
 
   const cards = [
     { label: "Товарів у каталозі", value: productsCount ?? 0, icon: Package, href: "/admin/products" },
     { label: "Замовлень усього", value: ordersCount ?? 0, icon: ShoppingBag, href: "/admin/orders" },
-    { label: "Статей у блозі", value: 0, icon: FileText, href: "/admin/blog" },
+    { label: "Статей у блозі", value: postsCount ?? 0, icon: FileText, href: "/admin/blog" },
   ];
 
   return (

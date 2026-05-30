@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getAllProductSlugs, getAllCategorySlugs } from "@/lib/products";
+import { getPublishedPostSlugs } from "@/lib/posts";
 import { SITE } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [slugs, catSlugs] = await Promise.all([
+  const [slugs, catSlugs, postSlugs] = await Promise.all([
     getAllProductSlugs(),
     getAllCategorySlugs(),
+    getPublishedPostSlugs(),
   ]);
 
   const productPages: MetadataRoute.Sitemap = slugs.map((slug) => ({
@@ -22,10 +24,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const postPages: MetadataRoute.Sitemap = postSlugs.map((slug) => ({
+    url: `${SITE.url}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
   return [
     { url: SITE.url, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     { url: `${SITE.url}/catalog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE.url}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     ...categoryPages,
+    ...postPages,
     ...productPages,
   ];
 }
