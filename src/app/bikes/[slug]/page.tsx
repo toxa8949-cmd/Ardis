@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductDetail } from "@/components/ProductDetail";
 import { ProductCard } from "@/components/ProductCard";
+import { Markdown } from "@/components/Markdown";
 import {
   getProductBySlug, getRelatedProducts, getAllProductSlugs, getCategoryBySlug,
 } from "@/lib/products";
@@ -24,8 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!p) return { title: "Товар не знайдено" };
 
   const title = `${p.name} — купити в Ardis`;
-  const description = p.description
-    ? p.description.slice(0, 155)
+  const cleanDesc = p.description
+    ? p.description.replace(/[#*_>`-]/g, " ").replace(/\s+/g, " ").trim()
+    : "";
+  const description = cleanDesc
+    ? cleanDesc.slice(0, 155)
     : `${p.name}: ${p.frame}, колеса ${p.wheel}, ${p.drivetrain}. Ціна ${uah(p.price)}. Заводська гарантія Ardis.`;
 
   return {
@@ -99,6 +103,14 @@ export default async function ProductPage({ params }: Props) {
         <div className="mt-8">
           <ProductDetail product={p} />
         </div>
+
+        {p.description && p.description.includes("\n") && (
+          <section className="mt-12 sm:mt-16">
+            <div className="rounded-3xl border border-black/5 bg-white p-6 sm:p-10">
+              <Markdown content={p.description} />
+            </div>
+          </section>
+        )}
 
         {related.length > 0 && (
           <section className="mt-16 sm:mt-24">

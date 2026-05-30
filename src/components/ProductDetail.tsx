@@ -99,7 +99,11 @@ export function ProductDetail({ product: p }: { product: Product }) {
           )}
         </div>
 
-        {p.description && <p className="mt-5 leading-relaxed text-gray-600">{p.description}</p>}
+        {p.description && (
+          <p className="mt-5 leading-relaxed text-gray-600">
+            {p.description.split("\n")[0].replace(/[#*]/g, "").slice(0, 200)}
+          </p>
+        )}
 
         <div className="mt-6 flex items-baseline gap-3">
           <span className="text-4xl font-bold text-ink">{uah(p.price)}</span>
