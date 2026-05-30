@@ -181,3 +181,15 @@ export async function getAllCategorySlugs(): Promise<string[]> {
   if (error || !data) return [];
   return data.map((r) => r.slug as string);
 }
+
+// Товар за id — для адмін-редагування
+export async function getProductById(id: string): Promise<Product | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+  if (error || !data) return null;
+  return normalize(data as Record<string, unknown>);
+}
