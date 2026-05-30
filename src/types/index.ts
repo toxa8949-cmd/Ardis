@@ -1,9 +1,27 @@
-// Типи даних магазину Ardis. Узгоджені зі схемою Supabase (див. supabase/schema.sql)
+// Типи даних магазину Ardis. Узгоджені зі схемою Supabase.
 
-export type Category = "mountain" | "city" | "gravel" | "parts";
+// Старий enum (лишається для сумісності зі стовпцем category)
+export type LegacyCategory = "mountain" | "city" | "gravel" | "parts";
 export type RiderType = "adult" | "teen" | "child" | "any";
 export type ProductType = "bike" | "part";
 export type BadgeType = "hit" | "new" | "sale";
+export type CategoryGroup = "velosypedy" | "zapchastyny" | "aksesuary";
+
+export interface Brand {
+  id: string;
+  slug: string;
+  name: string;
+  is_own: boolean;
+  sort_order: number;
+}
+
+export interface Category {
+  id: string;
+  slug: string;
+  name: string;
+  group: CategoryGroup;
+  sort_order: number;
+}
 
 export interface ProductColor {
   id: string;
@@ -17,18 +35,21 @@ export interface Product {
   id: string;
   slug: string;
   name: string;
-  category: Category;
+  category: LegacyCategory;        // старе поле (сумісність)
+  category_slug: string | null;    // нова категорія-довідник
+  brand_id: string | null;
   rider: RiderType;
   type: ProductType;
   price: number;
   old_price: number | null;
   badge: BadgeType | null;
-  // діапазон зросту (см) — null для запчастин
   min_height: number | null;
   max_height: number | null;
-  // специфікації
   frame: string;
   wheel: string;
+  wheel_size: string | null;
+  frame_size: string | null;
+  speeds: number | null;
   drivetrain: string;
   brakes: string;
   description: string | null;
@@ -36,8 +57,9 @@ export interface Product {
   reviews: number;
   in_stock: boolean;
   created_at: string;
-  // приєднується через relation
   colors: ProductColor[];
+  // приєднується через relation
+  brand?: Brand | null;
 }
 
 export type DeliveryMethod = "nova_poshta" | "pickup";
@@ -59,20 +81,12 @@ export interface OrderInput {
   total: number;
 }
 
-// Локальний елемент кошика (з вибраним кольором)
 export interface CartItem {
   product: Product;
   colorName: string;
   hue: number;
   qty: number;
 }
-
-export const CATEGORY_LABELS: Record<Category, string> = {
-  mountain: "Гірські",
-  city: "Міські",
-  gravel: "Гравійні",
-  parts: "Компоненти",
-};
 
 export const BADGE_LABELS: Record<BadgeType, string> = {
   hit: "Хіт",

@@ -1,17 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { Bike, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { Bike, ShoppingCart, ChevronDown } from "lucide-react";
 import { useCart } from "./CartProvider";
 
-const NAV = [
-  { href: "/#catalog", label: "Каталог" },
-  { href: "/#calculator", label: "Підбір розміру" },
-  { href: "/#showrooms", label: "Шоуруми" },
+// Категорії велосипедів для випадного меню (відповідають slug у БД)
+const BIKE_CATEGORIES = [
+  { slug: "girski", name: "Гірські" },
+  { slug: "dvopidvisy", name: "Двопідвіси" },
+  { slug: "komfortni", name: "Комфортні" },
+  { slug: "dorozhni", name: "Дорожні" },
+  { slug: "pidlitkovi", name: "Підліткові" },
+  { slug: "girski-dytyachi", name: "Гірські дитячі" },
+  { slug: "dytyachi", name: "Дитячі" },
+  { slug: "bmx", name: "BMX" },
+  { slug: "elektrovelosipedi", name: "Електровелосипеди" },
+  { slug: "inshi", name: "Інші" },
 ];
 
 export function Header() {
   const { count, open } = useCart();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-paper/80 backdrop-blur-md">
@@ -24,15 +34,41 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {NAV.map((n) => (
-            <a
-              key={n.href}
-              href={n.href}
-              className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink"
+          {/* Каталог із випадним меню */}
+          <div
+            className="relative"
+            onMouseEnter={() => setMenuOpen(true)}
+            onMouseLeave={() => setMenuOpen(false)}
+          >
+            <Link
+              href="/catalog"
+              className="flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink"
             >
-              {n.label}
-            </a>
-          ))}
+              Каталог <ChevronDown size={15} />
+            </Link>
+            {menuOpen && (
+              <div className="absolute left-0 top-full w-60 pt-2">
+                <div className="rounded-2xl border border-black/5 bg-white p-2 shadow-xl">
+                  {BIKE_CATEGORIES.map((c) => (
+                    <Link
+                      key={c.slug}
+                      href={`/catalog/${c.slug}`}
+                      className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-accent/10 hover:text-accent-600"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Link href="/#calculator" className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink">
+            Підбір розміру
+          </Link>
+          <Link href="/#showrooms" className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink">
+            Шоуруми
+          </Link>
         </nav>
 
         <button

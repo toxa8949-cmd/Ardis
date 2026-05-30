@@ -6,9 +6,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductDetail } from "@/components/ProductDetail";
 import { ProductCard } from "@/components/ProductCard";
-import { getProductBySlug, getRelatedProducts, getAllProductSlugs } from "@/lib/products";
+import {
+  getProductBySlug, getRelatedProducts, getAllProductSlugs, getCategoryBySlug,
+} from "@/lib/products";
 import { uah, SITE } from "@/lib/site";
-import { CATEGORY_LABELS } from "@/types";
 
 export async function generateStaticParams() {
   const slugs = await getAllProductSlugs();
@@ -40,15 +41,22 @@ export default async function ProductPage({ params }: Props) {
   const p = await getProductBySlug(slug);
   if (!p) notFound();
 
-  const related = await getRelatedProducts(p.category, p.slug, 4);
+  const [related, category] = await Promise.all([
+    getRelatedProducts(p.category_slug, p.slug, 4),
+    p.category_slug ? getCategoryBySlug(p.category_slug) : Promise.resolve(null),
+  ]);
+
+  const catName = category?.name ?? "Каталог";
+  const catUrl = p.category_slug ? `${SITE.url}/catalog/${p.category_slug}` : `${SITE.url}/catalog`;
+  const catHref = p.category_slug ? `/catalog/${p.category_slug}` : "/catalog";
 
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: p.name,
     description: p.description ?? p.name,
-    category: CATEGORY_LABELS[p.category],
-    brand: { "@type": "Brand", name: "Ardis" },
+    category: catName,
+    brand: { "@type": "Brand", name: p.brand?.name ?? "Ardis" },
     aggregateRating:
       p.reviews > 0
         ? { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews }
@@ -67,7 +75,7 @@ export default async function ProductPage({ params }: Props) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Головна", item: SITE.url },
-      { "@type": "ListItem", position: 2, name: CATEGORY_LABELS[p.category], item: `${SITE.url}/#catalog` },
+      { "@type": "ListItem", position: 2, name: catName, item: catUrl },
       { "@type": "ListItem", position: 3, name: p.name, item: `${SITE.url}/bikes/${p.slug}` },
     ],
   };
@@ -83,7 +91,7 @@ export default async function ProductPage({ params }: Props) {
         <nav className="flex flex-wrap items-center gap-1.5 text-sm text-gray-500">
           <Link href="/" className="hover:text-accent">Головна</Link>
           <ChevronRight size={15} className="text-gray-300" />
-          <Link href="/#catalog" className="hover:text-accent">{CATEGORY_LABELS[p.category]}</Link>
+          <Link href={catHref} className="hover:text-accent">{catName}</Link>
           <ChevronRight size={15} className="text-gray-300" />
           <span className="font-semibold text-ink">{p.name}</span>
         </nav>

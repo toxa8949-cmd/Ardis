@@ -64,7 +64,12 @@ export function ProductDetail({ product: p }: { product: Product }) {
             {BADGE_LABELS[p.badge]}
           </span>
         )}
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{p.name}</h1>
+        {p.brand && (
+          <span className="mt-3 block text-sm font-bold uppercase tracking-wider text-accent-600">
+            {p.brand.name}
+          </span>
+        )}
+        <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{p.name}</h1>
 
         <div className="mt-3 flex items-center gap-4">
           <span className="inline-flex items-center gap-1 text-sm font-bold text-amber-500">

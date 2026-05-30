@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
-import { getAllProductSlugs } from "@/lib/products";
+import { getAllProductSlugs, getAllCategorySlugs } from "@/lib/products";
 import { SITE } from "@/lib/site";
 
-// Автоматично генерує /sitemap.xml: головна + усі сторінки товарів.
-// Працює на етапі білду (без cookies) через статичний клієнт у getAllProductSlugs.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const slugs = await getAllProductSlugs();
+  const [slugs, catSlugs] = await Promise.all([
+    getAllProductSlugs(),
+    getAllCategorySlugs(),
+  ]);
 
   const productPages: MetadataRoute.Sitemap = slugs.map((slug) => ({
     url: `${SITE.url}/bikes/${slug}`,
@@ -14,13 +15,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const categoryPages: MetadataRoute.Sitemap = catSlugs.map((slug) => ({
+    url: `${SITE.url}/catalog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
   return [
-    {
-      url: SITE.url,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1,
-    },
+    { url: SITE.url, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
+    { url: `${SITE.url}/catalog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    ...categoryPages,
     ...productPages,
   ];
 }

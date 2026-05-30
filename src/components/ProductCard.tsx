@@ -56,7 +56,12 @@ export function ProductCard({ p }: { p: Product }) {
         </div>
 
         <Link href={`/bikes/${p.slug}`}>
-          <h3 className="mt-1 line-clamp-1 text-lg font-bold tracking-tight text-ink transition-colors group-hover:text-accent">
+          {p.brand && (
+            <span className="text-[11px] font-bold uppercase tracking-wider text-accent-600">
+              {p.brand.name}
+            </span>
+          )}
+          <h3 className="mt-0.5 line-clamp-1 text-lg font-bold tracking-tight text-ink transition-colors group-hover:text-accent">
             {p.name}
           </h3>
         </Link>
