@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Star, ShieldCheck, Truck, Factory } from "lucide-react";
-import { ProductImage } from "./ProductImage";
+import { ProductGallery } from "./ProductGallery";
 import { AddToCartButton } from "./AddToCartButton";
 import { uah } from "@/lib/site";
 import { BADGE_LABELS, type Product } from "@/types";
@@ -12,6 +12,16 @@ import { BADGE_LABELS, type Product } from "@/types";
 export function ProductDetail({ product: p }: { product: Product }) {
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
+
+  // Фото для галереї: пріоритет — фото обраного кольору, далі масив images, далі головне фото.
+  const galleryImages: string[] = (() => {
+    const list: string[] = [];
+    if (color.image_url) list.push(color.image_url);
+    if (p.images && p.images.length) list.push(...p.images);
+    else if (p.image_url) list.push(p.image_url);
+    // прибираємо дублі, зберігаючи порядок
+    return [...new Set(list)];
+  })();
 
   // Нормалізація назв-синонімів, щоб не було дублів (Рама / Матеріал рами тощо)
   const synonym = (label: string): string => {
@@ -48,17 +58,12 @@ export function ProductDetail({ product: p }: { product: Product }) {
       <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
         {/* Галерея */}
       <div>
-        <div className="overflow-hidden rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm">
-          <ProductImage
-            imageUrl={color.image_url ?? p.image_url}
-            hue={color.hue}
-            type={p.type}
-            alt={`${p.name}${color.name ? ` — ${color.name}` : ""}`}
-            className="h-72 w-full sm:h-96"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
-          />
-        </div>
+        <ProductGallery
+          images={galleryImages}
+          hue={color.hue}
+          type={p.type}
+          alt={`${p.name}${color.name ? ` — ${color.name}` : ""}`}
+        />
         {p.colors.length > 0 && (
           <div className="mt-5">
             <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">

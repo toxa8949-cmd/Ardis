@@ -61,6 +61,7 @@ export interface Product {
   brakes: string;
   specs: SpecItem[];
   image_url: string | null;
+  images: string[];                // галерея фото (кілька ракурсів)
   description: string | null;
   rating: number;
   reviews: number;

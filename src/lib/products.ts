@@ -7,7 +7,7 @@ import type { Product, Brand, Category } from "@/types";
 const PRODUCT_SELECT = `
   id, slug, name, category, category_slug, brand_id, rider, type, price, old_price, badge,
   min_height, max_height, frame, wheel, wheel_size, frame_size, speeds, drivetrain, brakes,
-  specs, image_url, description, rating, reviews, in_stock, created_at,
+  specs, image_url, images, description, rating, reviews, in_stock, created_at,
   colors:product_colors ( id, product_id, name, hue, hex, image_url, sort_order ),
   brand:brands ( id, slug, name, is_own, sort_order )
 `;
@@ -21,6 +21,7 @@ function normalize(row: Record<string, unknown>): Product {
   return {
     ...(row as unknown as Product),
     brand,
+    images: Array.isArray(row.images) ? (row.images as string[]) : [],
     colors: [...colorsRaw].sort((a, b) => a.sort_order - b.sort_order),
   };
 }
