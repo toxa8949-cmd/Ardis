@@ -1,13 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Ruler } from "lucide-react";
-import { frameSizeForHeight } from "@/lib/site";
+import Link from "next/link";
+import { Ruler, ArrowRight } from "lucide-react";
+import { frameSizeForHeight, frameSizeValueForHeight, wheelSizeForHeight } from "@/lib/site";
 
-// Калькулятор ростовки. Виправлений баг попередньої версії:
-// тепер зріст у стані (useState), тож повзунок реально оновлює рекомендацію.
+// Калькулятор ростовки + кнопка переходу в каталог із застосованим фільтром.
 export function FrameCalculator() {
   const [height, setHeight] = useState(175);
+
+  // Будуємо посилання на каталог із параметром під обраний зріст:
+  // дорослі/підлітки → за розміром рами; діти → за діаметром коліс.
+  const frameSize = frameSizeValueForHeight(height);
+  const wheelSize = wheelSizeForHeight(height);
+  const catalogHref = frameSize
+    ? `/catalog?frameSize=${frameSize}`
+    : wheelSize
+    ? `/catalog?wheel=${wheelSize}`
+    : "/catalog";
 
   return (
     <section id="calculator" className="mx-auto max-w-4xl px-4 py-16">
@@ -54,6 +64,14 @@ export function FrameCalculator() {
             <span>160 см</span>
             <span>210 см</span>
           </div>
+
+          {/* Кнопка підбору велосипедів під цей зріст */}
+          <Link
+            href={catalogHref}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 text-base font-bold text-white transition-all hover:bg-accent active:scale-[.98]"
+          >
+            Підібрати велосипеди під мій зріст <ArrowRight size={18} />
+          </Link>
         </div>
       </div>
     </section>

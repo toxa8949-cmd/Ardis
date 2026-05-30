@@ -38,3 +38,20 @@ export function frameSizeForHeight(height: number): string {
   if (height < 182) return '18"–19" (M / L)';
   return '20"–22" (L / XL)';
 }
+
+// Одне значення розміру рами для фільтра каталогу (відповідає значенням frame_size).
+// Для дітей рама не застосовується — повертаємо null (фільтруємо за діаметром коліс).
+export function frameSizeValueForHeight(height: number): string | null {
+  if (height < 135) return null;
+  if (height < 155) return "15";
+  if (height < 170) return "17";
+  if (height < 182) return "19";
+  return "21";
+}
+
+// Для дитячих зростів орієнтуємось на діаметр коліс
+export function wheelSizeForHeight(height: number): string | null {
+  if (height < 120) return "16";
+  if (height < 135) return "20";
+  return null;
+}
