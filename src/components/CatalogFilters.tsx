@@ -1,12 +1,22 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback } from "react";
 import { X, SlidersHorizontal, ArrowUpDown } from "lucide-react";
-import { uah } from "@/lib/site";
 import type { Brand, Category } from "@/types";
 
 const WHEELS = ["16", "20", "24", "26", "27.5", "28", "29"];
+
+// Стандартні розміри рам (фолбек, якщо в товарах поле не заповнене) — як на ardis.com.ua
+const DEFAULT_FRAME_SIZES = ["13", "14", "15", "16", "17", "18", "19", "20", "21", "22"];
+
+// Цінові діапазони (швидкі кнопки)
+const PRICE_RANGES = [
+  { key: "0-5000", label: "до 5 000 ₴", min: null, max: "5000" },
+  { key: "5000-10000", label: "5–10 тис. ₴", min: "5000", max: "10000" },
+  { key: "10000-20000", label: "10–20 тис. ₴", min: "10000", max: "20000" },
+  { key: "20000-", label: "понад 20 тис. ₴", min: "20000", max: null },
+];
 
 const SORT_OPTIONS = [
   { value: "new", label: "Спочатку нові" },
@@ -18,13 +28,12 @@ const SORT_OPTIONS = [
 export function CatalogFilters({
   brands,
   categories,
-  priceRange,
   frameSizes,
   hideCategoryFilter = false,
 }: {
   brands: Brand[];
   categories: Category[];
-  priceRange: { min: number; max: number };
+  priceRange?: { min: number; max: number };  // лишено для сумісності, не використовується
   frameSizes: string[];
   hideCategoryFilter?: boolean;
 }) {
@@ -39,18 +48,15 @@ export function CatalogFilters({
     frameSize: params.get("frameSize") ?? "",
     inStock: params.get("inStock") === "1",
     sort: params.get("sort") ?? "new",
-    priceMin: params.get("priceMin") ? Number(params.get("priceMin")) : priceRange.min,
-    priceMax: params.get("priceMax") ? Number(params.get("priceMax")) : priceRange.max,
+    priceMin: params.get("priceMin") ?? "",
+    priceMax: params.get("priceMax") ?? "",
   };
 
-  // Локальний стан повзунка (застосовується кнопкою)
-  const [pMin, setPMin] = useState(current.priceMin);
-  const [pMax, setPMax] = useState(current.priceMax);
-  useEffect(() => {
-    setPMin(current.priceMin);
-    setPMax(current.priceMax);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+  // Яка цінова кнопка зараз активна
+  const activePriceKey =
+    PRICE_RANGES.find(
+      (r) => (r.min ?? "") === current.priceMin && (r.max ?? "") === current.priceMax
+    )?.key ?? "";
 
   const updateParams = useCallback(
     (changes: Record<string, string | null>) => {
@@ -67,21 +73,21 @@ export function CatalogFilters({
   const toggle = (key: string, value: string) =>
     updateParams({ [key]: current[key as keyof typeof current] === value ? null : value });
 
-  const applyPrice = () => {
-    const lo = Math.min(pMin, pMax);
-    const hi = Math.max(pMin, pMax);
-    updateParams({
-      priceMin: lo > priceRange.min ? String(lo) : null,
-      priceMax: hi < priceRange.max ? String(hi) : null,
-    });
+  const selectPrice = (r: (typeof PRICE_RANGES)[number]) => {
+    if (activePriceKey === r.key) {
+      updateParams({ priceMin: null, priceMax: null });
+    } else {
+      updateParams({ priceMin: r.min, priceMax: r.max });
+    }
   };
 
   const clearAll = () => router.push(pathname, { scroll: false });
   const hasFilters =
     current.category || current.brand || current.wheel || current.frameSize ||
-    current.inStock || params.get("priceMin") || params.get("priceMax");
+    current.inStock || current.priceMin || current.priceMax;
 
   const bikeCats = categories.filter((c) => c.group === "velosypedy");
+  const sizes = frameSizes.length > 0 ? frameSizes : DEFAULT_FRAME_SIZES;
 
   return (
     <div className="mb-8 rounded-3xl border border-black/5 bg-white p-5 shadow-sm">
@@ -172,73 +178,57 @@ export function CatalogFilters({
           </div>
         </div>
 
-        {/* Розмір рами */}
-        {frameSizes.length > 0 && (
-          <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Розмір рами</p>
-            <div className="flex flex-wrap gap-1.5">
-              {frameSizes.map((fs) => (
-                <button
-                  key={fs}
-                  onClick={() => toggle("frameSize", fs)}
-                  className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-                    current.frameSize === fs
-                      ? "border-accent bg-accent/5 text-accent-600"
-                      : "border-black/10 text-gray-600 hover:border-accent/40"
-                  }`}
-                >
-                  {fs}"
-                </button>
-              ))}
-            </div>
+        {/* Розмір рами (завжди видимий) */}
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Розмір рами</p>
+          <div className="flex flex-wrap gap-1.5">
+            {sizes.map((fs) => (
+              <button
+                key={fs}
+                onClick={() => toggle("frameSize", fs)}
+                className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                  current.frameSize === fs
+                    ? "border-accent bg-accent/5 text-accent-600"
+                    : "border-black/10 text-gray-600 hover:border-accent/40"
+                }`}
+              >
+                {fs}"
+              </button>
+            ))}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Ціна + наявність */}
-      <div className="mt-5 grid gap-5 border-t border-black/5 pt-5 md:grid-cols-2">
+      <div className="mt-5 flex flex-col gap-4 border-t border-black/5 pt-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Ціна</p>
-            <span className="text-sm font-bold text-ink">{uah(Math.min(pMin, pMax))} — {uah(Math.max(pMin, pMax))}</span>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Ціна</p>
+          <div className="flex flex-wrap gap-1.5">
+            {PRICE_RANGES.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => selectPrice(r)}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  activePriceKey === r.key
+                    ? "border-accent bg-accent/5 text-accent-600"
+                    : "border-black/10 text-gray-600 hover:border-accent/40"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
           </div>
-          <div className="space-y-2">
-            <input
-              type="range"
-              min={priceRange.min}
-              max={priceRange.max}
-              value={pMin}
-              onChange={(e) => setPMin(Number(e.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-accent"
-            />
-            <input
-              type="range"
-              min={priceRange.min}
-              max={priceRange.max}
-              value={pMax}
-              onChange={(e) => setPMax(Number(e.target.value))}
-              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-accent"
-            />
-          </div>
-          <button
-            onClick={applyPrice}
-            className="mt-3 rounded-lg bg-ink px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-accent"
-          >
-            Застосувати ціну
-          </button>
         </div>
 
-        <div className="flex items-end">
-          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-gray-700">
-            <input
-              type="checkbox"
-              checked={current.inStock}
-              onChange={(e) => updateParams({ inStock: e.target.checked ? "1" : null })}
-              className="h-5 w-5 cursor-pointer rounded accent-accent"
-            />
-            Тільки в наявності
-          </label>
-        </div>
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-gray-700">
+          <input
+            type="checkbox"
+            checked={current.inStock}
+            onChange={(e) => updateParams({ inStock: e.target.checked ? "1" : null })}
+            className="h-5 w-5 cursor-pointer rounded accent-accent"
+          />
+          Тільки в наявності
+        </label>
       </div>
     </div>
   );
