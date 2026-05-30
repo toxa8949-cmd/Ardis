@@ -106,3 +106,29 @@ export interface Post {
   created_at: string;
   updated_at: string;
 }
+
+export type OrderStatus = "new" | "processing" | "done" | "canceled";
+
+export interface Order {
+  id: string;
+  customer_name: string;
+  phone: string;
+  city: string | null;
+  delivery: DeliveryMethod;
+  items: OrderItemInput[];
+  total: number;
+  status: OrderStatus;
+  created_at: string;
+}
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  new: "Нове",
+  processing: "В обробці",
+  done: "Виконане",
+  canceled: "Скасоване",
+};
+
+export const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
+  nova_poshta: "Нова Пошта",
+  pickup: "Самовивіз (Київ)",
+};
