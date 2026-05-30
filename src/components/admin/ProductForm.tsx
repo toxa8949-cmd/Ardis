@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Plus, X, Save } from "lucide-react";
 import { createProduct, updateProduct } from "@/lib/admin-actions";
+import { ImageUpload } from "./ImageUpload";
 import type { Product, Brand, Category } from "@/types";
 
-interface ColorRow { name: string; hue: number; hex: string }
+interface ColorRow { name: string; hue: number; hex: string; image_url: string | null }
 interface SpecRow { label: string; value: string }
 
 // Готова палітра кольорів (назва + hex + приблизний hue для SVG)
@@ -50,25 +51,29 @@ export function ProductForm({
       name: c.name,
       hue: c.hue,
       hex: c.hex ?? "#1f2937",
-    })) ?? [{ name: "Чорний", hue: 0, hex: "#1f2937" }]
+      image_url: c.image_url ?? null,
+    })) ?? [{ name: "Чорний", hue: 0, hex: "#1f2937", image_url: null }]
   );
 
   const [specs, setSpecs] = useState<SpecRow[]>(
     product?.specs?.length ? product.specs.map((s) => ({ label: s.label, value: s.value })) : []
   );
 
+  const [mainImage, setMainImage] = useState<string | null>(product?.image_url ?? null);
   const [submitting, setSubmitting] = useState(false);
 
   const bikeCats = categories.filter((c) => c.group === "velosypedy");
   const partCats = categories.filter((c) => c.group !== "velosypedy");
 
   // --- Кольори ---
-  const addColor = () => setColors([...colors, { name: "Чорний", hue: 0, hex: "#1f2937" }]);
+  const addColor = () => setColors([...colors, { name: "Чорний", hue: 0, hex: "#1f2937", image_url: null }]);
   const removeColor = (i: number) => setColors(colors.filter((_, idx) => idx !== i));
   const pickPalette = (i: number, p: typeof PALETTE[number]) =>
-    setColors(colors.map((c, idx) => (idx === i ? { name: p.name, hue: p.hue, hex: p.hex } : c)));
+    setColors(colors.map((c, idx) => (idx === i ? { ...c, name: p.name, hue: p.hue, hex: p.hex } : c)));
   const updateColorName = (i: number, name: string) =>
     setColors(colors.map((c, idx) => (idx === i ? { ...c, name } : c)));
+  const updateColorImage = (i: number, url: string | null) =>
+    setColors(colors.map((c, idx) => (idx === i ? { ...c, image_url: url } : c)));
 
   // --- Характеристики ---
   const addSpec = (label = "") => setSpecs([...specs, { label, value: "" }]);
@@ -80,6 +85,7 @@ export function ProductForm({
     setSubmitting(true);
     formData.set("colors", JSON.stringify(colors.filter((c) => c.name.trim())));
     formData.set("specs", JSON.stringify(specs.filter((s) => s.label.trim() && s.value.trim())));
+    formData.set("image_url", mainImage ?? "");
     if (isEdit) await updateProduct(product!.id, formData);
     else await createProduct(formData);
   };
@@ -255,6 +261,15 @@ export function ProductForm({
         </div>
       </div>
 
+      {/* Головне фото товару */}
+      <div className="rounded-2xl border border-black/5 bg-white p-6">
+        <h2 className="mb-1 font-bold">Головне фото</h2>
+        <p className="mb-4 text-xs text-gray-400">
+          Показується, якщо в обраного кольору немає власного фото. Якщо фото немає взагалі — буде намальований силует.
+        </p>
+        <ImageUpload value={mainImage} onChange={setMainImage} label="Головне фото" />
+      </div>
+
       {/* Кольори — вибір із палітри */}
       <div className="rounded-2xl border border-black/5 bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
@@ -293,6 +308,16 @@ export function ProductForm({
                     style={{ backgroundColor: p.hex }}
                   />
                 ))}
+              </div>
+              <div className="mt-3">
+                <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  Фото цього кольору
+                </p>
+                <ImageUpload
+                  value={c.image_url}
+                  onChange={(url) => updateColorImage(i, url)}
+                  label="Фото кольору"
+                />
               </div>
             </div>
           ))}

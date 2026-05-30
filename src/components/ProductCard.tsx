@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Star, ArrowUpRight } from "lucide-react";
-import { BikeArt } from "./BikeArt";
+import { ProductImage } from "./ProductImage";
 import { AddToCartButton } from "./AddToCartButton";
 import { uah } from "@/lib/site";
 import { BADGE_LABELS, type Product } from "@/types";
@@ -16,14 +16,17 @@ const BADGE_CLASS: Record<string, string> = {
 
 export function ProductCard({ p }: { p: Product }) {
   const [active, setActive] = useState(0);
-  const color = p.colors[active] ?? { hue: 24, name: "" };
+  const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-3xl border border-black/5 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/5">
       <Link href={`/bikes/${p.slug}`} className="relative block overflow-hidden rounded-2xl">
-        <BikeArt
+        <ProductImage
+          imageUrl={color.image_url ?? p.image_url}
           hue={color.hue}
           type={p.type}
+          alt={p.name}
+          sizes="(max-width: 640px) 100vw, 25vw"
           className="h-48 w-full transition-transform duration-500 group-hover:scale-105"
         />
         {p.badge && (

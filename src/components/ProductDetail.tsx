@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Star, ShieldCheck, Truck, Factory } from "lucide-react";
-import { BikeArt } from "./BikeArt";
+import { ProductImage } from "./ProductImage";
 import { AddToCartButton } from "./AddToCartButton";
 import { uah } from "@/lib/site";
 import { BADGE_LABELS, type Product } from "@/types";
@@ -11,7 +11,7 @@ import { BADGE_LABELS, type Product } from "@/types";
 // з єдиним станом кольору. SEO/JSON-LD/breadcrumbs лишаються на сервері (page.tsx).
 export function ProductDetail({ product: p }: { product: Product }) {
   const [active, setActive] = useState(0);
-  const color = p.colors[active] ?? { hue: 24, name: "" };
+  const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
 
   const baseSpecs = [
     { label: "Рама", value: p.frame },
@@ -29,7 +29,15 @@ export function ProductDetail({ product: p }: { product: Product }) {
       {/* Галерея */}
       <div>
         <div className="overflow-hidden rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm">
-          <BikeArt hue={color.hue} type={p.type} className="h-72 w-full sm:h-96" />
+          <ProductImage
+            imageUrl={color.image_url ?? p.image_url}
+            hue={color.hue}
+            type={p.type}
+            alt={`${p.name}${color.name ? ` — ${color.name}` : ""}`}
+            className="h-72 w-full sm:h-96"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
         </div>
         {p.colors.length > 0 && (
           <div className="mt-5">

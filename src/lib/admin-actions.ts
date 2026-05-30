@@ -9,6 +9,7 @@ interface ColorInput {
   name: string;
   hue: number;
   hex: string;
+  image_url: string | null;
 }
 
 interface SpecInput {
@@ -35,6 +36,7 @@ interface ProductFormData {
   brakes: string;
   description: string | null;
   in_stock: boolean;
+  image_url: string | null;
   colors: ColorInput[];
   specs: SpecInput[];
 }
@@ -97,6 +99,7 @@ function parseForm(formData: FormData): ProductFormData {
     brakes: str("brakes"),
     description: strOrNull("description"),
     in_stock: formData.get("in_stock") === "on",
+    image_url: strOrNull("image_url"),
     colors: colors.filter((c) => c.name?.trim()),
     specs: specs.filter((sp) => sp.label?.trim() && sp.value?.trim()),
   };
@@ -116,6 +119,7 @@ async function saveColors(
         name: c.name.trim(),
         hue: Number(c.hue) || 24,
         hex: c.hex || null,
+        image_url: c.image_url || null,
         sort_order: i,
       }))
     );
@@ -155,6 +159,7 @@ export async function createProduct(formData: FormData) {
       drivetrain: d.drivetrain,
       brakes: d.brakes,
       specs: d.specs,
+      image_url: d.image_url,
       description: d.description,
       in_stock: d.in_stock,
     })
@@ -194,6 +199,7 @@ export async function updateProduct(id: string, formData: FormData) {
       drivetrain: d.drivetrain,
       brakes: d.brakes,
       specs: d.specs,
+      image_url: d.image_url,
       description: d.description,
       in_stock: d.in_stock,
     })

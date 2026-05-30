@@ -34,6 +34,7 @@ export interface ProductColor {
   name: string;
   hue: number;
   hex: string | null;
+  image_url: string | null;
   sort_order: number;
 }
 
@@ -59,6 +60,7 @@ export interface Product {
   drivetrain: string;
   brakes: string;
   specs: SpecItem[];
+  image_url: string | null;
   description: string | null;
   rating: number;
   reviews: number;
