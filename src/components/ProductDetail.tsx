@@ -13,6 +13,17 @@ export function ProductDetail({ product: p }: { product: Product }) {
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
 
+  // Нормалізація назв-синонімів, щоб не було дублів (Рама / Матеріал рами тощо)
+  const synonym = (label: string): string => {
+    const l = label.trim().toLowerCase();
+    if (l === "матеріал рами" || l === "рама") return "Рама";
+    if (l === "діаметр коліс" || l === "колеса") return "Колеса";
+    if (l === "гальма" || l === "тип гальма" || l === "тип гальм") return "Гальма";
+    if (l === "трансмісія") return "Трансмісія";
+    if (l === "кількість швидкостей" || l === "швидкості") return "Швидкості";
+    return label.trim();
+  };
+
   const baseSpecs = [
     { label: "Рама", value: p.frame },
     { label: "Колеса", value: p.wheel },
@@ -20,13 +31,22 @@ export function ProductDetail({ product: p }: { product: Product }) {
     { label: "Гальма", value: p.brakes },
     ...(p.speeds ? [{ label: "Швидкості", value: String(p.speeds) }] : []),
   ].filter((s) => s.value);
-  // Додаткові характеристики з адмінки (вилка, обода, вага тощо)
+
+  // Детальні характеристики з адмінки мають пріоритет; базові додаємо лише якщо такого поля нема.
   const extraSpecs = (p.specs ?? []).filter((s) => s.label && s.value);
-  const specs = [...baseSpecs, ...extraSpecs];
+  const seen = new Set<string>();
+  const specs: { label: string; value: string }[] = [];
+  for (const s of [...extraSpecs, ...baseSpecs]) {
+    const key = synonym(s.label).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    specs.push({ label: synonym(s.label), value: s.value });
+  }
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
-      {/* Галерея */}
+    <div className="space-y-10">
+      <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+        {/* Галерея */}
       <div>
         <div className="overflow-hidden rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm">
           <ProductImage
@@ -121,25 +141,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
           />
         </div>
 
-        {/* Специфікації */}
-        <div className="mt-8">
-          <h2 className="mb-3 text-lg font-bold">Характеристики</h2>
-          <dl className="overflow-hidden rounded-2xl border border-black/5">
-            {specs.map((s, i) => (
-              <div
-                key={s.label}
-                className={`flex justify-between gap-4 px-4 py-3 text-sm ${
-                  i % 2 === 0 ? "bg-gray-50" : "bg-white"
-                }`}
-              >
-                <dt className="font-medium text-gray-500">{s.label}</dt>
-                <dd className="text-right font-semibold text-ink">{s.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        {/* Переваги */}
+        {/* Переваги (під кнопкою, заповнює праву колонку) */}
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
             { icon: Factory, t: "Українське виробництво" },
@@ -156,6 +158,27 @@ export function ProductDetail({ product: p }: { product: Product }) {
           ))}
         </div>
       </div>
+      </div>
+
+      {/* Характеристики — на всю ширину */}
+      {specs.length > 0 && (
+        <div>
+          <h2 className="mb-4 text-xl font-bold tracking-tight">Характеристики</h2>
+          <dl className="grid overflow-hidden rounded-2xl border border-black/5 sm:grid-cols-2">
+            {specs.map((s, i) => (
+              <div
+                key={s.label}
+                className={`flex justify-between gap-4 px-4 py-3 text-sm ${
+                  i % 2 === 0 ? "bg-gray-50" : "bg-white"
+                }`}
+              >
+                <dt className="font-medium text-gray-500">{s.label}</dt>
+                <dd className="text-right font-semibold text-ink">{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
     </div>
   );
 }
