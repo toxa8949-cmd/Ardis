@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   ДИЗАЙН-СИСТЕМА ARDIS — індустріальний спорт
+   Charcoal база + помаранчевий акцент. Шрифти: Unbounded (display) / Manrope (body)
+--------------------------------------------------------------------------- */
+@theme {
+  /* Палітра */
+  --color-ink: #0f1115;
+  --color-ink-soft: #1a1d24;
+  --color-ink-line: #2a2e38;
+
+  --color-accent: #f97316;
+  --color-accent-600: #ea580c;
+  --color-accent-300: #fdba74;
+
+  --color-paper: #fafafa;
+  --color-paper-card: #ffffff;
+
+  /* Шрифти (підключаються через next/font у layout як CSS-змінні) */
+  --font-display: var(--font-unbounded), system-ui, sans-serif;
+  --font-body: var(--font-manrope), system-ui, sans-serif;
+
+  /* Радіуси */
+  --radius-card: 1.5rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Кастомний скролбар */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-ink-line); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+/* Анімації */
+@keyframes toastIn {
+  from { transform: translate(-50%, 16px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+@keyframes fadeUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-toast-in { animation: toastIn 0.25s ease-out; }
+.animate-fade-up { animation: fadeUp 0.4s ease-out both; }
