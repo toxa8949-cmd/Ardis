@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseStaticClient } from "@/lib/supabase-static";
 import type { Product } from "@/types";
 
 // Шар доступу до даних. Усі запити до товарів — через ці функції,
@@ -46,9 +47,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   return data ? sortColors(data as Product) : null;
 }
 
-// Усі slug — для generateStaticParams / sitemap
+// Усі slug — для generateStaticParams / sitemap.
+// Використовує статичний клієнт (без cookies), бо викликається на етапі білду,
+// де немає HTTP-запиту.
 export async function getAllProductSlugs(): Promise<string[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase.from("products").select("slug");
   if (error || !data) return [];
   return data.map((r) => r.slug as string);
