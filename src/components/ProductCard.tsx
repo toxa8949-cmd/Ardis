@@ -18,6 +18,19 @@ export function ProductCard({ p }: { p: Product }) {
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
   const isAccessory = p.type === "part";
+  const isElectro = p.category_slug === "elektrovelosipedi";
+
+  // Для електро дістаємо потужність мотора й акумулятор зі specs
+  const specVal = (labels: string[]): string | null => {
+    for (const s of p.specs ?? []) {
+      const l = s.label.trim().toLowerCase();
+      if (labels.some((x) => l.includes(x))) return s.value;
+    }
+    return null;
+  };
+  const motor = isElectro ? specVal(["потужність мотора", "мотор", "потужність"]) : null;
+  const battery = isElectro ? specVal(["акумулятор", "батаре"]) : null;
+  const eRange = isElectro ? specVal(["запас ходу", "пробіг"]) : null;
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-3xl border border-black/5 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/5">
@@ -70,13 +83,22 @@ export function ProductCard({ p }: { p: Product }) {
           </h3>
         </Link>
 
-        {/* Специфікації — лише для велосипедів */}
+        {/* Специфікації — лише для велосипедів/електро */}
         {!isAccessory && (
-          <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px] font-medium text-gray-600">
-            {p.frame && <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.frame}>🧱 {p.frame}</span>}
-            {p.wheel && <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.wheel}>⭕ {p.wheel}</span>}
-            {p.drivetrain && <span className="col-span-2 truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.drivetrain}>⚙️ {p.drivetrain}</span>}
-          </div>
+          isElectro ? (
+            <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px] font-medium text-gray-600">
+              {motor && <span className="truncate rounded-lg bg-accent/10 px-2 py-1.5 font-bold text-accent-600" title={`Потужність мотора: ${motor}`}>⚡ {motor}</span>}
+              {battery && <span className="truncate rounded-lg bg-accent/10 px-2 py-1.5 font-bold text-accent-600" title={`Акумулятор: ${battery}`}>🔋 {battery}</span>}
+              {eRange && <span className="col-span-2 truncate rounded-lg bg-gray-50 px-2 py-1.5" title={`Запас ходу: ${eRange}`}>🛣️ {eRange}</span>}
+              {p.wheel && <span className="col-span-2 truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.wheel}>⭕ Колеса {p.wheel}</span>}
+            </div>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px] font-medium text-gray-600">
+              {p.frame && <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.frame}>🧱 {p.frame}</span>}
+              {p.wheel && <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.wheel}>⭕ {p.wheel}</span>}
+              {p.drivetrain && <span className="col-span-2 truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.drivetrain}>⚙️ {p.drivetrain}</span>}
+            </div>
+          )
         )}
 
         {/* Вибір кольору — лише для велосипедів */}
