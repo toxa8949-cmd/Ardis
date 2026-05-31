@@ -105,7 +105,7 @@ export function ProductDetail({
     <div className="space-y-10">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
         {/* Галерея */}
-      <div>
+      <div className="min-w-0">
         <ProductGallery
           images={galleryImages}
           hue={color.hue}
@@ -143,7 +143,7 @@ export function ProductDetail({
       </div>
 
       {/* Інформація */}
-      <div>
+      <div className="min-w-0">
         {p.badge && (
           <span className="inline-block rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent-600">
             {BADGE_LABELS[p.badge]}
@@ -154,7 +154,7 @@ export function ProductDetail({
             {p.brand.name}
           </span>
         )}
-        <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{p.name}</h1>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight break-words sm:text-4xl">{p.name}</h1>
 
         <div className="mt-3 flex items-center gap-4">
           <span className="inline-flex items-center gap-1 text-sm font-bold text-amber-500">
