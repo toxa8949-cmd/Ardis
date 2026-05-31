@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
-import { Bike, ShoppingCart, ChevronDown, Menu, X } from "lucide-react";
+import { ShoppingCart, ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "./CartProvider";
 import { SearchBar } from "./SearchBar";
 
@@ -60,11 +61,15 @@ export function Header() {
           <Menu size={22} />
         </button>
 
-        <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-accent to-amber-500 text-white shadow-md shadow-accent/20">
-            <Bike size={22} />
-          </span>
-          <span className="text-xl font-bold tracking-tight">Ardis</span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/logo-ardis-black.png"
+            alt="Ardis"
+            width={150}
+            height={44}
+            priority
+            className="h-8 w-auto object-contain sm:h-9"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -177,11 +182,14 @@ export function Header() {
           {/* панель */}
           <div className="absolute left-0 top-0 flex h-full w-[85%] max-w-sm flex-col bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-black/5 px-4 py-3.5">
-              <span className="flex items-center gap-2 font-bold">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent to-amber-500 text-white">
-                  <Bike size={20} />
-                </span>
-                Ardis
+              <span className="flex items-center font-bold">
+                <Image
+                  src="/logo-ardis-black.png"
+                  alt="Ardis"
+                  width={130}
+                  height={38}
+                  className="h-7 w-auto object-contain"
+                />
               </span>
               <button onClick={closeMobile} className="grid h-9 w-9 place-items-center rounded-xl text-gray-500 hover:bg-gray-100" aria-label="Закрити">
                 <X size={20} />

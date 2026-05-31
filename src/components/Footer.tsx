@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Bike, Factory, Phone } from "lucide-react";
+import Image from "next/image";
+import { Factory, Phone } from "lucide-react";
 import { SITE } from "@/lib/site";
 
 export function Footer() {
@@ -8,11 +9,14 @@ export function Footer() {
     <footer className="border-t border-white/5 bg-[#0a0c0f] text-white/60">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-white">
-              <Bike size={18} />
-            </span>
-            <span className="font-bold text-white">{SITE.name}</span>
+          <div className="flex items-center">
+            <Image
+              src="/logo-ardis-black.png"
+              alt={SITE.name}
+              width={130}
+              height={38}
+              className="h-7 w-auto object-contain invert"
+            />
           </div>
           <p className="mt-3 text-sm leading-relaxed">
             Велосипеди українського виробництва. Гірські, міські, дитячі та електровелосипеди.
