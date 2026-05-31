@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Bike, ShoppingCart, ChevronDown } from "lucide-react";
 import { useCart } from "./CartProvider";
+import { SearchBar } from "./SearchBar";
 
 // Категорії велосипедів для випадного меню (відповідають slug у БД)
 const BIKE_CATEGORIES = [
@@ -128,6 +129,10 @@ export function Header() {
             Шоуруми
           </Link>
         </nav>
+
+        <div className="hidden flex-1 px-4 lg:block lg:max-w-xs">
+          <SearchBar />
+        </div>
 
         <button
           onClick={open}

@@ -22,7 +22,8 @@ const SORT_OPTIONS = [
   { value: "new", label: "Спочатку нові" },
   { value: "price_asc", label: "Дешевші спершу" },
   { value: "price_desc", label: "Дорожчі спершу" },
-  { value: "rating", label: "За рейтингом" },
+  { value: "rating", label: "За популярністю" },
+  { value: "sale", label: "Зі знижкою" },
 ];
 
 export function CatalogFilters({
@@ -117,6 +118,40 @@ export function CatalogFilters({
     });
   };
 
+  // Скільки товарів дасть значення (з урахуванням інших активних фільтрів)
+  const countFor = (dim: "brand" | "wheel" | "frameSize", value: string): number => {
+    if (facetData.length === 0) return 0;
+    return facetData.filter((r) => {
+      if (current.category && r.category !== current.category) return false;
+      if (dim !== "brand" && current.brand && r.brand !== current.brand) return false;
+      if (dim !== "wheel" && current.wheel && r.wheel !== current.wheel) return false;
+      if (dim !== "frameSize" && current.frameSize && r.frameSize !== current.frameSize) return false;
+      if (!priceMatch(r.price)) return false;
+      if (dim === "brand") return r.brand === value;
+      if (dim === "wheel") return r.wheel === value;
+      if (dim === "frameSize") return r.frameSize === value;
+      return false;
+    }).length;
+  };
+
+  // Активні фільтри для чіпів
+  const activeChips: { label: string; clear: () => void }[] = [];
+  if (current.category) {
+    const c = categories.find((x) => x.slug === current.category);
+    activeChips.push({ label: c?.name ?? current.category, clear: () => updateParams({ category: null }) });
+  }
+  if (current.brand) {
+    const b = brands.find((x) => x.slug === current.brand);
+    activeChips.push({ label: b?.name ?? current.brand, clear: () => updateParams({ brand: null }) });
+  }
+  if (current.wheel) activeChips.push({ label: `${current.wheel}" колеса`, clear: () => updateParams({ wheel: null }) });
+  if (current.frameSize) activeChips.push({ label: `Рама ${current.frameSize}"`, clear: () => updateParams({ frameSize: null }) });
+  if (current.priceMin || current.priceMax) {
+    const pr = PRICE_RANGES.find((r) => (r.min ?? "") === current.priceMin && (r.max ?? "") === current.priceMax);
+    activeChips.push({ label: pr?.label ?? "Ціна", clear: () => updateParams({ priceMin: null, priceMax: null }) });
+  }
+  if (current.inStock) activeChips.push({ label: "В наявності", clear: () => updateParams({ inStock: null }) });
+
   return (
     <div className="mb-8 rounded-3xl border border-black/5 bg-white p-5 shadow-sm">
       {/* Верхній рядок: заголовок + сортування */}
@@ -148,6 +183,22 @@ export function CatalogFilters({
         </div>
       </div>
 
+      {/* Активні фільтри-чіпи */}
+      {activeChips.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {activeChips.map((chip, i) => (
+            <button
+              key={i}
+              onClick={chip.clear}
+              className="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent-600 transition-colors hover:bg-accent/20"
+            >
+              {chip.label}
+              <X size={12} />
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
         {/* Категорія */}
         {!hideCategoryFilter && (
@@ -172,6 +223,7 @@ export function CatalogFilters({
           <div className="flex flex-wrap gap-1.5">
             {brands.map((b) => {
               const avail = current.brand === b.slug || isAvailable("brand", b.slug);
+              const cnt = countFor("brand", b.slug);
               return (
                 <button
                   key={b.slug}
@@ -185,7 +237,7 @@ export function CatalogFilters({
                       : "border-black/5 text-gray-300 cursor-not-allowed"
                   }`}
                 >
-                  {b.name}
+                  {b.name}{cnt > 0 && <span className="ml-1 text-gray-400">({cnt})</span>}
                 </button>
               );
             })}
@@ -198,6 +250,7 @@ export function CatalogFilters({
           <div className="flex flex-wrap gap-1.5">
             {WHEELS.map((w) => {
               const avail = current.wheel === w || isAvailable("wheel", w);
+              const cnt = countFor("wheel", w);
               return (
                 <button
                   key={w}
@@ -211,7 +264,7 @@ export function CatalogFilters({
                       : "border-black/5 text-gray-300 cursor-not-allowed"
                   }`}
                 >
-                  {w}"
+                  {w}"{cnt > 0 && <span className="ml-1 text-gray-400">({cnt})</span>}
                 </button>
               );
             })}

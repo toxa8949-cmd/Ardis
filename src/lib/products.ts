@@ -27,7 +27,7 @@ function normalize(row: Record<string, unknown>): Product {
 }
 
 // --- Фільтри каталогу ---
-export type SortOption = "new" | "price_asc" | "price_desc" | "rating";
+export type SortOption = "new" | "price_asc" | "price_desc" | "rating" | "sale";
 
 export interface ProductFilters {
   category?: string;   // category_slug
@@ -68,6 +68,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
     case "price_asc": q = q.order("price", { ascending: true }); break;
     case "price_desc": q = q.order("price", { ascending: false }); break;
     case "rating": q = q.order("rating", { ascending: false }); break;
+    case "sale": q = q.order("old_price", { ascending: false, nullsFirst: false }); break;
     default: q = q.order("created_at", { ascending: false });
   }
 
@@ -391,4 +392,20 @@ export async function getProductsAdmin(
   const items = (data as Record<string, unknown>[]).map(normalize);
   const total = count ?? items.length;
   return { items, total, page, perPage, pages: Math.ceil(total / perPage) };
+}
+
+// --- Пошук по сайту (вітрина) ---
+// Шукає за назвою/slug серед усіх товарів. limit — для підказок (autocomplete).
+export async function searchProducts(query: string, limit = 50): Promise<Product[]> {
+  const q = query.trim();
+  if (!q) return [];
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .or(`name.ilike.%${q}%,slug.ilike.%${q}%`)
+    .order("in_stock", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return (data as Record<string, unknown>[]).map(normalize);
 }
