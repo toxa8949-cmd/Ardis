@@ -345,3 +345,50 @@ export async function getProductAccessoryOverrides(
     discount_percent: Number(r.discount_percent) || 0,
   }));
 }
+
+// --- Адмінський список товарів: серверний пошук + фільтри + пагінація ---
+export interface AdminProductQuery {
+  search?: string;       // пошук за назвою / slug / артикулом
+  category?: string;     // category_slug
+  brand?: string;        // brand slug
+  page?: number;         // сторінка (з 1)
+  perPage?: number;      // розмір сторінки
+}
+
+export async function getProductsAdmin(
+  q: AdminProductQuery = {}
+): Promise<{ items: Product[]; total: number; page: number; perPage: number; pages: number }> {
+  const supabase = await createSupabaseServerClient();
+  const page = Math.max(1, q.page ?? 1);
+  const perPage = Math.min(100, Math.max(10, q.perPage ?? 25));
+
+  // brand slug -> id (фільтр за брендом на рівні запиту)
+  let brandId: string | null = null;
+  if (q.brand) {
+    const { data: b } = await supabase.from("brands").select("id").eq("slug", q.brand).maybeSingle();
+    brandId = (b?.id as string) ?? null;
+    if (!brandId) return { items: [], total: 0, page, perPage, pages: 0 };
+  }
+
+  let query = supabase.from("products").select(PRODUCT_SELECT, { count: "exact" });
+
+  if (q.category) query = query.eq("category_slug", q.category);
+  if (brandId) query = query.eq("brand_id", brandId);
+  if (q.search && q.search.trim()) {
+    const s = q.search.trim();
+    // пошук за назвою або slug
+    query = query.or(`name.ilike.%${s}%,slug.ilike.%${s}%`);
+  }
+
+  const from = (page - 1) * perPage;
+  query = query.order("created_at", { ascending: false }).range(from, from + perPage - 1);
+
+  const { data, error, count } = await query;
+  if (error) {
+    console.error("getProductsAdmin:", error.message);
+    return { items: [], total: 0, page, perPage, pages: 0 };
+  }
+  const items = (data as Record<string, unknown>[]).map(normalize);
+  const total = count ?? items.length;
+  return { items, total, page, perPage, pages: Math.ceil(total / perPage) };
+}
