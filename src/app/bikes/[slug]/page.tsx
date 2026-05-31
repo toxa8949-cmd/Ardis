@@ -7,7 +7,6 @@ import { Footer } from "@/components/Footer";
 import { ProductDetail } from "@/components/ProductDetail";
 import { ProductCard } from "@/components/ProductCard";
 import { Markdown } from "@/components/Markdown";
-import { AccessoryCrossSell } from "@/components/AccessoryCrossSell";
 import {
   getProductBySlug, getRelatedProducts, getAllProductSlugs, getCategoryBySlug,
   getAccessoriesForProduct,
@@ -106,14 +105,8 @@ export default async function ProductPage({ params }: Props) {
         </nav>
 
         <div className="mt-8">
-          <ProductDetail product={p} />
+          <ProductDetail product={p} accessories={accessories} />
         </div>
-
-        {accessories.length > 0 && (
-          <section className="mt-8">
-            <AccessoryCrossSell accessories={accessories} />
-          </section>
-        )}
 
         {p.description && p.description.includes("\n") && (
           <section className="mt-12 sm:mt-16">

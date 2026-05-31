@@ -1,15 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Star, ShieldCheck, Truck, Factory } from "lucide-react";
+import Image from "next/image";
+import { Star, ShieldCheck, Truck, Factory, ShoppingCart, Check, Plus, Sparkles } from "lucide-react";
 import { ProductGallery } from "./ProductGallery";
-import { AddToCartButton } from "./AddToCartButton";
+import { useCart } from "./CartProvider";
+import { useToast } from "./ToastProvider";
 import { uah } from "@/lib/site";
-import { BADGE_LABELS, type Product } from "@/types";
+import { BADGE_LABELS, type Product, type AccessoryOffer } from "@/types";
 
 // Інтерактивна частина сторінки товару: галерея + вибір кольору + кнопка
 // з єдиним станом кольору. SEO/JSON-LD/breadcrumbs лишаються на сервері (page.tsx).
-export function ProductDetail({ product: p }: { product: Product }) {
+export function ProductDetail({
+  product: p,
+  accessories = [],
+}: {
+  product: Product;
+  accessories?: AccessoryOffer[];
+}) {
+  const { add, open } = useCart();
+  const toast = useToast();
+  const [selectedAcc, setSelectedAcc] = useState<Set<string>>(new Set());
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
 
@@ -52,6 +63,43 @@ export function ProductDetail({ product: p }: { product: Product }) {
     seen.add(key);
     specs.push({ label: synonym(s.label), value: s.value });
   }
+
+  const toggleAcc = (id: string) =>
+    setSelectedAcc((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const chosenAcc = accessories.filter((a) => selectedAcc.has(a.id));
+
+  // Додає велосипед + усі відмічені аксесуари разом
+  const handleAddToCart = () => {
+    add(p, color.name, color.hue, { silent: true });
+    chosenAcc.forEach((a) => {
+      const accProduct = {
+        id: a.id,
+        slug: a.slug,
+        name: a.name,
+        price: a.price,
+        image_url: a.image_url,
+        images: a.images,
+        type: "part",
+      } as unknown as Product;
+      add(accProduct, "", 0, {
+        unitPrice: a.discounted_price,
+        accessoryDiscount: a.discount_percent,
+        silent: true,
+      });
+    });
+    open();
+    toast(
+      chosenAcc.length > 0
+        ? `«${p.name}» + ${chosenAcc.length} аксес. додано в кошик`
+        : `«${p.name}» додано в кошик`
+    );
+    setSelectedAcc(new Set());
+  };
 
   return (
     <div className="space-y-10">
@@ -137,13 +185,74 @@ export function ProductDetail({ product: p }: { product: Product }) {
           )}
         </div>
 
+        {/* Акційні аксесуари — компактні прямокутнички з галочкою */}
+        {accessories.length > 0 && (
+          <div className="mt-5">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+              <Sparkles size={15} className="text-accent" />
+              Додати зі знижкою
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {accessories.map((a) => {
+                const on = selectedAcc.has(a.id);
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => toggleAcc(a.id)}
+                    className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-all ${
+                      on ? "border-accent bg-accent/[0.04] ring-1 ring-accent/30" : "border-black/10 bg-white hover:border-accent/40"
+                    }`}
+                  >
+                    <span
+                      className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border ${
+                        on ? "border-accent bg-accent text-white" : "border-gray-300"
+                      }`}
+                    >
+                      {on && <Check size={13} />}
+                    </span>
+                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-gray-50">
+                      {a.image_url ? (
+                        <Image src={a.image_url} alt={a.name} fill sizes="36px" className="object-contain p-0.5" />
+                      ) : (
+                        <span className="grid h-full w-full place-items-center text-gray-300">
+                          <Plus size={14} />
+                        </span>
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block max-w-[8.5rem] truncate text-xs font-semibold text-ink">{a.name}</span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-accent">{uah(a.discounted_price)}</span>
+                        {a.discount_percent > 0 && (
+                          <span className="text-[10px] text-gray-400 line-through">{uah(a.price)}</span>
+                        )}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="mt-5 sm:max-w-xs">
-          <AddToCartButton
-            product={p}
-            colorIndex={active}
+          <button
+            type="button"
+            onClick={handleAddToCart}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-ink py-4 text-base font-bold text-white transition-all hover:bg-accent active:scale-[.98]"
-            label="Додати в кошик"
-          />
+          >
+            <ShoppingCart size={18} />
+            {chosenAcc.length > 0 ? `Додати в кошик (${chosenAcc.length + 1})` : "Додати в кошик"}
+          </button>
+          {chosenAcc.length > 0 && (
+            <p className="mt-2 text-center text-xs text-gray-500">
+              Велосипед + {chosenAcc.length} аксес. · економія{" "}
+              <span className="font-bold text-accent">
+                {uah(chosenAcc.reduce((s, a) => s + (a.price - a.discounted_price), 0))}
+              </span>
+            </p>
+          )}
         </div>
 
         {/* Переваги (під кнопкою, заповнює праву колонку) */}
