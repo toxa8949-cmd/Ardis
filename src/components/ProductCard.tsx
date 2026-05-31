@@ -17,6 +17,7 @@ const BADGE_CLASS: Record<string, string> = {
 export function ProductCard({ p }: { p: Product }) {
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
+  const isAccessory = p.type === "part";
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-3xl border border-black/5 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-black/5">
@@ -69,15 +70,17 @@ export function ProductCard({ p }: { p: Product }) {
           </h3>
         </Link>
 
-        {/* Специфікації */}
-        <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px] font-medium text-gray-600">
-          <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.frame}>🧱 {p.frame}</span>
-          <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.wheel}>⭕ {p.wheel}</span>
-          <span className="col-span-2 truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.drivetrain}>⚙️ {p.drivetrain}</span>
-        </div>
+        {/* Специфікації — лише для велосипедів */}
+        {!isAccessory && (
+          <div className="mt-3 grid grid-cols-2 gap-1.5 text-[11px] font-medium text-gray-600">
+            {p.frame && <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.frame}>🧱 {p.frame}</span>}
+            {p.wheel && <span className="truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.wheel}>⭕ {p.wheel}</span>}
+            {p.drivetrain && <span className="col-span-2 truncate rounded-lg bg-gray-50 px-2 py-1.5" title={p.drivetrain}>⚙️ {p.drivetrain}</span>}
+          </div>
+        )}
 
-        {/* Вибір кольору */}
-        {p.colors.length > 1 && (
+        {/* Вибір кольору — лише для велосипедів */}
+        {!isAccessory && p.colors.length > 1 && (
           <div className="mt-4 flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Колір</span>
             <div className="flex gap-1.5">
