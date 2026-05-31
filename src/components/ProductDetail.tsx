@@ -192,7 +192,7 @@ export function ProductDetail({
               <Sparkles size={15} className="text-accent" />
               Додати зі знижкою
             </div>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-2 grid grid-cols-1 gap-2 min-[440px]:grid-cols-2">
               {accessories.map((a) => {
                 const on = selectedAcc.has(a.id);
                 return (
@@ -200,7 +200,7 @@ export function ProductDetail({
                     key={a.id}
                     type="button"
                     onClick={() => toggleAcc(a.id)}
-                    className={`flex items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-all ${
+                    className={`flex w-full items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-all ${
                       on ? "border-accent bg-accent/[0.04] ring-1 ring-accent/30" : "border-black/10 bg-white hover:border-accent/40"
                     }`}
                   >
@@ -220,8 +220,8 @@ export function ProductDetail({
                         </span>
                       )}
                     </span>
-                    <span className="min-w-0">
-                      <span className="block max-w-[8.5rem] truncate text-xs font-semibold text-ink">{a.name}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-semibold text-ink">{a.name}</span>
                       <span className="flex items-center gap-1">
                         <span className="text-xs font-bold text-accent">{uah(a.discounted_price)}</span>
                         {a.discount_percent > 0 && (
