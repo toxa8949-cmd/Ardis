@@ -51,7 +51,7 @@ export function CartSidebar() {
           name: i.product.name,
           color: i.colorName,
           qty: i.qty,
-          price: i.product.price,
+          price: i.unitPrice ?? i.product.price,
         })),
       });
 
@@ -136,6 +136,11 @@ export function CartSidebar() {
                     {it.colorName && (
                       <span className="text-xs text-gray-400">Колір: {it.colorName}</span>
                     )}
+                    {it.accessoryDiscount ? (
+                      <span className="mt-0.5 inline-block w-fit rounded bg-accent/10 px-1.5 py-0.5 text-[11px] font-bold text-accent">
+                        Аксесуар −{it.accessoryDiscount}%
+                      </span>
+                    ) : null}
                     <div className="mt-auto flex items-center justify-between pt-2">
                       <div className="flex items-center rounded-lg border border-black/10 bg-gray-50">
                         <button
@@ -154,7 +159,7 @@ export function CartSidebar() {
                           <Plus size={14} />
                         </button>
                       </div>
-                      <span className="text-sm font-bold">{uah(it.product.price * it.qty)}</span>
+                      <span className="text-sm font-bold">{uah((it.unitPrice ?? it.product.price) * it.qty)}</span>
                     </div>
                   </div>
                 </div>

@@ -10,7 +10,12 @@ interface CartContextValue {
   isOpen: boolean;
   open: () => void;
   close: () => void;
-  add: (product: Product, colorName: string, hue: number) => void;
+  add: (
+    product: Product,
+    colorName: string,
+    hue: number,
+    opts?: { unitPrice?: number; accessoryDiscount?: number; silent?: boolean }
+  ) => void;
   remove: (productId: string, colorName: string) => void;
   setQty: (productId: string, colorName: string, qty: number) => void;
   clear: () => void;
@@ -46,20 +51,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, hydrated]);
 
-  const add = useCallback((product: Product, colorName: string, hue: number) => {
-    setItems((prev) => {
-      const idx = prev.findIndex(
-        (i) => i.product.id === product.id && i.colorName === colorName
-      );
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = { ...next[idx], qty: next[idx].qty + 1 };
-        return next;
-      }
-      return [...prev, { product, colorName, hue, qty: 1 }];
-    });
-    setIsOpen(true);
-  }, []);
+  const add = useCallback(
+    (
+      product: Product,
+      colorName: string,
+      hue: number,
+      opts?: { unitPrice?: number; accessoryDiscount?: number; silent?: boolean }
+    ) => {
+      setItems((prev) => {
+        const idx = prev.findIndex(
+          (i) => i.product.id === product.id && i.colorName === colorName
+        );
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = { ...next[idx], qty: next[idx].qty + 1 };
+          return next;
+        }
+        return [
+          ...prev,
+          {
+            product,
+            colorName,
+            hue,
+            qty: 1,
+            unitPrice: opts?.unitPrice,
+            accessoryDiscount: opts?.accessoryDiscount,
+          },
+        ];
+      });
+      if (!opts?.silent) setIsOpen(true);
+    },
+    []
+  );
 
   const remove = useCallback((productId: string, colorName: string) => {
     setItems((prev) =>
@@ -83,7 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const close = useCallback(() => setIsOpen(false), []);
 
   const count = items.reduce((s, i) => s + i.qty, 0);
-  const total = items.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const total = items.reduce((s, i) => s + (i.unitPrice ?? i.product.price) * i.qty, 0);
 
   return (
     <CartContext.Provider

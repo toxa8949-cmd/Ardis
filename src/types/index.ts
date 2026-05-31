@@ -96,6 +96,9 @@ export interface CartItem {
   colorName: string;
   hue: number;
   qty: number;
+  // Якщо товар доданий як аксесуар зі знижкою при купівлі з велосипедом:
+  unitPrice?: number;       // фактична ціна за одиницю (зі знижкою)
+  accessoryDiscount?: number; // % знижки (для позначки в кошику)
 }
 
 export const BADGE_LABELS: Record<BadgeType, string> = {
@@ -142,3 +145,15 @@ export const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
   nova_poshta: "Нова Пошта",
   pickup: "Самовивіз (Київ)",
 };
+
+// Аксесуар, запропонований до велосипеда (зі знижкою при купівлі разом)
+export interface AccessoryOffer {
+  id: string;              // id товару-аксесуара
+  slug: string;
+  name: string;
+  image_url: string | null;
+  images: string[];
+  price: number;           // звичайна ціна
+  discount_percent: number;
+  discounted_price: number; // ціна зі знижкою (для купівлі з велосипедом)
+}

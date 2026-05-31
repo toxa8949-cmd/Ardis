@@ -7,8 +7,10 @@ import { Footer } from "@/components/Footer";
 import { ProductDetail } from "@/components/ProductDetail";
 import { ProductCard } from "@/components/ProductCard";
 import { Markdown } from "@/components/Markdown";
+import { AccessoryCrossSell } from "@/components/AccessoryCrossSell";
 import {
   getProductBySlug, getRelatedProducts, getAllProductSlugs, getCategoryBySlug,
+  getAccessoriesForProduct,
 } from "@/lib/products";
 import { uah, SITE } from "@/lib/site";
 
@@ -49,6 +51,9 @@ export default async function ProductPage({ params }: Props) {
     getRelatedProducts(p.category_slug, p.slug, 4),
     p.category_slug ? getCategoryBySlug(p.category_slug) : Promise.resolve(null),
   ]);
+
+  // Аксесуари-крос-сел показуємо лише для велосипедів (не для самих аксесуарів)
+  const accessories = p.type === "bike" ? await getAccessoriesForProduct(p.id) : [];
 
   const catName = category?.name ?? "Каталог";
   const catUrl = p.category_slug ? `${SITE.url}/catalog/${p.category_slug}` : `${SITE.url}/catalog`;
@@ -103,6 +108,12 @@ export default async function ProductPage({ params }: Props) {
         <div className="mt-8">
           <ProductDetail product={p} />
         </div>
+
+        {accessories.length > 0 && (
+          <section className="mt-8">
+            <AccessoryCrossSell accessories={accessories} />
+          </section>
+        )}
 
         {p.description && p.description.includes("\n") && (
           <section className="mt-12 sm:mt-16">

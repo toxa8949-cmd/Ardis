@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { createSupabaseStaticClient } from "@/lib/supabase-static";
-import type { Product, Brand, Category } from "@/types";
+import type { Product, Brand, Category, AccessoryOffer } from "@/types";
 
 // Шар доступу до даних. Усі запити — через ці функції.
 
@@ -193,4 +193,52 @@ export async function getProductById(id: string): Promise<Product | null> {
     .maybeSingle();
   if (error || !data) return null;
   return normalize(data as Record<string, unknown>);
+}
+
+// Аксесуари, запропоновані до велосипеда (крос-сел).
+// Гібрид: якщо для товару є перевизначення (product_accessories) — беремо їх;
+// інакше — глобальний набір (accessory_offers). Ціни рахуємо зі знижкою.
+export async function getAccessoriesForProduct(productId: string): Promise<AccessoryOffer[]> {
+  const supabase = await createSupabaseServerClient();
+
+  // 1. перевизначення для товару
+  const { data: override } = await supabase
+    .from("product_accessories")
+    .select("accessory_id, discount_percent, sort_order, accessory:products!product_accessories_accessory_id_fkey ( id, slug, name, image_url, images, price )")
+    .eq("product_id", productId)
+    .order("sort_order");
+
+  let rows = override ?? [];
+
+  // 2. якщо перевизначень нема — глобальний набір
+  if (rows.length === 0) {
+    const { data: global } = await supabase
+      .from("accessory_offers")
+      .select("accessory_id, discount_percent, sort_order, accessory:products!accessory_offers_accessory_id_fkey ( id, slug, name, image_url, images, price )")
+      .eq("active", true)
+      .order("sort_order");
+    rows = global ?? [];
+  }
+
+  const offers: AccessoryOffer[] = [];
+  for (const r of rows as Record<string, unknown>[]) {
+    const a = r.accessory as Record<string, unknown> | null;
+    if (!a || !a.id) continue;
+    // не пропонуємо сам велосипед як аксесуар до себе
+    if (a.id === productId) continue;
+    const price = Number(a.price) || 0;
+    const disc = Number(r.discount_percent) || 0;
+    const discounted = Math.round(price * (1 - disc / 100));
+    offers.push({
+      id: a.id as string,
+      slug: a.slug as string,
+      name: a.name as string,
+      image_url: (a.image_url as string) ?? null,
+      images: Array.isArray(a.images) ? (a.images as string[]) : [],
+      price,
+      discount_percent: disc,
+      discounted_price: discounted,
+    });
+  }
+  return offers;
 }
