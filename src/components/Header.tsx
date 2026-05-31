@@ -19,9 +19,22 @@ const BIKE_CATEGORIES = [
   { slug: "inshi", name: "Інші" },
 ];
 
+const ACCESSORY_CATEGORIES = [
+  { slug: "acc-svitlo", name: "Освітлення" },
+  { slug: "acc-zamky", name: "Замки" },
+  { slug: "acc-kryla", name: "Крила" },
+  { slug: "acc-nasosy", name: "Насоси та ремонт" },
+  { slug: "acc-dzvinky", name: "Дзвінки та сигнали" },
+  { slug: "acc-bagazhnyky", name: "Багажники та корзини" },
+  { slug: "acc-zakhyst", name: "Шоломи та захист" },
+  { slug: "acc-sumky", name: "Сумки" },
+  { slug: "acc-inshe", name: "Інші аксесуари" },
+];
+
 export function Header() {
   const { count, open } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accMenuOpen, setAccMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-paper/80 backdrop-blur-md">
@@ -70,9 +83,41 @@ export function Header() {
             )}
           </div>
 
-          <Link href="/accessories" className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink">
-            Аксесуари
-          </Link>
+          {/* Аксесуари із випадним меню типів */}
+          <div
+            className="relative"
+            onMouseEnter={() => setAccMenuOpen(true)}
+            onMouseLeave={() => setAccMenuOpen(false)}
+          >
+            <Link
+              href="/accessories"
+              className="flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink"
+            >
+              Аксесуари <ChevronDown size={15} />
+            </Link>
+            {accMenuOpen && (
+              <div className="absolute left-0 top-full w-60 pt-2">
+                <div className="rounded-2xl border border-black/5 bg-white p-2 shadow-xl">
+                  <Link
+                    href="/accessories"
+                    className="block rounded-lg px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-accent/10 hover:text-accent-600"
+                  >
+                    Усі аксесуари
+                  </Link>
+                  <div className="my-1 border-t border-black/5" />
+                  {ACCESSORY_CATEGORIES.map((c) => (
+                    <Link
+                      key={c.slug}
+                      href={`/accessories?category=${c.slug}`}
+                      className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-accent/10 hover:text-accent-600"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <Link href="/#calculator" className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink">
             Підбір розміру
           </Link>

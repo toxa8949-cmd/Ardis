@@ -8,7 +8,7 @@ import { Footer } from "@/components/Footer";
 import { SITE } from "@/lib/site";
 
 export default async function HomePage() {
-  const products = await getProducts();
+  const products = await getProducts({ group: "velosypedy" });
   const featured = products.slice(0, 8);
 
   const itemListJsonLd = {

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { CatalogFilters } from "@/components/CatalogFilters";
+import { AccessoryFilters } from "@/components/AccessoryFilters";
 import {
-  getProducts, getBrands, getCategories, getPriceRange, getFrameSizes,
+  getProducts, getBrands, getCategories,
   type SortOption,
 } from "@/lib/products";
 
@@ -25,7 +26,7 @@ type Props = {
 export default async function AccessoriesPage({ searchParams }: Props) {
   const sp = await searchParams;
 
-  const [products, brands, categories, priceRange, frameSizes] = await Promise.all([
+  const [products, brands, categories] = await Promise.all([
     getProducts({
       group: "aksesuary",
       category: sp.category,
@@ -37,8 +38,6 @@ export default async function AccessoriesPage({ searchParams }: Props) {
     }),
     getBrands(),
     getCategories("aksesuary"),
-    getPriceRange(),
-    getFrameSizes(),
   ]);
 
   const activeCat = categories.find((c) => c.slug === sp.category);
@@ -54,13 +53,9 @@ export default async function AccessoriesPage({ searchParams }: Props) {
           <p className="mt-1 text-sm text-gray-500">Знайдено: {products.length}</p>
         </div>
 
-        <CatalogFilters
-          brands={brands}
-          categories={categories}
-          priceRange={priceRange}
-          frameSizes={frameSizes}
-          hideCategoryFilter={categories.length === 0}
-        />
+        <Suspense fallback={<div className="mb-8 h-20" />}>
+          <AccessoryFilters brands={brands} categories={categories} />
+        </Suspense>
 
         {products.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
