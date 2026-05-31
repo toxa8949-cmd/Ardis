@@ -32,9 +32,12 @@ export type SortOption = "new" | "price_asc" | "price_desc" | "rating" | "sale";
 export interface ProductFilters {
   category?: string;   // category_slug
   group?: string;      // група категорії (velosypedy / aksesuary / zapchastyny)
-  brand?: string;      // brand slug
-  wheel?: string;      // wheel_size
-  frameSize?: string;  // frame_size
+  brand?: string;      // brand slug (одиночний, для сумісності)
+  brands?: string[];   // кілька брендів
+  wheel?: string;      // wheel_size (одиночний)
+  wheels?: string[];   // кілька діаметрів
+  frameSize?: string;  // frame_size (одиночний)
+  frameSizes?: string[]; // кілька розмірів рами
   priceMin?: number;
   priceMax?: number;
   inStock?: boolean;
@@ -57,8 +60,10 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
     if (slugs.length > 0) q = q.in("category_slug", slugs);
     else return [];
   }
-  if (filters.wheel) q = q.eq("wheel_size", filters.wheel);
-  if (filters.frameSize) q = q.eq("frame_size", filters.frameSize);
+  const wheels = filters.wheels?.length ? filters.wheels : (filters.wheel ? [filters.wheel] : []);
+  if (wheels.length) q = q.in("wheel_size", wheels);
+  const frameSizes = filters.frameSizes?.length ? filters.frameSizes : (filters.frameSize ? [filters.frameSize] : []);
+  if (frameSizes.length) q = q.in("frame_size", frameSizes);
   if (filters.inStock) q = q.eq("in_stock", true);
   if (typeof filters.priceMin === "number") q = q.gte("price", filters.priceMin);
   if (typeof filters.priceMax === "number") q = q.lte("price", filters.priceMax);
@@ -81,8 +86,9 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
   let result = (data as Record<string, unknown>[]).map(normalize);
 
   // фільтр по бренду (по приєднаному relation)
-  if (filters.brand) {
-    result = result.filter((p) => p.brand?.slug === filters.brand);
+  const brandSlugs = filters.brands?.length ? filters.brands : (filters.brand ? [filters.brand] : []);
+  if (brandSlugs.length) {
+    result = result.filter((p) => p.brand?.slug && brandSlugs.includes(p.brand.slug));
   }
   return result;
 }

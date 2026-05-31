@@ -24,14 +24,15 @@ type Props = {
 
 export default async function BikesPage({ searchParams }: Props) {
   const sp = await searchParams;
+  const csv = (v?: string) => (v ? v.split(",").filter(Boolean) : undefined);
 
   const [products, allBikes, brands, categories, priceRange, frameSizes] = await Promise.all([
     getProducts({
       group: "velosypedy",
       category: sp.category,
-      brand: sp.brand,
-      wheel: sp.wheel,
-      frameSize: sp.frameSize,
+      brands: csv(sp.brand),
+      wheels: csv(sp.wheel),
+      frameSizes: csv(sp.frameSize),
       priceMin: sp.priceMin ? Number(sp.priceMin) : undefined,
       priceMax: sp.priceMax ? Number(sp.priceMax) : undefined,
       inStock: sp.inStock === "1",
