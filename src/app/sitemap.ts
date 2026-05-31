@@ -31,10 +31,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const infoPages: MetadataRoute.Sitemap = [
+    "/about",
+    "/delivery",
+    "/warranty",
+    "/contacts",
+  ].map((path) => ({
+    url: `${SITE.url}${path}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.5,
+  }));
+
   return [
     { url: SITE.url, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     { url: `${SITE.url}/catalog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE.url}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+    ...infoPages,
     ...categoryPages,
     ...postPages,
     ...productPages,
