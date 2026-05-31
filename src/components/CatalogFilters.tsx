@@ -30,12 +30,14 @@ export function CatalogFilters({
   categories,
   frameSizes,
   hideCategoryFilter = false,
+  facetData = [],
 }: {
   brands: Brand[];
   categories: Category[];
   priceRange?: { min: number; max: number };  // лишено для сумісності, не використовується
   frameSizes: string[];
   hideCategoryFilter?: boolean;
+  facetData?: { brand: string | null; wheel: string | null; frameSize: string | null; category: string | null; price: number }[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -88,6 +90,32 @@ export function CatalogFilters({
 
   const bikeCats = categories.filter((c) => c.group === "velosypedy");
   const sizes = frameSizes.length > 0 ? frameSizes : DEFAULT_FRAME_SIZES;
+
+  // --- Крос-фасетна доступність ---
+  // Чи лишаться товари, якщо до решти активних фільтрів додати { dimension: value }.
+  const priceMatch = (price: number) => {
+    const min = current.priceMin ? Number(current.priceMin) : null;
+    const max = current.priceMax ? Number(current.priceMax) : null;
+    if (min != null && price < min) return false;
+    if (max != null && price > max) return false;
+    return true;
+  };
+  const isAvailable = (dim: "brand" | "wheel" | "frameSize" | "category", value: string) => {
+    if (facetData.length === 0) return true; // нема даних — нічого не глушимо
+    return facetData.some((r) => {
+      if (dim !== "category" && current.category && r.category !== current.category) return false;
+      if (dim !== "brand" && current.brand && r.brand !== current.brand) return false;
+      if (dim !== "wheel" && current.wheel && r.wheel !== current.wheel) return false;
+      if (dim !== "frameSize" && current.frameSize && r.frameSize !== current.frameSize) return false;
+      if (!priceMatch(r.price)) return false;
+      // сам перевіряємий вимір:
+      if (dim === "brand") return r.brand === value;
+      if (dim === "wheel") return r.wheel === value;
+      if (dim === "frameSize") return r.frameSize === value;
+      if (dim === "category") return r.category === value;
+      return true;
+    });
+  };
 
   return (
     <div className="mb-8 rounded-3xl border border-black/5 bg-white p-5 shadow-sm">
@@ -142,19 +170,25 @@ export function CatalogFilters({
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Бренд</p>
           <div className="flex flex-wrap gap-1.5">
-            {brands.map((b) => (
-              <button
-                key={b.slug}
-                onClick={() => toggle("brand", b.slug)}
-                className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-                  current.brand === b.slug
-                    ? "border-accent bg-accent/5 text-accent-600"
-                    : "border-black/10 text-gray-600 hover:border-accent/40"
-                }`}
-              >
-                {b.name}
-              </button>
-            ))}
+            {brands.map((b) => {
+              const avail = current.brand === b.slug || isAvailable("brand", b.slug);
+              return (
+                <button
+                  key={b.slug}
+                  onClick={() => avail && toggle("brand", b.slug)}
+                  disabled={!avail}
+                  className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    current.brand === b.slug
+                      ? "border-accent bg-accent/5 text-accent-600"
+                      : avail
+                      ? "border-black/10 text-gray-600 hover:border-accent/40"
+                      : "border-black/5 text-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  {b.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -162,19 +196,25 @@ export function CatalogFilters({
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Діаметр коліс</p>
           <div className="flex flex-wrap gap-1.5">
-            {WHEELS.map((w) => (
-              <button
-                key={w}
-                onClick={() => toggle("wheel", w)}
-                className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-                  current.wheel === w
-                    ? "border-accent bg-accent/5 text-accent-600"
-                    : "border-black/10 text-gray-600 hover:border-accent/40"
-                }`}
-              >
-                {w}"
-              </button>
-            ))}
+            {WHEELS.map((w) => {
+              const avail = current.wheel === w || isAvailable("wheel", w);
+              return (
+                <button
+                  key={w}
+                  onClick={() => avail && toggle("wheel", w)}
+                  disabled={!avail}
+                  className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    current.wheel === w
+                      ? "border-accent bg-accent/5 text-accent-600"
+                      : avail
+                      ? "border-black/10 text-gray-600 hover:border-accent/40"
+                      : "border-black/5 text-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  {w}"
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -182,19 +222,25 @@ export function CatalogFilters({
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Розмір рами</p>
           <div className="flex flex-wrap gap-1.5">
-            {sizes.map((fs) => (
-              <button
-                key={fs}
-                onClick={() => toggle("frameSize", fs)}
-                className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-                  current.frameSize === fs
-                    ? "border-accent bg-accent/5 text-accent-600"
-                    : "border-black/10 text-gray-600 hover:border-accent/40"
-                }`}
-              >
-                {fs}"
-              </button>
-            ))}
+            {sizes.map((fs) => {
+              const avail = current.frameSize === fs || isAvailable("frameSize", fs);
+              return (
+                <button
+                  key={fs}
+                  onClick={() => avail && toggle("frameSize", fs)}
+                  disabled={!avail}
+                  className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    current.frameSize === fs
+                      ? "border-accent bg-accent/5 text-accent-600"
+                      : avail
+                      ? "border-black/10 text-gray-600 hover:border-accent/40"
+                      : "border-black/5 text-gray-300 cursor-not-allowed"
+                  }`}
+                >
+                  {fs}"
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

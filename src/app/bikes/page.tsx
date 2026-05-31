@@ -25,7 +25,7 @@ type Props = {
 export default async function BikesPage({ searchParams }: Props) {
   const sp = await searchParams;
 
-  const [products, brands, categories, priceRange, frameSizes] = await Promise.all([
+  const [products, allBikes, brands, categories, priceRange, frameSizes] = await Promise.all([
     getProducts({
       group: "velosypedy",
       category: sp.category,
@@ -37,11 +37,21 @@ export default async function BikesPage({ searchParams }: Props) {
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
     }),
+    getProducts({ group: "velosypedy" }),
     getBrands(),
     getCategories("velosypedy"),
     getPriceRange(),
     getFrameSizes(),
   ]);
+
+  // Полегшені дані для крос-фасетних фільтрів (підсвічування доступних значень)
+  const facetData = allBikes.map((p) => ({
+    brand: p.brand?.slug ?? null,
+    wheel: p.wheel_size ?? null,
+    frameSize: p.frame_size ?? null,
+    category: p.category_slug ?? null,
+    price: p.price,
+  }));
 
   const activeCat = categories.find((c) => c.slug === sp.category);
   const title = activeCat ? activeCat.name : "Усі велосипеди";
@@ -61,6 +71,7 @@ export default async function BikesPage({ searchParams }: Props) {
           categories={categories}
           priceRange={priceRange}
           frameSizes={frameSizes}
+          facetData={facetData}
         />
 
         {products.length > 0 ? (
