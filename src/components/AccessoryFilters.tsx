@@ -21,9 +21,11 @@ const SORT_OPTIONS = [
 export function AccessoryFilters({
   categories,
   brands,
+  availablePriceKeys,
 }: {
   categories: Category[];
   brands: Brand[];
+  availablePriceKeys?: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -65,6 +67,9 @@ export function AccessoryFilters({
   const hasFilters = current.category || current.brand || current.priceMin || current.priceMax;
 
   const accCats = categories.filter((c) => c.group === "aksesuary");
+  const priceRanges = availablePriceKeys
+    ? PRICE_RANGES.filter((r) => availablePriceKeys.includes(r.key))
+    : PRICE_RANGES;
 
   return (
     <div className="mb-8 rounded-3xl border border-black/5 bg-white p-5 shadow-sm">
@@ -138,24 +143,26 @@ export function AccessoryFilters({
       )}
 
       {/* Ціна */}
-      <div>
-        <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Ціна</span>
-        <div className="flex flex-wrap gap-2">
-          {PRICE_RANGES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => selectPrice(r)}
-              className={`rounded-xl border px-3 py-1.5 text-sm font-semibold transition-all ${
-                activePriceKey === r.key
-                  ? "border-accent bg-accent text-white"
-                  : "border-black/10 bg-white text-gray-600 hover:border-accent/40"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
+      {priceRanges.length > 0 && (
+        <div>
+          <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Ціна</span>
+          <div className="flex flex-wrap gap-2">
+            {priceRanges.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => selectPrice(r)}
+                className={`rounded-xl border px-3 py-1.5 text-sm font-semibold transition-all ${
+                  activePriceKey === r.key
+                    ? "border-accent bg-accent text-white"
+                    : "border-black/10 bg-white text-gray-600 hover:border-accent/40"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

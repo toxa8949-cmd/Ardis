@@ -26,7 +26,7 @@ type Props = {
 export default async function AccessoriesPage({ searchParams }: Props) {
   const sp = await searchParams;
 
-  const [products, brands, categories] = await Promise.all([
+  const [products, allAccessories, brands, categories] = await Promise.all([
     getProducts({
       group: "aksesuary",
       category: sp.category,
@@ -36,9 +36,33 @@ export default async function AccessoriesPage({ searchParams }: Props) {
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
     }),
+    // повний набір аксесуарів — для обчислення доступних фільтрів (фасети)
+    getProducts({ group: "aksesuary" }),
     getBrands(),
     getCategories("aksesuary"),
   ]);
+
+  // Фасети: показуємо лише ті опції, для яких реально є товар
+  const availableCategories = new Set(
+    allAccessories.map((p) => p.category_slug).filter(Boolean) as string[]
+  );
+  const availableBrands = new Set(
+    allAccessories.map((p) => p.brand?.slug).filter(Boolean) as string[]
+  );
+  const PRICE_RANGES = [
+    { key: "lt300", min: 0, max: 300 },
+    { key: "300-700", min: 300, max: 700 },
+    { key: "700-1500", min: 700, max: 1500 },
+    { key: "gt1500", min: 1500, max: Infinity },
+  ];
+  const availablePriceKeys = new Set(
+    PRICE_RANGES.filter((r) =>
+      allAccessories.some((p) => p.price >= r.min && p.price < r.max)
+    ).map((r) => r.key)
+  );
+
+  const filteredCategories = categories.filter((c) => availableCategories.has(c.slug));
+  const filteredBrands = brands.filter((b) => availableBrands.has(b.slug));
 
   const activeCat = categories.find((c) => c.slug === sp.category);
   const title = activeCat ? activeCat.name : "Усі аксесуари";
@@ -54,7 +78,11 @@ export default async function AccessoriesPage({ searchParams }: Props) {
         </div>
 
         <Suspense fallback={<div className="mb-8 h-20" />}>
-          <AccessoryFilters brands={brands} categories={categories} />
+          <AccessoryFilters
+            brands={filteredBrands}
+            categories={filteredCategories}
+            availablePriceKeys={[...availablePriceKeys]}
+          />
         </Suspense>
 
         {products.length > 0 ? (
