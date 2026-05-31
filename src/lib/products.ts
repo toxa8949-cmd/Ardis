@@ -222,7 +222,8 @@ export async function getAccessoriesForProduct(productId: string): Promise<Acces
 
   const offers: AccessoryOffer[] = [];
   for (const r of rows as Record<string, unknown>[]) {
-    const a = r.accessory as Record<string, unknown> | null;
+    const rel = r.accessory as unknown;
+    const a = (Array.isArray(rel) ? rel[0] : rel) as Record<string, unknown> | null;
     if (!a || !a.id) continue;
     // не пропонуємо сам велосипед як аксесуар до себе
     if (a.id === productId) continue;
@@ -241,4 +242,64 @@ export async function getAccessoriesForProduct(productId: string): Promise<Acces
     });
   }
   return offers;
+}
+
+// --- Адмінські хелпери для крос-селу аксесуарів ---
+
+// Усі товари-аксесуари (для вибору в адмінці)
+export async function getAccessoryProducts(): Promise<
+  { id: string; name: string; price: number; image_url: string | null }[]
+> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("products")
+    .select("id, name, price, image_url, category_slug")
+    .or("category_slug.eq.aksesuary,category_slug.eq.zapchastyny")
+    .order("name");
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    name: r.name as string,
+    price: Number(r.price) || 0,
+    image_url: (r.image_url as string) ?? null,
+  }));
+}
+
+// Поточний глобальний набір (accessory_offers) з даними товару
+export async function getAccessoryOffers(): Promise<
+  { id: string; accessory_id: string; name: string; price: number; image_url: string | null; discount_percent: number; active: boolean }[]
+> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("accessory_offers")
+    .select("id, accessory_id, discount_percent, active, sort_order, accessory:products!accessory_offers_accessory_id_fkey ( name, price, image_url )")
+    .order("sort_order");
+  return (data ?? []).map((r) => {
+    const rel = r.accessory as unknown;
+    const a = (Array.isArray(rel) ? rel[0] : rel) as Record<string, unknown> | undefined;
+    return {
+      id: r.id as string,
+      accessory_id: r.accessory_id as string,
+      name: (a?.name as string) ?? "—",
+      price: Number(a?.price) || 0,
+      image_url: (a?.image_url as string) ?? null,
+      discount_percent: Number(r.discount_percent) || 0,
+      active: Boolean(r.active),
+    };
+  });
+}
+
+// Перевизначення для товару (product_accessories)
+export async function getProductAccessoryOverrides(
+  productId: string
+): Promise<{ accessory_id: string; discount_percent: number }[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("product_accessories")
+    .select("accessory_id, discount_percent, sort_order")
+    .eq("product_id", productId)
+    .order("sort_order");
+  return (data ?? []).map((r) => ({
+    accessory_id: r.accessory_id as string,
+    discount_percent: Number(r.discount_percent) || 0,
+  }));
 }
