@@ -53,7 +53,7 @@ export default async function ProductPage({ params }: Props) {
   ]);
 
   // Аксесуари-крос-сел показуємо лише для велосипедів (не для самих аксесуарів)
-  const accessories = p.type === "bike" ? await getAccessoriesForProduct(p.id) : [];
+  const accessories = p.type === "bike" ? await getAccessoriesForProduct(p) : [];
 
   const catName = category?.name ?? "Каталог";
   const catUrl = p.category_slug ? `${SITE.url}/catalog/${p.category_slug}` : `${SITE.url}/catalog`;

@@ -198,35 +198,62 @@ export async function getProductById(id: string): Promise<Product | null> {
 // Аксесуари, запропоновані до велосипеда (крос-сел).
 // Гібрид: якщо для товару є перевизначення (product_accessories) — беремо їх;
 // інакше — глобальний набір (accessory_offers). Ціни рахуємо зі знижкою.
-export async function getAccessoriesForProduct(productId: string): Promise<AccessoryOffer[]> {
+export async function getAccessoriesForProduct(product: Product): Promise<AccessoryOffer[]> {
   const supabase = await createSupabaseServerClient();
+  const productId = product.id;
 
-  // 1. перевизначення для товару
+  // 1. перевизначення для товару (ручне — НЕ фільтруємо за сумісністю)
   const { data: override } = await supabase
     .from("product_accessories")
     .select("accessory_id, discount_percent, sort_order, accessory:products!product_accessories_accessory_id_fkey ( id, slug, name, image_url, images, price )")
     .eq("product_id", productId)
     .order("sort_order");
 
-  let rows = override ?? [];
-
-  // 2. якщо перевизначень нема — глобальний набір
-  if (rows.length === 0) {
-    const { data: global } = await supabase
-      .from("accessory_offers")
-      .select("accessory_id, discount_percent, sort_order, accessory:products!accessory_offers_accessory_id_fkey ( id, slug, name, image_url, images, price )")
-      .eq("active", true)
-      .order("sort_order");
-    rows = global ?? [];
+  if (override && override.length > 0) {
+    return buildOffers(override as Record<string, unknown>[], productId);
   }
 
+  // 2. глобальний набір — з правилами сумісності
+  const { data: global } = await supabase
+    .from("accessory_offers")
+    .select("accessory_id, discount_percent, sort_order, wheel_min, wheel_max, exclude_electro, exclude_kids, in_stock_only, accessory:products!accessory_offers_accessory_id_fkey ( id, slug, name, image_url, images, price, in_stock )")
+    .eq("active", true)
+    .order("sort_order");
+
+  // дані велосипеда для перевірки сумісності
+  const wheel = parseFloat(String(product.wheel_size ?? product.wheel ?? "").replace(",", "."));
+  const isElectro = product.category_slug === "elektrovelosipedi";
+  const isKid = product.rider === "child";
+
+  const compatible = (global ?? []).filter((r) => {
+    const rec = r as Record<string, unknown>;
+    if (rec.exclude_electro && isElectro) return false;
+    if (rec.exclude_kids && isKid) return false;
+    if (Number.isFinite(wheel)) {
+      const wmin = rec.wheel_min == null ? null : Number(rec.wheel_min);
+      const wmax = rec.wheel_max == null ? null : Number(rec.wheel_max);
+      if (wmin != null && wheel < wmin) return false;
+      if (wmax != null && wheel > wmax) return false;
+    }
+    if (rec.in_stock_only) {
+      const rel = rec.accessory as unknown;
+      const a = (Array.isArray(rel) ? rel[0] : rel) as Record<string, unknown> | null;
+      if (a && a.in_stock === false) return false;
+    }
+    return true;
+  });
+
+  return buildOffers(compatible as Record<string, unknown>[], productId);
+}
+
+// Перетворює рядки пропозицій у AccessoryOffer[]
+function buildOffers(rows: Record<string, unknown>[], productId: string): AccessoryOffer[] {
   const offers: AccessoryOffer[] = [];
-  for (const r of rows as Record<string, unknown>[]) {
+  for (const r of rows) {
     const rel = r.accessory as unknown;
     const a = (Array.isArray(rel) ? rel[0] : rel) as Record<string, unknown> | null;
     if (!a || !a.id) continue;
-    // не пропонуємо сам велосипед як аксесуар до себе
-    if (a.id === productId) continue;
+    if (a.id === productId) continue; // не пропонуємо сам товар
     const price = Number(a.price) || 0;
     const disc = Number(r.discount_percent) || 0;
     const discounted = Math.round(price * (1 - disc / 100));
@@ -266,12 +293,12 @@ export async function getAccessoryProducts(): Promise<
 
 // Поточний глобальний набір (accessory_offers) з даними товару
 export async function getAccessoryOffers(): Promise<
-  { id: string; accessory_id: string; name: string; price: number; image_url: string | null; discount_percent: number; active: boolean }[]
+  { id: string; accessory_id: string; name: string; price: number; image_url: string | null; discount_percent: number; active: boolean; wheel_min: number | null; wheel_max: number | null; exclude_electro: boolean; exclude_kids: boolean; in_stock_only: boolean }[]
 > {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("accessory_offers")
-    .select("id, accessory_id, discount_percent, active, sort_order, accessory:products!accessory_offers_accessory_id_fkey ( name, price, image_url )")
+    .select("id, accessory_id, discount_percent, active, sort_order, wheel_min, wheel_max, exclude_electro, exclude_kids, in_stock_only, accessory:products!accessory_offers_accessory_id_fkey ( name, price, image_url )")
     .order("sort_order");
   return (data ?? []).map((r) => {
     const rel = r.accessory as unknown;
@@ -284,6 +311,11 @@ export async function getAccessoryOffers(): Promise<
       image_url: (a?.image_url as string) ?? null,
       discount_percent: Number(r.discount_percent) || 0,
       active: Boolean(r.active),
+      wheel_min: r.wheel_min == null ? null : Number(r.wheel_min),
+      wheel_max: r.wheel_max == null ? null : Number(r.wheel_max),
+      exclude_electro: Boolean(r.exclude_electro),
+      exclude_kids: Boolean(r.exclude_kids),
+      in_stock_only: Boolean(r.in_stock_only),
     };
   });
 }

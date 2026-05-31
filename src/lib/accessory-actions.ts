@@ -23,11 +23,30 @@ export async function addAccessoryOffer(accessoryId: string, discount: number) {
   revalidatePath("/catalog");
 }
 
-export async function updateAccessoryOffer(id: string, discount: number, active: boolean) {
+export async function updateAccessoryOffer(
+  id: string,
+  data: {
+    discount: number;
+    active: boolean;
+    wheel_min: number | null;
+    wheel_max: number | null;
+    exclude_electro: boolean;
+    exclude_kids: boolean;
+    in_stock_only: boolean;
+  }
+) {
   const supabase = await requireAuth();
   const { error } = await supabase
     .from("accessory_offers")
-    .update({ discount_percent: clampDiscount(discount), active })
+    .update({
+      discount_percent: clampDiscount(data.discount),
+      active: data.active,
+      wheel_min: data.wheel_min,
+      wheel_max: data.wheel_max,
+      exclude_electro: data.exclude_electro,
+      exclude_kids: data.exclude_kids,
+      in_stock_only: data.in_stock_only,
+    })
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/accessories");
