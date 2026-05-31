@@ -19,7 +19,10 @@ const nextConfig: NextConfig = {
   },
   // Канонічний домен без www — узгоджено з SEO-налаштуваннями
   async redirects() {
-    return [];
+    return [
+      { source: "/catalog", destination: "/bikes", permanent: true },
+      { source: "/catalog/:category", destination: "/bikes?category=:category", permanent: true },
+    ];
   },
 };
 

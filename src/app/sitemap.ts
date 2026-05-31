@@ -18,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const categoryPages: MetadataRoute.Sitemap = catSlugs.map((slug) => ({
-    url: `${SITE.url}/catalog/${slug}`,
+    url: `${SITE.url}/bikes?category=${slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.7,
@@ -45,7 +45,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: SITE.url, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-    { url: `${SITE.url}/catalog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE.url}/bikes`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE.url}/accessories`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE.url}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     ...infoPages,
     ...categoryPages,

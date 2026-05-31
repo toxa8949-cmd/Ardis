@@ -22,7 +22,7 @@ export function CategoryShowcase({ featured }: { featured: Product[] }) {
           <h2 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Обери свій велосипед</h2>
         </div>
         <Link
-          href="/catalog"
+          href="/bikes"
           className="inline-flex items-center gap-2 rounded-2xl bg-ink px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-accent"
         >
           Усі велосипеди <ArrowRight size={17} />
@@ -34,7 +34,7 @@ export function CategoryShowcase({ featured }: { featured: Product[] }) {
         {CAT_CARDS.map((c) => (
           <Link
             key={c.slug}
-            href={`/catalog/${c.slug}`}
+            href={`/bikes?category=${c.slug}`}
             className="group flex flex-col gap-2 rounded-2xl border border-black/5 bg-white p-5 transition-all hover:-translate-y-1 hover:border-accent/30 hover:shadow-lg"
           >
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-accent/10 text-accent-600 transition-colors group-hover:bg-accent group-hover:text-white">

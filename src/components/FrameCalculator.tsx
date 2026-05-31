@@ -14,10 +14,10 @@ export function FrameCalculator() {
   const frameSize = frameSizeValueForHeight(height);
   const wheelSize = wheelSizeForHeight(height);
   const catalogHref = frameSize
-    ? `/catalog?frameSize=${frameSize}`
+    ? `/bikes?frameSize=${frameSize}`
     : wheelSize
-    ? `/catalog?wheel=${wheelSize}`
-    : "/catalog";
+    ? `/bikes?wheel=${wheelSize}`
+    : "/bikes";
 
   return (
     <section id="calculator" className="mx-auto max-w-4xl px-4 py-16">

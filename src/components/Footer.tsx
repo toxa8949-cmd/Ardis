@@ -22,7 +22,8 @@ export function Footer() {
         <div>
           <h3 className="text-sm font-bold text-white">Магазин</h3>
           <ul className="mt-3 space-y-2 text-sm">
-            <li><Link href="/catalog" className="hover:text-white">Каталог</Link></li>
+            <li><Link href="/bikes" className="hover:text-white">Велосипеди</Link></li>
+            <li><Link href="/accessories" className="hover:text-white">Аксесуари</Link></li>
             <li><Link href="/blog" className="hover:text-white">Блог</Link></li>
             <li><Link href="/#showrooms" className="hover:text-white">Шоуруми</Link></li>
           </ul>

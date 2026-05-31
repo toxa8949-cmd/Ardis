@@ -31,6 +31,7 @@ export type SortOption = "new" | "price_asc" | "price_desc" | "rating";
 
 export interface ProductFilters {
   category?: string;   // category_slug
+  group?: string;      // група категорії (velosypedy / aksesuary / zapchastyny)
   brand?: string;      // brand slug
   wheel?: string;      // wheel_size
   frameSize?: string;  // frame_size
@@ -46,6 +47,16 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
   let q = supabase.from("products").select(PRODUCT_SELECT);
 
   if (filters.category) q = q.eq("category_slug", filters.category);
+  // Фільтр за групою категорії: беремо slug-и категорій цієї групи
+  if (filters.group && !filters.category) {
+    const { data: cats } = await supabase
+      .from("categories")
+      .select("slug")
+      .eq("group", filters.group);
+    const slugs = (cats ?? []).map((c) => c.slug as string);
+    if (slugs.length > 0) q = q.in("category_slug", slugs);
+    else return [];
+  }
   if (filters.wheel) q = q.eq("wheel_size", filters.wheel);
   if (filters.frameSize) q = q.eq("frame_size", filters.frameSize);
   if (filters.inStock) q = q.eq("in_stock", true);
@@ -154,12 +165,11 @@ export async function getBrands(): Promise<Brand[]> {
   return data as Brand[];
 }
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(group?: string): Promise<Category[]> {
   const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .order("sort_order");
+  let q = supabase.from("categories").select("*").order("sort_order");
+  if (group) q = q.eq("group", group);
+  const { data, error } = await q;
   if (error || !data) return [];
   return (data as Category[]);
 }

@@ -34,25 +34,32 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {/* Каталог із випадним меню */}
+          {/* Велосипеди із випадним меню підкатегорій */}
           <div
             className="relative"
             onMouseEnter={() => setMenuOpen(true)}
             onMouseLeave={() => setMenuOpen(false)}
           >
             <Link
-              href="/catalog"
+              href="/bikes"
               className="flex items-center gap-1 rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink"
             >
-              Каталог <ChevronDown size={15} />
+              Велосипеди <ChevronDown size={15} />
             </Link>
             {menuOpen && (
               <div className="absolute left-0 top-full w-60 pt-2">
                 <div className="rounded-2xl border border-black/5 bg-white p-2 shadow-xl">
+                  <Link
+                    href="/bikes"
+                    className="block rounded-lg px-3 py-2 text-sm font-bold text-ink transition-colors hover:bg-accent/10 hover:text-accent-600"
+                  >
+                    Усі велосипеди
+                  </Link>
+                  <div className="my-1 border-t border-black/5" />
                   {BIKE_CATEGORIES.map((c) => (
                     <Link
                       key={c.slug}
-                      href={`/catalog/${c.slug}`}
+                      href={`/bikes?category=${c.slug}`}
                       className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-accent/10 hover:text-accent-600"
                     >
                       {c.name}
@@ -63,6 +70,9 @@ export function Header() {
             )}
           </div>
 
+          <Link href="/accessories" className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink">
+            Аксесуари
+          </Link>
           <Link href="/#calculator" className="rounded-xl px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-ink">
             Підбір розміру
           </Link>

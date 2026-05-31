@@ -48,7 +48,7 @@ export function Hero() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href="/catalog"
+              href="/bikes"
               className="rounded-2xl bg-accent px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-accent/25 transition-all hover:bg-accent-600 active:scale-95"
             >
               Каталог 2026
