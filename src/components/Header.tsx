@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Bike, ShoppingCart, ChevronDown } from "lucide-react";
+import { Bike, ShoppingCart, ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "./CartProvider";
 import { SearchBar } from "./SearchBar";
 
@@ -36,10 +36,29 @@ export function Header() {
   const { count, open } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [accMenuOpen, setAccMenuOpen] = useState(false);
+  // мобільне меню
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mBikes, setMBikes] = useState(false);
+  const [mAcc, setMAcc] = useState(false);
+
+  const closeMobile = () => {
+    setMobileOpen(false);
+    setMBikes(false);
+    setMAcc(false);
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-paper/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5">
+        {/* Бургер (мобільний) */}
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="grid h-10 w-10 place-items-center rounded-xl text-ink hover:bg-gray-100 md:hidden"
+          aria-label="Меню"
+        >
+          <Menu size={22} />
+        </button>
+
         <Link href="/" className="flex items-center gap-2">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-accent to-amber-500 text-white shadow-md shadow-accent/20">
             <Bike size={22} />
@@ -136,7 +155,7 @@ export function Header() {
 
         <button
           onClick={open}
-          className="relative flex items-center gap-2 rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent"
+          className="relative flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent sm:px-5"
         >
           <ShoppingCart size={18} />
           <span className="hidden sm:inline">Кошик</span>
@@ -147,6 +166,100 @@ export function Header() {
           )}
         </button>
       </div>
+
+      {/* МОБІЛЬНЕ МЕНЮ */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* затемнення */}
+          <div className="absolute inset-0 bg-black/40" onClick={closeMobile} />
+          {/* панель */}
+          <div className="absolute left-0 top-0 flex h-full w-[85%] max-w-sm flex-col bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-black/5 px-4 py-3.5">
+              <span className="flex items-center gap-2 font-bold">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent to-amber-500 text-white">
+                  <Bike size={20} />
+                </span>
+                Ardis
+              </span>
+              <button onClick={closeMobile} className="grid h-9 w-9 place-items-center rounded-xl text-gray-500 hover:bg-gray-100" aria-label="Закрити">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="border-b border-black/5 p-4">
+              <SearchBar compact />
+            </div>
+
+            <nav className="flex-1 overflow-y-auto p-2">
+              {/* Велосипеди (аккордеон) */}
+              <button
+                onClick={() => setMBikes((v) => !v)}
+                className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-base font-bold text-ink hover:bg-gray-50"
+              >
+                Велосипеди
+                <ChevronDown size={18} className={`transition-transform ${mBikes ? "rotate-180" : ""}`} />
+              </button>
+              {mBikes && (
+                <div className="mb-1 ml-2 border-l border-black/5 pl-2">
+                  <Link href="/bikes" onClick={closeMobile} className="block rounded-lg px-3 py-2 text-sm font-semibold text-accent-600 hover:bg-accent/5">
+                    Усі велосипеди
+                  </Link>
+                  {BIKE_CATEGORIES.map((c) => (
+                    <Link key={c.slug} href={`/bikes?category=${c.slug}`} onClick={closeMobile} className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-accent/5 hover:text-accent-600">
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Аксесуари (аккордеон) */}
+              <button
+                onClick={() => setMAcc((v) => !v)}
+                className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-base font-bold text-ink hover:bg-gray-50"
+              >
+                Аксесуари
+                <ChevronDown size={18} className={`transition-transform ${mAcc ? "rotate-180" : ""}`} />
+              </button>
+              {mAcc && (
+                <div className="mb-1 ml-2 border-l border-black/5 pl-2">
+                  <Link href="/accessories" onClick={closeMobile} className="block rounded-lg px-3 py-2 text-sm font-semibold text-accent-600 hover:bg-accent/5">
+                    Усі аксесуари
+                  </Link>
+                  {ACCESSORY_CATEGORIES.map((c) => (
+                    <Link key={c.slug} href={`/accessories?category=${c.slug}`} onClick={closeMobile} className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-accent/5 hover:text-accent-600">
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              <Link href="/#calculator" onClick={closeMobile} className="block rounded-xl px-3 py-3 text-base font-bold text-ink hover:bg-gray-50">
+                Підбір розміру
+              </Link>
+              <Link href="/blog" onClick={closeMobile} className="block rounded-xl px-3 py-3 text-base font-bold text-ink hover:bg-gray-50">
+                Блог
+              </Link>
+              <Link href="/#showrooms" onClick={closeMobile} className="block rounded-xl px-3 py-3 text-base font-bold text-ink hover:bg-gray-50">
+                Шоуруми
+              </Link>
+
+              <div className="my-2 border-t border-black/5" />
+              <Link href="/delivery" onClick={closeMobile} className="block rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                Оплата та доставка
+              </Link>
+              <Link href="/warranty" onClick={closeMobile} className="block rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                Гарантія
+              </Link>
+              <Link href="/about" onClick={closeMobile} className="block rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                Про нас
+              </Link>
+              <Link href="/contacts" onClick={closeMobile} className="block rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
+                Контакти
+              </Link>
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
