@@ -48,6 +48,7 @@ export function Header() {
   };
 
   return (
+    <>
     <header className="sticky top-0 z-40 border-b border-black/5 bg-paper/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5">
         {/* Бургер (мобільний) */}
@@ -166,10 +167,11 @@ export function Header() {
           )}
         </button>
       </div>
+    </header>
 
       {/* МОБІЛЬНЕ МЕНЮ */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div className="fixed inset-0 z-[60] md:hidden">
           {/* затемнення */}
           <div className="absolute inset-0 bg-black/40" onClick={closeMobile} />
           {/* панель */}
@@ -260,6 +262,6 @@ export function Header() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
