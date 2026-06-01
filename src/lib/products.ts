@@ -380,11 +380,24 @@ export async function getAccessoryProducts(): Promise<
   { id: string; name: string; price: number; image_url: string | null }[]
 > {
   const supabase = await createSupabaseServerClient();
-  const { data } = await supabase
+  // усі категорії групи "аксесуари" + запчастини
+  const { data: cats } = await supabase
+    .from("categories")
+    .select("slug")
+    .in("group", ["aksesuary", "zapchastyny"]);
+  const slugs = (cats ?? []).map((c) => c.slug as string);
+  // беремо товари цих категорій АБО будь-який type='part'
+  let query = supabase
     .from("products")
-    .select("id, name, price, image_url, category_slug")
-    .or("category_slug.eq.aksesuary,category_slug.eq.zapchastyny")
+    .select("id, name, price, image_url, category_slug, type")
     .order("name");
+  if (slugs.length > 0) {
+    const inList = slugs.map((s) => `category_slug.eq.${s}`).join(",");
+    query = query.or(`type.eq.part,${inList}`);
+  } else {
+    query = query.eq("type", "part");
+  }
+  const { data } = await query;
   return (data ?? []).map((r) => ({
     id: r.id as string,
     name: r.name as string,
