@@ -18,6 +18,8 @@ export function AdminProductFilters({
 
   const category = params.get("category") ?? "";
   const brand = params.get("brand") ?? "";
+  const stock = params.get("stock") ?? "";
+  const sort = params.get("sort") ?? "";
 
   // дебаунс пошуку
   useEffect(() => {
@@ -47,7 +49,7 @@ export function AdminProductFilters({
     router.replace("/admin/products", { scroll: false });
   };
 
-  const hasFilters = search || category || brand;
+  const hasFilters = search || category || brand || stock || sort;
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -81,6 +83,27 @@ export function AdminProductFilters({
         {brands.map((b) => (
           <option key={b.slug} value={b.slug}>{b.name}</option>
         ))}
+      </select>
+
+      <select
+        value={stock}
+        onChange={(e) => setParam("stock", e.target.value)}
+        className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm"
+      >
+        <option value="">Будь-яка наявність</option>
+        <option value="in">● В наявності</option>
+        <option value="out">Немає</option>
+      </select>
+
+      <select
+        value={sort}
+        onChange={(e) => setParam("sort", e.target.value)}
+        className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm"
+      >
+        <option value="">Спочатку нові</option>
+        <option value="price_asc">Ціна ↑</option>
+        <option value="price_desc">Ціна ↓</option>
+        <option value="name">За назвою</option>
       </select>
 
       {hasFilters && (

@@ -18,6 +18,9 @@ export interface DashboardStats {
   revenue: number;          // сума виконаних замовлень
   revenueAll: number;       // сума всіх (крім скасованих)
   productsCount: number;
+  bikesCount: number;
+  accessoriesCount: number;
+  outOfStockCount: number;
   postsCount: number;
   topProducts: { name: string; qty: number }[];
 }
@@ -25,10 +28,13 @@ export interface DashboardStats {
 export async function getDashboardStats(): Promise<DashboardStats> {
   const supabase = await createSupabaseServerClient();
 
-  const [ordersRes, productsRes, postsRes] = await Promise.all([
+  const [ordersRes, productsRes, postsRes, bikesRes, accRes, outRes] = await Promise.all([
     supabase.from("orders").select("status, total, items"),
     supabase.from("products").select("*", { count: "exact", head: true }),
     supabase.from("posts").select("*", { count: "exact", head: true }),
+    supabase.from("products").select("*", { count: "exact", head: true }).eq("type", "bike"),
+    supabase.from("products").select("*", { count: "exact", head: true }).eq("type", "part"),
+    supabase.from("products").select("*", { count: "exact", head: true }).eq("in_stock", false),
   ]);
 
   const orders = (ordersRes.data ?? []) as {
@@ -64,6 +70,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     revenue,
     revenueAll,
     productsCount: productsRes.count ?? 0,
+    bikesCount: bikesRes.count ?? 0,
+    accessoriesCount: accRes.count ?? 0,
+    outOfStockCount: outRes.count ?? 0,
     postsCount: postsRes.count ?? 0,
     topProducts,
   };

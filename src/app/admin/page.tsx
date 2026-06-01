@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Package, ShoppingBag, FileText, TrendingUp, Clock, ArrowRight } from "lucide-react";
+import { Package, ShoppingBag, FileText, TrendingUp, Clock, ArrowRight, Bike, Wrench, AlertTriangle } from "lucide-react";
 import { getDashboardStats } from "@/lib/orders";
 import { uah } from "@/lib/site";
 
@@ -14,6 +14,9 @@ export default async function AdminDashboard() {
     { label: "Нові замовлення", value: String(stats.ordersNew), icon: Clock, href: "/admin/orders" },
     { label: "Замовлень усього", value: String(stats.ordersTotal), icon: ShoppingBag, href: "/admin/orders" },
     { label: "Товарів у каталозі", value: String(stats.productsCount), icon: Package, href: "/admin/products" },
+    { label: "Велосипедів", value: String(stats.bikesCount), icon: Bike, href: "/admin/products?category=" },
+    { label: "Аксесуарів", value: String(stats.accessoriesCount), icon: Wrench, href: "/admin/products" },
+    { label: "Немає в наявності", value: String(stats.outOfStockCount), icon: AlertTriangle, href: "/admin/products?stock=out", warn: stats.outOfStockCount > 0 },
     { label: "Статей у блозі", value: String(stats.postsCount), icon: FileText, href: "/admin/blog" },
   ];
 
@@ -29,11 +32,11 @@ export default async function AdminDashboard() {
             key={c.label}
             href={c.href}
             className={`group rounded-3xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg ${
-              c.accent ? "border-accent/20 bg-accent/5" : "border-black/5 bg-white"
+              c.accent ? "border-accent/20 bg-accent/5" : c.warn ? "border-amber-300/40 bg-amber-50" : "border-black/5 bg-white"
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className={`grid h-11 w-11 place-items-center rounded-xl ${c.accent ? "bg-accent text-white" : "bg-accent/10 text-accent-600"}`}>
+              <span className={`grid h-11 w-11 place-items-center rounded-xl ${c.accent ? "bg-accent text-white" : c.warn ? "bg-amber-500 text-white" : "bg-accent/10 text-accent-600"}`}>
                 <c.icon size={22} />
               </span>
               <ArrowRight size={18} className="text-gray-300 transition-colors group-hover:text-accent" />

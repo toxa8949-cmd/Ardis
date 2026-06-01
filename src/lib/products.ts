@@ -456,6 +456,8 @@ export interface AdminProductQuery {
   search?: string;       // пошук за назвою / slug / артикулом
   category?: string;     // category_slug
   brand?: string;        // brand slug
+  stock?: "in" | "out";  // фільтр наявності
+  sort?: "new" | "price_asc" | "price_desc" | "name";  // сортування
   page?: number;         // сторінка (з 1)
   perPage?: number;      // розмір сторінки
 }
@@ -479,6 +481,8 @@ export async function getProductsAdmin(
 
   if (q.category) query = query.eq("category_slug", q.category);
   if (brandId) query = query.eq("brand_id", brandId);
+  if (q.stock === "in") query = query.eq("in_stock", true);
+  if (q.stock === "out") query = query.eq("in_stock", false);
   if (q.search && q.search.trim()) {
     const s = q.search.trim();
     // пошук за назвою або slug
@@ -486,7 +490,13 @@ export async function getProductsAdmin(
   }
 
   const from = (page - 1) * perPage;
-  query = query.order("created_at", { ascending: false }).range(from, from + perPage - 1);
+  switch (q.sort) {
+    case "price_asc": query = query.order("price", { ascending: true }); break;
+    case "price_desc": query = query.order("price", { ascending: false }); break;
+    case "name": query = query.order("name", { ascending: true }); break;
+    default: query = query.order("created_at", { ascending: false });
+  }
+  query = query.range(from, from + perPage - 1);
 
   const { data, error, count } = await query;
   if (error) {

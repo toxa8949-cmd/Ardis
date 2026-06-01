@@ -221,3 +221,43 @@ export async function deleteProduct(id: string) {
   revalidatePath("/admin/products");
   revalidatePath("/catalog");
 }
+
+// Швидке оновлення наявності одного товару (без відкриття форми)
+export async function setProductStock(id: string, inStock: boolean) {
+  const supabase = await requireAuth();
+  const { error } = await supabase.from("products").update({ in_stock: inStock }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/products");
+  revalidatePath("/catalog");
+}
+
+// Швидке оновлення ціни одного товару
+export async function setProductPrice(id: string, price: number) {
+  const supabase = await requireAuth();
+  const safe = Math.max(0, Math.round(Number(price) || 0));
+  const { error } = await supabase.from("products").update({ price: safe }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/products");
+  revalidatePath("/catalog");
+}
+
+// Масові дії над набором товарів
+export async function bulkProductAction(
+  ids: string[],
+  action: "in_stock" | "out_of_stock" | "delete"
+) {
+  const supabase = await requireAuth();
+  if (ids.length === 0) return;
+  if (action === "delete") {
+    const { error } = await supabase.from("products").delete().in("id", ids);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
+      .from("products")
+      .update({ in_stock: action === "in_stock" })
+      .in("id", ids);
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath("/admin/products");
+  revalidatePath("/catalog");
+}
