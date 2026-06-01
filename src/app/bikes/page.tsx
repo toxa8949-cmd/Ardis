@@ -3,8 +3,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
+import { Pagination } from "@/components/Pagination";
 import {
-  getProducts, getBrands, getCategories, getPriceRange, getFrameSizes,
+  getProducts, getProductsPaged, getBrands, getCategories, getPriceRange, getFrameSizes,
   type SortOption,
 } from "@/lib/products";
 
@@ -18,16 +19,17 @@ export const metadata: Metadata = {
 type Props = {
   searchParams: Promise<{
     category?: string; brand?: string; wheel?: string; frameSize?: string;
-    priceMin?: string; priceMax?: string; inStock?: string; sort?: string;
+    priceMin?: string; priceMax?: string; inStock?: string; sort?: string; page?: string;
   }>;
 };
 
 export default async function BikesPage({ searchParams }: Props) {
   const sp = await searchParams;
   const csv = (v?: string) => (v ? v.split(",").filter(Boolean) : undefined);
+  const pageNum = sp.page ? Math.max(1, Number(sp.page)) : 1;
 
-  const [products, allBikes, brands, categories, priceRange, frameSizes] = await Promise.all([
-    getProducts({
+  const [paged, allBikes, brands, categories, priceRange, frameSizes] = await Promise.all([
+    getProductsPaged({
       group: "velosypedy",
       category: sp.category,
       brands: csv(sp.brand),
@@ -37,13 +39,14 @@ export default async function BikesPage({ searchParams }: Props) {
       priceMax: sp.priceMax ? Number(sp.priceMax) : undefined,
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
-    }),
+    }, pageNum, 24),
     getProducts({ group: "velosypedy" }),
     getBrands(),
     getCategories("velosypedy"),
     getPriceRange(),
     getFrameSizes(),
   ]);
+  const products = paged.items;
 
   // Полегшені дані для крос-фасетних фільтрів (підсвічування доступних значень)
   const facetData = allBikes.map((p) => ({
@@ -64,7 +67,7 @@ export default async function BikesPage({ searchParams }: Props) {
         <div className="mb-6">
           <span className="text-sm font-bold uppercase tracking-widest text-accent">Велосипеди</span>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-          <p className="mt-1 text-sm text-gray-500">Знайдено: {products.length}</p>
+          <p className="mt-1 text-sm text-gray-500">Знайдено: {paged.total}</p>
         </div>
 
         <CatalogFilters
@@ -87,6 +90,8 @@ export default async function BikesPage({ searchParams }: Props) {
             <p className="mt-1 text-sm text-gray-400">Спробуйте змінити параметри</p>
           </div>
         )}
+
+        <Pagination page={paged.page} pages={paged.pages} />
       </main>
       <Footer />
     </>

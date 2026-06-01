@@ -4,8 +4,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { AccessoryFilters } from "@/components/AccessoryFilters";
+import { Pagination } from "@/components/Pagination";
 import {
-  getProducts, getBrands, getCategories,
+  getProducts, getProductsPaged, getBrands, getCategories,
   type SortOption,
 } from "@/lib/products";
 
@@ -19,15 +20,16 @@ export const metadata: Metadata = {
 type Props = {
   searchParams: Promise<{
     category?: string; brand?: string;
-    priceMin?: string; priceMax?: string; inStock?: string; sort?: string;
+    priceMin?: string; priceMax?: string; inStock?: string; sort?: string; page?: string;
   }>;
 };
 
 export default async function AccessoriesPage({ searchParams }: Props) {
   const sp = await searchParams;
+  const pageNum = sp.page ? Math.max(1, Number(sp.page)) : 1;
 
-  const [products, allAccessories, brands, categories] = await Promise.all([
-    getProducts({
+  const [paged, allAccessories, brands, categories] = await Promise.all([
+    getProductsPaged({
       group: "aksesuary",
       category: sp.category,
       brand: sp.brand,
@@ -35,12 +37,13 @@ export default async function AccessoriesPage({ searchParams }: Props) {
       priceMax: sp.priceMax ? Number(sp.priceMax) : undefined,
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
-    }),
+    }, pageNum, 24),
     // повний набір аксесуарів — для обчислення доступних фільтрів (фасети)
     getProducts({ group: "aksesuary" }),
     getBrands(),
     getCategories("aksesuary"),
   ]);
+  const products = paged.items;
 
   // Фасети: показуємо лише ті опції, для яких реально є товар
   const availableCategories = new Set(
@@ -74,7 +77,7 @@ export default async function AccessoriesPage({ searchParams }: Props) {
         <div className="mb-6">
           <span className="text-sm font-bold uppercase tracking-widest text-accent">Аксесуари</span>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-          <p className="mt-1 text-sm text-gray-500">Знайдено: {products.length}</p>
+          <p className="mt-1 text-sm text-gray-500">Знайдено: {paged.total}</p>
         </div>
 
         <Suspense fallback={<div className="mb-8 h-20" />}>
@@ -97,6 +100,10 @@ export default async function AccessoriesPage({ searchParams }: Props) {
             <p className="mt-1 text-sm text-gray-400">Незабаром тут зʼявляться товари</p>
           </div>
         )}
+
+        <Suspense fallback={null}>
+          <Pagination page={paged.page} pages={paged.pages} />
+        </Suspense>
       </main>
       <Footer />
     </>

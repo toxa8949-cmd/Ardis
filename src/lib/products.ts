@@ -93,6 +93,21 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
   return result;
 }
 
+// Пагінована вибірка для каталогів з великою кількістю товарів (напр. аксесуари).
+// Застосовує всі ті самі фільтри, потім ріже на сторінки на сервері.
+export async function getProductsPaged(
+  filters: ProductFilters = {},
+  page = 1,
+  perPage = 24
+): Promise<{ items: Product[]; total: number; page: number; perPage: number; pages: number }> {
+  const all = await getProducts(filters);
+  const total = all.length;
+  const pages = Math.max(1, Math.ceil(total / perPage));
+  const p = Math.min(Math.max(1, page), pages);
+  const from = (p - 1) * perPage;
+  return { items: all.slice(from, from + perPage), total, page: p, perPage, pages };
+}
+
 // Ціновий діапазон усього каталогу — для меж повзунка
 export async function getPriceRange(): Promise<{ min: number; max: number }> {
   const supabase = await createSupabaseServerClient();
