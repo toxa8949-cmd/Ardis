@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
         hostname: "velokrai.com.ua",
         pathname: "/image/**",
       },
+      // Фото аксесуарів з veloportal
+      {
+        protocol: "https",
+        hostname: "b2b.veloportal.com.ua",
+        pathname: "/uploads/**",
+      },
     ],
   },
   // Канонічний домен без www — узгоджено з SEO-налаштуваннями
