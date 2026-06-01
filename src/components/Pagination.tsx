@@ -1,24 +1,31 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTransition, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Pagination({ page, pages }: { page: number; pages: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const [target, setTarget] = useState<number | null>(null);
 
   if (pages <= 1) return null;
 
   const go = (p: number) => {
+    if (p === page) return;
+    setTarget(p);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     const next = new URLSearchParams(params.toString());
     if (p <= 1) next.delete("page");
     else next.set("page", String(p));
     const qs = next.toString();
-    router.push(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: true });
+    startTransition(() => {
+      router.push(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+    });
   };
 
-  // які номери показати: 1 … навколо поточної … остання
   const nums: (number | "...")[] = [];
   const add = (n: number) => { if (!nums.includes(n) && n >= 1 && n <= pages) nums.push(n); };
   add(1); add(2);
@@ -33,11 +40,15 @@ export function Pagination({ page, pages }: { page: number; pages: number }) {
     prev = n as number;
   }
 
+  const Spinner = () => (
+    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+  );
+
   return (
-    <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+    <div className={`mt-10 flex flex-wrap items-center justify-center gap-2 transition-opacity ${isPending ? "opacity-60" : ""}`}>
       <button
         onClick={() => go(page - 1)}
-        disabled={page <= 1}
+        disabled={page <= 1 || isPending}
         className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 text-gray-600 transition-colors hover:border-accent/40 disabled:opacity-30"
         aria-label="Попередня сторінка"
       >
@@ -51,20 +62,21 @@ export function Pagination({ page, pages }: { page: number; pages: number }) {
           <button
             key={n}
             onClick={() => go(n as number)}
+            disabled={isPending}
             className={`grid h-10 min-w-10 place-items-center rounded-xl border px-3 text-sm font-semibold transition-colors ${
               n === page
                 ? "border-accent bg-accent text-white"
                 : "border-black/10 text-gray-600 hover:border-accent/40"
             }`}
           >
-            {n}
+            {isPending && target === n ? <Spinner /> : n}
           </button>
         )
       )}
 
       <button
         onClick={() => go(page + 1)}
-        disabled={page >= pages}
+        disabled={page >= pages || isPending}
         className="grid h-10 w-10 place-items-center rounded-xl border border-black/10 text-gray-600 transition-colors hover:border-accent/40 disabled:opacity-30"
         aria-label="Наступна сторінка"
       >
