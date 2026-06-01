@@ -6,7 +6,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { AccessoryFilters } from "@/components/AccessoryFilters";
 import { Pagination } from "@/components/Pagination";
 import {
-  getProducts, getProductsPaged, getBrands, getCategories,
+  getProductsPaged, getFacetData, getBrands, getCategories,
   type SortOption,
 } from "@/lib/products";
 
@@ -28,7 +28,7 @@ export default async function AccessoriesPage({ searchParams }: Props) {
   const sp = await searchParams;
   const pageNum = sp.page ? Math.max(1, Number(sp.page)) : 1;
 
-  const [paged, allAccessories, brands, categories] = await Promise.all([
+  const [paged, facets, brands, categories] = await Promise.all([
     getProductsPaged({
       group: "aksesuary",
       category: sp.category,
@@ -38,8 +38,8 @@ export default async function AccessoriesPage({ searchParams }: Props) {
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
     }, pageNum, 24),
-    // повний набір аксесуарів — для обчислення доступних фільтрів (фасети)
-    getProducts({ group: "aksesuary" }),
+    // легкі дані лише для фільтрів (без важких полів)
+    getFacetData("aksesuary"),
     getBrands(),
     getCategories("aksesuary"),
   ]);
@@ -47,10 +47,10 @@ export default async function AccessoriesPage({ searchParams }: Props) {
 
   // Фасети: показуємо лише ті опції, для яких реально є товар
   const availableCategories = new Set(
-    allAccessories.map((p) => p.category_slug).filter(Boolean) as string[]
+    facets.map((p) => p.category_slug).filter(Boolean) as string[]
   );
   const availableBrands = new Set(
-    allAccessories.map((p) => p.brand?.slug).filter(Boolean) as string[]
+    facets.map((p) => p.brand).filter(Boolean) as string[]
   );
   const PRICE_RANGES = [
     { key: "lt300", min: 0, max: 300 },
@@ -60,7 +60,7 @@ export default async function AccessoriesPage({ searchParams }: Props) {
   ];
   const availablePriceKeys = new Set(
     PRICE_RANGES.filter((r) =>
-      allAccessories.some((p) => p.price >= r.min && p.price < r.max)
+      facets.some((p) => p.price >= r.min && p.price < r.max)
     ).map((r) => r.key)
   );
 

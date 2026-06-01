@@ -5,7 +5,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { Pagination } from "@/components/Pagination";
 import {
-  getProducts, getProductsPaged, getBrands, getCategories, getPriceRange, getFrameSizes,
+  getProductsPaged, getFacetData, getBrands, getCategories, getPriceRange, getFrameSizes,
   type SortOption,
 } from "@/lib/products";
 
@@ -40,7 +40,7 @@ export default async function BikesPage({ searchParams }: Props) {
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
     }, pageNum, 24),
-    getProducts({ group: "velosypedy" }),
+    getFacetData("velosypedy"),
     getBrands(),
     getCategories("velosypedy"),
     getPriceRange(),
@@ -48,13 +48,13 @@ export default async function BikesPage({ searchParams }: Props) {
   ]);
   const products = paged.items;
 
-  // Полегшені дані для крос-фасетних фільтрів (підсвічування доступних значень)
-  const facetData = allBikes.map((p) => ({
-    brand: p.brand?.slug ?? null,
-    wheel: p.wheel_size ?? null,
-    frameSize: p.frame_size ?? null,
-    category: p.category_slug ?? null,
-    price: p.price,
+  // Полегшені дані для крос-фасетних фільтрів (мапимо у форму CatalogFilters)
+  const facetData = allBikes.map((r) => ({
+    brand: r.brand,
+    wheel: r.wheel,
+    frameSize: r.frameSize,
+    category: r.category_slug,
+    price: r.price,
   }));
 
   const activeCat = categories.find((c) => c.slug === sp.category);

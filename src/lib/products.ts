@@ -95,17 +95,87 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
 
 // Пагінована вибірка для каталогів з великою кількістю товарів (напр. аксесуари).
 // Застосовує всі ті самі фільтри, потім ріже на сторінки на сервері.
+// Легка вибірка лише для побудови фільтрів (фасетів): без важких полів
+// (images/specs/description). Повертає мінімум для підрахунку доступних опцій.
+export async function getFacetData(
+  group: string
+): Promise<{ category_slug: string | null; price: number; brand: string | null; wheel: string | null; frameSize: string | null }[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data: cats } = await supabase.from("categories").select("slug").eq("group", group);
+  const slugs = (cats ?? []).map((c) => c.slug as string);
+  if (slugs.length === 0) return [];
+  const { data, error } = await supabase
+    .from("products")
+    .select("category_slug, price, wheel_size, frame_size, brand:brands(slug)")
+    .in("category_slug", slugs);
+  if (error || !data) return [];
+  return (data as Record<string, unknown>[]).map((r) => {
+    const b = r.brand as unknown;
+    const brand = Array.isArray(b) ? (b[0] as { slug?: string })?.slug ?? null : (b as { slug?: string })?.slug ?? null;
+    return {
+      category_slug: (r.category_slug as string) ?? null,
+      price: (r.price as number) ?? 0,
+      brand,
+      wheel: (r.wheel_size as string) ?? null,
+      frameSize: (r.frame_size as string) ?? null,
+    };
+  });
+}
+
 export async function getProductsPaged(
   filters: ProductFilters = {},
   page = 1,
   perPage = 24
 ): Promise<{ items: Product[]; total: number; page: number; perPage: number; pages: number }> {
-  const all = await getProducts(filters);
-  const total = all.length;
-  const pages = Math.max(1, Math.ceil(total / perPage));
-  const p = Math.min(Math.max(1, page), pages);
-  const from = (p - 1) * perPage;
-  return { items: all.slice(from, from + perPage), total, page: p, perPage, pages };
+  const supabase = await createSupabaseServerClient();
+
+  // brand тут фільтруємо на рівні brand_id, тож спершу резолвимо slug -> id
+  const brandSlugs = filters.brands?.length ? filters.brands : (filters.brand ? [filters.brand] : []);
+  let brandIds: string[] = [];
+  if (brandSlugs.length) {
+    const { data: bs } = await supabase.from("brands").select("id, slug").in("slug", brandSlugs);
+    brandIds = (bs ?? []).map((b) => b.id as string);
+    if (brandIds.length === 0) return { items: [], total: 0, page, perPage, pages: 0 };
+  }
+
+  let q = supabase.from("products").select(PRODUCT_SELECT, { count: "exact" });
+
+  if (filters.category) q = q.eq("category_slug", filters.category);
+  if (filters.group && !filters.category) {
+    const { data: cats } = await supabase.from("categories").select("slug").eq("group", filters.group);
+    const slugs = (cats ?? []).map((c) => c.slug as string);
+    if (slugs.length === 0) return { items: [], total: 0, page, perPage, pages: 0 };
+    q = q.in("category_slug", slugs);
+  }
+  if (brandIds.length) q = q.in("brand_id", brandIds);
+  const wheels = filters.wheels?.length ? filters.wheels : (filters.wheel ? [filters.wheel] : []);
+  if (wheels.length) q = q.in("wheel_size", wheels);
+  const frameSizes = filters.frameSizes?.length ? filters.frameSizes : (filters.frameSize ? [filters.frameSize] : []);
+  if (frameSizes.length) q = q.in("frame_size", frameSizes);
+  if (filters.inStock) q = q.eq("in_stock", true);
+  if (typeof filters.priceMin === "number") q = q.gte("price", filters.priceMin);
+  if (typeof filters.priceMax === "number") q = q.lte("price", filters.priceMax);
+
+  switch (filters.sort) {
+    case "price_asc": q = q.order("price", { ascending: true }); break;
+    case "price_desc": q = q.order("price", { ascending: false }); break;
+    case "rating": q = q.order("rating", { ascending: false }); break;
+    case "sale": q = q.order("old_price", { ascending: false, nullsFirst: false }); break;
+    default: q = q.order("created_at", { ascending: false });
+  }
+
+  const pageSafe = Math.max(1, page);
+  const from = (pageSafe - 1) * perPage;
+  q = q.range(from, from + perPage - 1);
+
+  const { data, error, count } = await q;
+  if (error) {
+    console.error("getProductsPaged:", error.message);
+    return { items: [], total: 0, page: pageSafe, perPage, pages: 0 };
+  }
+  const total = count ?? 0;
+  const items = (data as Record<string, unknown>[]).map(normalize);
+  return { items, total, page: pageSafe, perPage, pages: Math.max(1, Math.ceil(total / perPage)) };
 }
 
 // Ціновий діапазон усього каталогу — для меж повзунка
