@@ -18,6 +18,7 @@ export function ProductAccessoryEditor({
 }) {
   const [pending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+  const [search, setSearch] = useState("");
   // map accessory_id -> discount (присутність = обрано)
   const [chosen, setChosen] = useState<Map<string, number>>(
     new Map(initial.map((i) => [i.accessory_id, i.discount_percent]))
@@ -57,6 +58,13 @@ export function ProductAccessoryEditor({
       setSaved(true);
     });
 
+  // обрані — завжди показуємо; решта — за пошуком (до 30)
+  const q = search.trim().toLowerCase();
+  const chosenProducts = products.filter((p) => chosen.has(p.id));
+  const rest = products.filter((p) => !chosen.has(p.id));
+  const matches = q.length === 0 ? [] : rest.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 30);
+  const visible = [...chosenProducts, ...matches];
+
   return (
     <div className="rounded-2xl border border-black/5 bg-white p-5">
       <div className="flex items-center gap-2">
@@ -67,8 +75,21 @@ export function ProductAccessoryEditor({
         Якщо нічого не обрано — показується глобальний набір. Якщо обрати — для цього товару діятиме власний список.
       </p>
 
-      <div className="mt-4 max-h-80 space-y-2 overflow-y-auto pr-1">
-        {products.map((p) => {
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder={`Пошук аксесуара серед ${products.length}…`}
+        className="mt-4 w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm"
+      />
+
+      <div className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1">
+        {visible.length === 0 && (
+          <p className="py-4 text-center text-sm text-gray-400">
+            {q.length === 0 ? "Почніть вводити назву, щоб знайти аксесуар" : `Нічого не знайдено за «${search}»`}
+          </p>
+        )}
+        {visible.map((p) => {
           const active = chosen.has(p.id);
           const disc = chosen.get(p.id) ?? 10;
           return (
@@ -107,6 +128,9 @@ export function ProductAccessoryEditor({
             </div>
           );
         })}
+        {q.length > 0 && matches.length === 30 && (
+          <p className="py-1 text-center text-xs text-gray-400">Показано перші 30 — уточніть пошук</p>
+        )}
       </div>
 
       <div className="mt-4 flex items-center gap-3">
