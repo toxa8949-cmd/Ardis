@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         hostname: "ardis.com.ua",
         pathname: "/upload/**",
       },
+      // Фото товарів з фіду velokrai.com.ua
+      {
+        protocol: "https",
+        hostname: "velokrai.com.ua",
+        pathname: "/image/**",
+      },
     ],
   },
   // Канонічний домен без www — узгоджено з SEO-налаштуваннями
