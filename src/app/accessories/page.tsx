@@ -54,6 +54,12 @@ export default async function AccessoriesPage({ searchParams }: Props) {
     price: p.price,
   }));
 
+  // у фільтрах показуємо лише бренди й категорії, для яких реально є товари
+  const presentBrands = new Set(facets.map((p) => p.brand).filter(Boolean) as string[]);
+  const presentCats = new Set(facets.map((p) => p.category_slug).filter(Boolean) as string[]);
+  const filteredBrands = brands.filter((b) => presentBrands.has(b.slug));
+  const filteredCategories = categories.filter((c) => presentCats.has(c.slug));
+
   const activeCat = categories.find((c) => c.slug === sp.category);
   const title = activeCat ? activeCat.name : "Усі аксесуари";
 
@@ -69,8 +75,8 @@ export default async function AccessoriesPage({ searchParams }: Props) {
 
         <Suspense fallback={<div className="mb-8 h-20" />}>
           <CatalogFilters
-            brands={brands}
-            categories={categories}
+            brands={filteredBrands}
+            categories={filteredCategories}
             frameSizes={[]}
             hideBikeFilters
             facetData={facetData}
