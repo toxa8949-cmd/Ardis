@@ -22,15 +22,16 @@ export function ProductDetail({
   const toast = useToast();
   const [selectedAcc, setSelectedAcc] = useState<Set<string>>(new Set());
   const [active, setActive] = useState(0);
-  const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null };
+  const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null, images: [] };
 
-  // Фото для галереї: пріоритет — фото обраного кольору, далі масив images, далі головне фото.
+  // Фото для галереї: пріоритет — галерея обраного кольору, далі його головне фото, далі загальний масив.
   const galleryImages: string[] = (() => {
+    const colorImgs = (color as { images?: string[] }).images;
+    if (Array.isArray(colorImgs) && colorImgs.length) return [...new Set(colorImgs)];
     const list: string[] = [];
     if (color.image_url) list.push(color.image_url);
     if (p.images && p.images.length) list.push(...p.images);
     else if (p.image_url) list.push(p.image_url);
-    // прибираємо дублі, зберігаючи порядок
     return [...new Set(list)];
   })();
 

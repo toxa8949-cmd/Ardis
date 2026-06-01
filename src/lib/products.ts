@@ -8,7 +8,7 @@ const PRODUCT_SELECT = `
   id, slug, name, category, category_slug, brand_id, rider, type, price, old_price, badge,
   min_height, max_height, frame, wheel, wheel_size, frame_size, speeds, drivetrain, brakes,
   specs, image_url, images, description, rating, reviews, in_stock, created_at,
-  colors:product_colors ( id, product_id, name, hue, hex, image_url, sort_order ),
+  colors:product_colors ( id, product_id, name, hue, hex, image_url, images, sort_order ),
   brand:brands ( id, slug, name, is_own, sort_order )
 `;
 

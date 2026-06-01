@@ -35,6 +35,7 @@ export interface ProductColor {
   hue: number;
   hex: string | null;
   image_url: string | null;
+  images: string[];
   sort_order: number;
 }
 
