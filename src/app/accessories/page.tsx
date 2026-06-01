@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
-import { AccessoryFilters } from "@/components/AccessoryFilters";
+import { CatalogFilters } from "@/components/CatalogFilters";
 import { Pagination } from "@/components/Pagination";
 import {
   getProductsPaged, getFacetData, getBrands, getCategories,
@@ -45,27 +45,14 @@ export default async function AccessoriesPage({ searchParams }: Props) {
   ]);
   const products = paged.items;
 
-  // Фасети: показуємо лише ті опції, для яких реально є товар
-  const availableCategories = new Set(
-    facets.map((p) => p.category_slug).filter(Boolean) as string[]
-  );
-  const availableBrands = new Set(
-    facets.map((p) => p.brand).filter(Boolean) as string[]
-  );
-  const PRICE_RANGES = [
-    { key: "lt300", min: 0, max: 300 },
-    { key: "300-700", min: 300, max: 700 },
-    { key: "700-1500", min: 700, max: 1500 },
-    { key: "gt1500", min: 1500, max: Infinity },
-  ];
-  const availablePriceKeys = new Set(
-    PRICE_RANGES.filter((r) =>
-      facets.some((p) => p.price >= r.min && p.price < r.max)
-    ).map((r) => r.key)
-  );
-
-  const filteredCategories = categories.filter((c) => availableCategories.has(c.slug));
-  const filteredBrands = brands.filter((b) => availableBrands.has(b.slug));
+  // facetData для CatalogFilters (рахує доступність і лічильники штук)
+  const facetData = facets.map((p) => ({
+    brand: p.brand,
+    wheel: null,
+    frameSize: null,
+    category: p.category_slug,
+    price: p.price,
+  }));
 
   const activeCat = categories.find((c) => c.slug === sp.category);
   const title = activeCat ? activeCat.name : "Усі аксесуари";
@@ -81,10 +68,12 @@ export default async function AccessoriesPage({ searchParams }: Props) {
         </div>
 
         <Suspense fallback={<div className="mb-8 h-20" />}>
-          <AccessoryFilters
-            brands={filteredBrands}
-            categories={filteredCategories}
-            availablePriceKeys={[...availablePriceKeys]}
+          <CatalogFilters
+            brands={brands}
+            categories={categories}
+            frameSizes={[]}
+            hideBikeFilters
+            facetData={facetData}
           />
         </Suspense>
 

@@ -8,11 +8,17 @@ import type { Brand, Category } from "@/types";
 const WHEELS = ["16", "20", "24", "26", "27.5", "28", "29"];
 const DEFAULT_FRAME_SIZES = ["13", "14", "15", "16", "17", "18", "19", "20", "21", "22"];
 
-const PRICE_RANGES = [
+const PRICE_RANGES_BIKES = [
   { key: "0-5000", label: "до 5 000 ₴", min: null as string | null, max: "5000" as string | null },
   { key: "5000-10000", label: "5–10 тис. ₴", min: "5000", max: "10000" },
   { key: "10000-20000", label: "10–20 тис. ₴", min: "10000", max: "20000" },
   { key: "20000-", label: "понад 20 тис. ₴", min: "20000", max: null },
+];
+const PRICE_RANGES_ACC = [
+  { key: "0-300", label: "до 300 ₴", min: null as string | null, max: "300" as string | null },
+  { key: "300-700", label: "300–700 ₴", min: "300", max: "700" },
+  { key: "700-1500", label: "700–1500 ₴", min: "700", max: "1500" },
+  { key: "1500-", label: "понад 1500 ₴", min: "1500", max: null },
 ];
 
 const SORT_OPTIONS = [
@@ -30,6 +36,7 @@ export function CatalogFilters({
   categories,
   frameSizes,
   hideCategoryFilter = false,
+  hideBikeFilters = false,
   facetData = [],
 }: {
   brands: Brand[];
@@ -37,8 +44,10 @@ export function CatalogFilters({
   priceRange?: { min: number; max: number };
   frameSizes: string[];
   hideCategoryFilter?: boolean;
+  hideBikeFilters?: boolean;
   facetData?: Facet[];
 }) {
+  const PRICE_RANGES = hideBikeFilters ? PRICE_RANGES_ACC : PRICE_RANGES_BIKES;
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -178,25 +187,29 @@ export function CatalogFilters({
           })}
         </Dropdown>
 
-        <Dropdown label="Діаметр коліс" count={current.wheels.length}>
-          {WHEELS.map((w) => {
-            const on = current.wheels.includes(w);
-            const cnt = countFor("wheel", w);
-            return (
-              <CheckRow key={w} label={`${w}"`} count={cnt} checked={on} disabled={!on && cnt === 0} onClick={() => toggleMulti("wheel", w)} />
-            );
-          })}
-        </Dropdown>
+        {!hideBikeFilters && (
+          <Dropdown label="Діаметр коліс" count={current.wheels.length}>
+            {WHEELS.map((w) => {
+              const on = current.wheels.includes(w);
+              const cnt = countFor("wheel", w);
+              return (
+                <CheckRow key={w} label={`${w}"`} count={cnt} checked={on} disabled={!on && cnt === 0} onClick={() => toggleMulti("wheel", w)} />
+              );
+            })}
+          </Dropdown>
+        )}
 
-        <Dropdown label="Розмір рами" count={current.frameSizes.length}>
-          {sizes.map((f) => {
-            const on = current.frameSizes.includes(f);
-            const cnt = countFor("frameSize", f);
-            return (
-              <CheckRow key={f} label={`${f}"`} count={cnt} checked={on} disabled={!on && cnt === 0} onClick={() => toggleMulti("frameSize", f)} />
-            );
-          })}
-        </Dropdown>
+        {!hideBikeFilters && (
+          <Dropdown label="Розмір рами" count={current.frameSizes.length}>
+            {sizes.map((f) => {
+              const on = current.frameSizes.includes(f);
+              const cnt = countFor("frameSize", f);
+              return (
+                <CheckRow key={f} label={`${f}"`} count={cnt} checked={on} disabled={!on && cnt === 0} onClick={() => toggleMulti("frameSize", f)} />
+              );
+            })}
+          </Dropdown>
+        )}
 
         <Dropdown label="Ціна" count={current.priceMin || current.priceMax ? 1 : 0}>
           {PRICE_RANGES.map((r) => (
