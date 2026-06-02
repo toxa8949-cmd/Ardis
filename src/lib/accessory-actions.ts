@@ -20,7 +20,7 @@ export async function addAccessoryOffer(accessoryId: string, discount: number) {
   );
   if (error) throw new Error(error.message);
   revalidatePath("/admin/accessories");
-  revalidatePath("/catalog");
+  revalidatePath("/", "layout");
 }
 
 export async function updateAccessoryOffer(
@@ -50,7 +50,7 @@ export async function updateAccessoryOffer(
     .eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/accessories");
-  revalidatePath("/catalog");
+  revalidatePath("/", "layout");
 }
 
 export async function removeAccessoryOffer(id: string) {
@@ -58,7 +58,7 @@ export async function removeAccessoryOffer(id: string) {
   const { error } = await supabase.from("accessory_offers").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/accessories");
-  revalidatePath("/catalog");
+  revalidatePath("/", "layout");
 }
 
 // --- Перевизначення для конкретного велосипеда (product_accessories) ---
@@ -83,7 +83,7 @@ export async function saveProductAccessories(
     if (error) throw new Error(error.message);
   }
   revalidatePath(`/admin/products/${productId}`);
-  revalidatePath("/catalog");
+  revalidatePath("/", "layout");
 }
 
 function clampDiscount(d: number): number {

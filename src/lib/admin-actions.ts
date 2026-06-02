@@ -49,6 +49,13 @@ async function requireAuth() {
   return supabase;
 }
 
+// Скидає кеш усіх публічних сторінок, де показуються товари.
+// layout-режим скидає і сторінку товару /bikes/[slug], і вкладені маршрути.
+function revalidateStorefront() {
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
+}
+
 // Парсинг форми у структуру
 function parseForm(formData: FormData): ProductFormData {
   const num = (k: string): number | null => {
@@ -169,8 +176,7 @@ export async function createProduct(formData: FormData) {
   if (error) throw new Error(error.message);
   await saveColors(supabase, data.id, d.colors);
 
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
+  revalidateStorefront();
   redirect("/admin/products");
 }
 
@@ -208,8 +214,7 @@ export async function updateProduct(id: string, formData: FormData) {
   if (error) throw new Error(error.message);
   await saveColors(supabase, id, d.colors);
 
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
+  revalidateStorefront();
   redirect("/admin/products");
 }
 
@@ -218,8 +223,7 @@ export async function deleteProduct(id: string) {
   // кольори видаляться каскадно (FK on delete cascade)
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
+  revalidateStorefront();
 }
 
 // Швидке оновлення наявності одного товару (без відкриття форми)
@@ -227,8 +231,7 @@ export async function setProductStock(id: string, inStock: boolean) {
   const supabase = await requireAuth();
   const { error } = await supabase.from("products").update({ in_stock: inStock }).eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
+  revalidateStorefront();
 }
 
 // Швидке оновлення ціни одного товару
@@ -237,8 +240,7 @@ export async function setProductPrice(id: string, price: number) {
   const safe = Math.max(0, Math.round(Number(price) || 0));
   const { error } = await supabase.from("products").update({ price: safe }).eq("id", id);
   if (error) throw new Error(error.message);
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
+  revalidateStorefront();
 }
 
 // Масові дії над набором товарів
@@ -258,6 +260,5 @@ export async function bulkProductAction(
       .in("id", ids);
     if (error) throw new Error(error.message);
   }
-  revalidatePath("/admin/products");
-  revalidatePath("/catalog");
+  revalidateStorefront();
 }

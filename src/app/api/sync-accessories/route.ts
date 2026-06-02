@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 import { parseVeloportalFeed, CAT_MAP } from "@/lib/veloportal-feed";
 
@@ -102,6 +103,9 @@ export async function GET(request: Request) {
         markedGone += slice.length;
       }
     }
+
+    // оновити кеш вітрини, щоб зміни були видні одразу
+    revalidatePath("/", "layout");
 
     return NextResponse.json({
       ok: true,
