@@ -106,3 +106,25 @@ h1, h2, h3, .font-display {
   font-size: 0.9em;
 }
 .prose-ardis img { border-radius: 1rem; margin: 1.5rem 0; }
+.prose-ardis table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.925rem;
+  display: block;
+  overflow-x: auto;
+}
+.prose-ardis thead { background: #f9fafb; }
+.prose-ardis th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--color-ink);
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(0,0,0,0.08);
+  white-space: nowrap;
+}
+.prose-ardis td {
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.prose-ardis tbody tr:nth-child(even) { background: #fafafa; }
