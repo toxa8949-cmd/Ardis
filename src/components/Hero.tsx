@@ -1,5 +1,5 @@
 import { Factory, ShieldCheck, Truck } from "lucide-react";
-import { BikeArt } from "./BikeArt";
+import Image from "next/image";
 
 const ADVANTAGES = [
   { icon: Factory, title: "Українське виробництво", text: "Власний завод у Києві" },
@@ -73,8 +73,16 @@ export function Hero() {
         </div>
 
         <div className="hidden lg:col-span-5 lg:block">
-          <div className="rounded-[2.5rem] border border-white/10 bg-gradient-to-tr from-accent/10 to-transparent p-8">
-            <BikeArt hue={24} className="w-full drop-shadow-[0_20px_50px_rgba(249,115,22,0.25)]" />
+          <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white p-6 shadow-2xl shadow-accent/20">
+            <Image
+              src="/hero-bike.webp"
+              alt="Гірський велосипед Ardis 29 TUCAN — український виробник"
+              width={1920}
+              height={1160}
+              priority
+              sizes="(max-width: 1024px) 0px, 40vw"
+              className="h-auto w-full object-contain"
+            />
           </div>
         </div>
       </div>
