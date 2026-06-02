@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Star, ShieldCheck, Truck, Factory, ShoppingCart, Check, Plus, Sparkles, Ruler } from "lucide-react";
+import { Star, ShieldCheck, Truck, Factory, ShoppingCart, Check, Plus, Sparkles, Ruler, Eye, X } from "lucide-react";
+import Link from "next/link";
 import { ProductGallery } from "./ProductGallery";
 import { useCart } from "./CartProvider";
 import { useToast } from "./ToastProvider";
@@ -21,6 +22,7 @@ export function ProductDetail({
   const { add, open } = useCart();
   const toast = useToast();
   const [selectedAcc, setSelectedAcc] = useState<Set<string>>(new Set());
+  const [previewAcc, setPreviewAcc] = useState<AccessoryOffer | null>(null);
   const [active, setActive] = useState(0);
   const color = p.colors[active] ?? { hue: 24, name: "", hex: null, image_url: null, images: [] };
 
@@ -210,40 +212,54 @@ export function ProductDetail({
               {accessories.map((a) => {
                 const on = selectedAcc.has(a.id);
                 return (
-                  <button
+                  <div
                     key={a.id}
-                    type="button"
-                    onClick={() => toggleAcc(a.id)}
-                    className={`flex w-full items-center gap-2 rounded-xl border px-2.5 py-2 text-left transition-all ${
+                    className={`flex w-full items-center gap-2 rounded-xl border px-2.5 py-2 transition-all ${
                       on ? "border-accent bg-accent/[0.04] ring-1 ring-accent/30" : "border-black/10 bg-white hover:border-accent/40"
                     }`}
                   >
-                    <span
-                      className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border ${
-                        on ? "border-accent bg-accent text-white" : "border-gray-300"
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => toggleAcc(a.id)}
+                      className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                      aria-pressed={on}
                     >
-                      {on && <Check size={13} />}
-                    </span>
-                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-gray-50">
-                      {a.image_url ? (
-                        <Image src={a.image_url} alt={a.name} fill sizes="36px" className="object-contain p-0.5" />
-                      ) : (
-                        <span className="grid h-full w-full place-items-center text-gray-300">
-                          <Plus size={14} />
-                        </span>
-                      )}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs font-semibold text-ink">{a.name}</span>
-                      <span className="flex items-center gap-1">
-                        <span className="text-xs font-bold text-accent">{uah(a.discounted_price)}</span>
-                        {a.discount_percent > 0 && (
-                          <span className="text-[10px] text-gray-400 line-through">{uah(a.price)}</span>
+                      <span
+                        className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border ${
+                          on ? "border-accent bg-accent text-white" : "border-gray-300"
+                        }`}
+                      >
+                        {on && <Check size={13} />}
+                      </span>
+                      <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md bg-gray-50">
+                        {a.image_url ? (
+                          <Image src={a.image_url} alt={a.name} fill sizes="36px" className="object-contain p-0.5" />
+                        ) : (
+                          <span className="grid h-full w-full place-items-center text-gray-300">
+                            <Plus size={14} />
+                          </span>
                         )}
                       </span>
-                    </span>
-                  </button>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs font-semibold text-ink">{a.name}</span>
+                        <span className="flex items-center gap-1">
+                          <span className="text-xs font-bold text-accent">{uah(a.discounted_price)}</span>
+                          {a.discount_percent > 0 && (
+                            <span className="text-[10px] text-gray-400 line-through">{uah(a.price)}</span>
+                          )}
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewAcc(a)}
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-accent"
+                      aria-label={`Переглянути ${a.name}`}
+                      title="Переглянути"
+                    >
+                      <Eye size={15} />
+                    </button>
+                  </div>
                 );
               })}
             </div>
@@ -318,6 +334,88 @@ export function ProductDetail({
               </div>
             ))}
           </dl>
+        </div>
+      )}
+
+      {/* Модалка перегляду аксесуара */}
+      {previewAcc && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => setPreviewAcc(null)}
+        >
+          <div
+            className="relative w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewAcc(null)}
+              className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-gray-500 shadow transition-colors hover:text-ink"
+              aria-label="Закрити"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="relative aspect-square w-full bg-gray-50">
+              {previewAcc.image_url ? (
+                <Image
+                  src={previewAcc.image_url}
+                  alt={previewAcc.name}
+                  fill
+                  sizes="384px"
+                  className="object-contain p-6"
+                />
+              ) : (
+                <span className="grid h-full w-full place-items-center text-gray-300">
+                  <Plus size={40} />
+                </span>
+              )}
+            </div>
+
+            <div className="p-5">
+              <h3 className="text-base font-bold leading-tight text-ink">{previewAcc.name}</h3>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-bold text-accent">{uah(previewAcc.discounted_price)}</span>
+                {previewAcc.discount_percent > 0 && (
+                  <>
+                    <span className="text-sm font-medium text-gray-400 line-through">{uah(previewAcc.price)}</span>
+                    <span className="rounded-md bg-accent/10 px-1.5 py-0.5 text-xs font-bold text-accent">
+                      −{previewAcc.discount_percent}%
+                    </span>
+                  </>
+                )}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">
+                Спеціальна ціна при купівлі разом із велосипедом.
+              </p>
+
+              <div className="mt-5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleAcc(previewAcc.id);
+                    setPreviewAcc(null);
+                  }}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-ink py-3 text-sm font-bold text-white transition-all hover:bg-accent active:scale-95"
+                >
+                  {selectedAcc.has(previewAcc.id) ? (
+                    <>
+                      <Check size={15} /> Обрано
+                    </>
+                  ) : (
+                    "Додати до велосипеда"
+                  )}
+                </button>
+                <Link
+                  href={`/bikes/${previewAcc.slug}`}
+                  className="grid place-items-center rounded-xl border border-black/10 px-4 text-sm font-semibold text-gray-600 transition-colors hover:border-accent/40 hover:text-accent"
+                  title="Відкрити повну сторінку"
+                >
+                  <Eye size={16} />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
