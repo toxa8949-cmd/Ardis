@@ -86,7 +86,7 @@ export default function RootLayout({
     legalName: SITE.legalName,
     description: SITE.description,
     url: SITE.url,
-    image: `${SITE.url}/og.jpg`,
+    image: `${SITE.url}/opengraph-image`,
     telephone: `+380${c.phoneShopRaw.replace(/^0/, "")}`,
     priceRange: "₴₴",
     currenciesAccepted: "UAH",

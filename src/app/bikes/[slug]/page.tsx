@@ -60,7 +60,7 @@ export default async function ProductPage({ params }: Props) {
 
   // priceValidUntil — кінець поточного року (вимога Google для Offer).
   const priceValidUntil = `${new Date().getFullYear()}-12-31`;
-  const productImage = p.image_url ?? p.images?.[0] ?? `${SITE.url}/og.jpg`;
+  const productImage = p.image_url ?? p.images?.[0] ?? `${SITE.url}/opengraph-image`;
 
   const productJsonLd = {
     "@context": "https://schema.org",
