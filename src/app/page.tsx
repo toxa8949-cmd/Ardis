@@ -30,6 +30,14 @@ export default async function HomePage() {
   const products = await getProducts({ group: "velosypedy" });
   const featured = products.slice(0, 8);
 
+  // Товар для Hero: шукаємо TUCAN серед завантажених; якщо нема — перший наявний велосипед.
+  const heroProduct =
+    products.find((p) => /tucan/i.test(p.name) && p.in_stock) ??
+    products.find((p) => /tucan/i.test(p.name)) ??
+    products.find((p) => p.in_stock) ??
+    products[0] ??
+    null;
+
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -50,7 +58,7 @@ export default async function HomePage() {
       />
       <Header />
       <main>
-        <Hero />
+        <Hero product={heroProduct} />
         <FrameCalculator />
         <CategoryShowcase featured={featured} />
         <Showrooms />

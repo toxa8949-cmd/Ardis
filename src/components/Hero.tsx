@@ -1,5 +1,8 @@
-import { Factory, ShieldCheck, Truck } from "lucide-react";
+import { Factory, ShieldCheck, Truck, ArrowRight, Star } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { uah } from "@/lib/site";
+import type { Product } from "@/types";
 
 const ADVANTAGES = [
   { icon: Factory, title: "Українське виробництво", text: "Власний завод у Києві" },
@@ -7,7 +10,16 @@ const ADVANTAGES = [
   { icon: Truck, title: "Швидка доставка", text: "Новою Поштою по Україні" },
 ];
 
-export function Hero() {
+export function Hero({ product }: { product?: Product | null }) {
+  // Короткі фічі-пігулки поверх фото — з характеристик товару (лише ті, що заповнені).
+  const pills: string[] = product
+    ? [
+        product.frame && `Рама ${product.frame}`,
+        product.wheel && `Колеса ${product.wheel}`,
+        product.speeds ? `${product.speeds} швидкостей` : null,
+        product.brakes && product.brakes.length < 28 ? product.brakes : null,
+      ].filter((x): x is string => Boolean(x)).slice(0, 3)
+    : [];
   return (
     <section className="relative overflow-hidden bg-ink text-white">
       {/* Атмосферний фон */}
@@ -73,16 +85,64 @@ export function Hero() {
         </div>
 
         <div className="hidden lg:col-span-5 lg:block">
-          <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white p-6 shadow-2xl shadow-accent/20">
-            <Image
-              src="/hero-bike.webp"
-              alt="Гірський велосипед Ardis 29 TUCAN — український виробник"
-              width={1920}
-              height={1160}
-              priority
-              sizes="(max-width: 1024px) 0px, 40vw"
-              className="h-auto w-full object-contain"
-            />
+          <div className="relative">
+            {/* Бейдж ТОП-модель */}
+            <span className="absolute -top-3 left-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white shadow-lg shadow-accent/30">
+              🔥 Топ модель
+            </span>
+
+            <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl shadow-accent/20">
+              <div className="relative">
+                <Image
+                  src="/hero-bike.webp"
+                  alt={product ? `${product.name} — велосипед Ardis` : "Гірський велосипед Ardis 29 TUCAN"}
+                  width={1920}
+                  height={1160}
+                  priority
+                  sizes="(max-width: 1024px) 0px, 40vw"
+                  className="h-auto w-full object-contain"
+                />
+
+                {/* Плаваючі фічі-пігулки поверх фото */}
+                {pills.length > 0 && (
+                  <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-1.5">
+                    {pills.map((p) => (
+                      <span
+                        key={p}
+                        className="rounded-full bg-ink/85 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-sm"
+                      >
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Інфоблок товару під фото */}
+              {product && (
+                <div className="border-t border-black/5 p-5">
+                  <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                    <Star size={13} fill="currentColor" /> {product.rating}
+                    <span className="font-normal text-gray-400">· хіт продажів</span>
+                  </div>
+                  <p className="mt-1 line-clamp-1 text-base font-bold text-ink">{product.name}</p>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-ink">{uah(product.price)}</span>
+                      {product.old_price && (
+                        <span className="text-sm font-medium text-gray-400 line-through">{uah(product.old_price)}</span>
+                      )}
+                    </div>
+                    <Link
+                      href={`/bikes/${product.slug}`}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-accent active:scale-95"
+                    >
+                      Детальніше <ArrowRight size={15} />
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
