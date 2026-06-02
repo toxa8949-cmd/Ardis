@@ -18,7 +18,6 @@ const BIKE_CATEGORIES = [
   { slug: "dytyachi", name: "Дитячі" },
   { slug: "bmx", name: "BMX" },
   { slug: "elektrovelosipedi", name: "Електровелосипеди" },
-  { slug: "elektroskutery", name: "Електроскутери" },
   { slug: "inshi", name: "Інші" },
 ];
 
@@ -26,23 +25,12 @@ const ACCESSORY_CATEGORIES = [
   { slug: "acc-svitlo", name: "Освітлення" },
   { slug: "acc-zamky", name: "Замки" },
   { slug: "acc-kryla", name: "Крила" },
-  { slug: "acc-nasosy", name: "Насоси" },
-  { slug: "acc-dzvinky", name: "Дзвінки" },
-  { slug: "acc-bagazhnyky", name: "Багажники" },
-  { slug: "acc-koshyky", name: "Кошики" },
+  { slug: "acc-nasosy", name: "Насоси та ремонт" },
+  { slug: "acc-dzvinky", name: "Дзвінки та сигнали" },
+  { slug: "acc-bagazhnyky", name: "Багажники та корзини" },
+  { slug: "acc-zakhyst", name: "Шоломи та захист" },
   { slug: "acc-sumky", name: "Сумки" },
-  { slug: "acc-flyagy", name: "Фляги та тримачі" },
-  { slug: "acc-gripsy", name: "Гріпси" },
-  { slug: "acc-sholomy", name: "Шоломи" },
-  { slug: "acc-okulyary", name: "Окуляри" },
-  { slug: "acc-rukavychky", name: "Рукавички" },
-  { slug: "acc-odyag", name: "Одяг" },
-  { slug: "acc-vzuttya", name: "Взуття" },
-  { slug: "acc-mastyla", name: "Догляд та мастила" },
-  { slug: "acc-kompyutery", name: "Велокомп'ютери" },
-  { slug: "acc-dytyachi-krisla", name: "Дитячі крісла" },
-  { slug: "acc-zakhyst", name: "Захист" },
-  { slug: "acc-inshe", name: "Інше" },
+  { slug: "acc-inshe", name: "Інші аксесуари" },
 ];
 
 export function Header() {
