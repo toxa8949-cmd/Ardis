@@ -58,11 +58,17 @@ export default async function ProductPage({ params }: Props) {
   const catUrl = p.category_slug ? `${SITE.url}/catalog/${p.category_slug}` : `${SITE.url}/catalog`;
   const catHref = p.category_slug ? `/catalog/${p.category_slug}` : "/catalog";
 
+  // priceValidUntil — кінець поточного року (вимога Google для Offer).
+  const priceValidUntil = `${new Date().getFullYear()}-12-31`;
+  const productImage = p.image_url ?? p.images?.[0] ?? `${SITE.url}/og.jpg`;
+
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: p.name,
     description: p.description ?? p.name,
+    image: productImage,
+    sku: p.slug,
     category: catName,
     brand: { "@type": "Brand", name: p.brand?.name ?? "Ardis" },
     aggregateRating:
@@ -73,8 +79,28 @@ export default async function ProductPage({ params }: Props) {
       "@type": "Offer",
       price: p.price,
       priceCurrency: "UAH",
+      priceValidUntil,
+      itemCondition: "https://schema.org/NewCondition",
       availability: p.in_stock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       url: `${SITE.url}/bikes/${p.slug}`,
+      seller: { "@type": "Organization", name: SITE.name },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "UA" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 3, unitCode: "DAY" },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "UA",
+        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
+      },
     },
   };
 

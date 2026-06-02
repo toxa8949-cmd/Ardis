@@ -5,8 +5,10 @@ import { Hero } from "@/components/Hero";
 import { FrameCalculator } from "@/components/FrameCalculator";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
 import { Showrooms } from "@/components/Showrooms";
+import { Faq } from "@/components/Faq";
 import { Footer } from "@/components/Footer";
 import { SITE } from "@/lib/site";
+import { HOME_FAQ } from "@/lib/faq";
 
 export const metadata: Metadata = {
   title: "Купити велосипед у Києві — велосипеди Ardis (Ардіс)",
@@ -52,6 +54,7 @@ export default async function HomePage() {
         <FrameCalculator />
         <CategoryShowcase featured={featured} />
         <Showrooms />
+        <Faq items={HOME_FAQ} />
       </main>
       <Footer />
     </>

@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
+import { Faq } from "@/components/Faq";
 import {
   getProducts, getBrands, getCategories,
   getCategoryBySlug, getAllCategorySlugs, getPriceRange, getFrameSizes,
@@ -11,6 +12,7 @@ import {
 } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { CATEGORY_SEO } from "@/lib/category-seo";
+import { CATEGORY_FAQ } from "@/lib/faq";
 
 export async function generateStaticParams() {
   const slugs = await getAllCategorySlugs();
@@ -116,6 +118,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         )}
       </main>
+      {CATEGORY_FAQ[cat.slug]?.length > 0 && (
+        <Faq items={CATEGORY_FAQ[cat.slug]} title={`Питання про ${cat.name.toLowerCase()} велосипеди`} />
+      )}
       <Footer />
     </>
   );

@@ -98,7 +98,7 @@ export function Header() {
                   {BIKE_CATEGORIES.map((c) => (
                     <Link
                       key={c.slug}
-                      href={`/bikes?category=${c.slug}`}
+                      href={`/catalog/${c.slug}`}
                       className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-accent/10 hover:text-accent-600"
                     >
                       {c.name}
@@ -215,7 +215,7 @@ export function Header() {
                     Усі велосипеди
                   </Link>
                   {BIKE_CATEGORIES.map((c) => (
-                    <Link key={c.slug} href={`/bikes?category=${c.slug}`} onClick={closeMobile} className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-accent/5 hover:text-accent-600">
+                    <Link key={c.slug} href={`/catalog/${c.slug}`} onClick={closeMobile} className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-accent/5 hover:text-accent-600">
                       {c.name}
                     </Link>
                   ))}
