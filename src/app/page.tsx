@@ -1,4 +1,5 @@
 import { getProducts } from "@/lib/products";
+import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { FrameCalculator } from "@/components/FrameCalculator";
@@ -6,6 +7,22 @@ import { CategoryShowcase } from "@/components/CategoryShowcase";
 import { Showrooms } from "@/components/Showrooms";
 import { Footer } from "@/components/Footer";
 import { SITE } from "@/lib/site";
+
+export const metadata: Metadata = {
+  title: "Купити велосипед у Києві — велосипеди Ardis (Ардіс)",
+  description:
+    "Велосипеди Ardis у Києві: гірські, дитячі, підліткові та електровелосипеди українського виробництва. Заводська гарантія, самовивіз у Києві, доставка Новою Поштою по Україні.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: SITE.locale,
+    url: SITE.url,
+    siteName: SITE.name,
+    title: "Купити велосипед у Києві — велосипеди Ardis (Ардіс)",
+    description:
+      "Велосипеди Ardis у Києві: гірські, дитячі, підліткові та електро. Гарантія, самовивіз, доставка по Україні.",
+  },
+};
 
 export default async function HomePage() {
   const products = await getProducts({ group: "velosypedy" });

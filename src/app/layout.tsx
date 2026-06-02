@@ -28,11 +28,18 @@ export const metadata: Metadata = {
   applicationName: SITE.name,
   keywords: [
     "Ardis",
+    "Ардіс",
     "велосипеди Ardis",
+    "велосипеди Ардіс",
     "купити велосипед Київ",
-    "гірський велосипед",
-    "міський велосипед",
-    "гравійний велосипед",
+    "купити велосипед у Києві",
+    "велосипеди Київ",
+    "веломагазин Київ",
+    "магазин велосипедів Київ",
+    "купити велосипед",
+    "гірський велосипед Київ",
+    "дитячий велосипед Київ",
+    "електровелосипед Київ",
     "велосипеди українського виробництва",
   ],
   alternates: {
@@ -69,19 +76,70 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // JSON-LD організації — глобальний, на всіх сторінках
-  const orgJsonLd = {
+  // JSON-LD: магазин велосипедів у Києві (локальне SEO) + сайт із пошуком.
+  const c = SITE.contacts;
+  const localBusinessJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Store",
+    "@type": "BicycleStore",
+    "@id": `${SITE.url}/#store`,
     name: SITE.name,
+    legalName: SITE.legalName,
     description: SITE.description,
     url: SITE.url,
-    address: SITE.showrooms.map((s) => ({
+    image: `${SITE.url}/og.jpg`,
+    telephone: `+380${c.phoneShopRaw.replace(/^0/, "")}`,
+    priceRange: "₴₴",
+    currenciesAccepted: "UAH",
+    paymentAccepted: "Готівка, картка, безготівковий розрахунок",
+    address: {
       "@type": "PostalAddress",
-      streetAddress: s.address,
-      addressLocality: "Київ",
+      streetAddress: "вул. Ревуцького, 40В",
+      addressLocality: c.addressLocality,
+      addressRegion: c.region,
+      postalCode: c.postalCode,
       addressCountry: "UA",
-    })),
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: c.geo.lat,
+      longitude: c.geo.lng,
+    },
+    areaServed: [
+      { "@type": "City", name: "Київ" },
+      { "@type": "Country", name: "Україна" },
+    ],
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:00",
+        closes: "16:30",
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Saturday", "Sunday"],
+        opens: "09:00",
+        closes: "18:00",
+      },
+    ],
+  };
+
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE.url}/#website`,
+    url: SITE.url,
+    name: SITE.name,
+    inLanguage: "uk-UA",
+    publisher: { "@id": `${SITE.url}/#store` },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE.url}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -89,7 +147,11 @@ export default function RootLayout({
       <body>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <Providers>{children}</Providers>
       </body>

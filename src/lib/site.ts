@@ -11,6 +11,10 @@ export const SITE = {
   themeColor: "#0f1115",
   contacts: {
     address: "м. Київ, вул. Ревуцького, 40В",
+    addressLocality: "Київ",
+    postalCode: "02068",
+    region: "Київська область",
+    geo: { lat: 50.4024918, lng: 30.6504198 },
     hoursWeekday: "Пн–Пт: 09:00 – 16:30",
     hoursWeekend: "Сб–Нд: 09:00 – 18:00",
     phoneShop: "068-738-78-22",
