@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllProductSlugs, getAllCategorySlugs } from "@/lib/products";
 import { getPublishedPostSlugs } from "@/lib/posts";
 import { SEO_COLLECTIONS } from "@/lib/seo-collections";
+import { ACCESSORY_CATEGORY_SLUGS } from "@/lib/accessory-category-seo";
 import { SITE } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -32,6 +33,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const accessoryCategoryPages: MetadataRoute.Sitemap = ACCESSORY_CATEGORY_SLUGS.map((slug) => ({
+    url: `${SITE.url}/accessories/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.6,
+  }));
+
   const postPages: MetadataRoute.Sitemap = postSlugs.map((slug) => ({
     url: `${SITE.url}/blog/${slug}`,
     lastModified: new Date(),
@@ -59,6 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...infoPages,
     ...categoryPages,
     ...seoCollectionPages,
+    ...accessoryCategoryPages,
     ...postPages,
     ...productPages,
   ];
