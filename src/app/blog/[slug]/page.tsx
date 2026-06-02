@@ -51,11 +51,18 @@ export default async function PostPage({ params }: Props) {
     "@type": "Article",
     headline: post.title,
     description: post.excerpt ?? post.title,
+    image: `${SITE.url}/opengraph-image`,
     datePublished: post.published_at,
-    dateModified: post.updated_at,
-    author: { "@type": "Organization", name: "Ardis" },
-    publisher: { "@type": "Organization", name: "Ardis" },
-    mainEntityOfPage: `${SITE.url}/blog/${post.slug}`,
+    dateModified: post.updated_at ?? post.published_at,
+    inLanguage: "uk-UA",
+    author: { "@type": "Organization", name: SITE.name, url: SITE.url },
+    publisher: {
+      "@type": "Organization",
+      name: SITE.name,
+      url: SITE.url,
+      logo: { "@type": "ImageObject", url: `${SITE.url}/logo-ardis-black.png` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE.url}/blog/${post.slug}` },
   };
 
   const breadcrumbJsonLd = {
@@ -86,6 +93,10 @@ export default async function PostPage({ params }: Props) {
           {post.published_at && (
             <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-400">
               <Calendar size={14} /> {formatDate(post.published_at)}
+              {post.updated_at &&
+                new Date(post.updated_at).getTime() - new Date(post.published_at).getTime() > 86400000 && (
+                  <span className="text-gray-300">· оновлено {formatDate(post.updated_at)}</span>
+                )}
             </span>
           )}
           <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{post.title}</h1>
