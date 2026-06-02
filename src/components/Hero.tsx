@@ -90,12 +90,12 @@ export function Hero({ product }: { product?: Product | null }) {
                 height={1160}
                 priority
                 sizes="(max-width: 1024px) 0px, 40vw"
-                className="h-auto w-full object-contain"
+                className="h-auto w-full object-contain pb-20"
               />
 
-              {/* Інфоблок — скляна плашка поверх низу фото */}
+              {/* Інфоблок — скляна плашка під велосипедом */}
               {product && (
-                <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-ink/55 px-4 py-3 shadow-lg backdrop-blur-md">
+                <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-2xl border border-black/5 bg-ink/85 px-4 py-3 shadow-lg backdrop-blur-md">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-bold text-white">{product.name}</p>
                     <div className="mt-0.5 flex items-baseline gap-2">
