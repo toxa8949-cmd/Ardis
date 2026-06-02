@@ -4,7 +4,7 @@ import { useState } from "react";
 import { X, Minus, Plus, ShoppingCart, Truck, MapPin } from "lucide-react";
 import { useCart } from "./CartProvider";
 import { useToast } from "./ToastProvider";
-import { BikeArt } from "./BikeArt";
+import { ProductImage } from "./ProductImage";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { uah } from "@/lib/site";
 import type { DeliveryMethod } from "@/types";
@@ -121,7 +121,14 @@ export function CartSidebar() {
                   key={`${it.product.id}-${it.colorName}`}
                   className="flex gap-3 rounded-2xl border border-black/5 bg-white p-3"
                 >
-                  <BikeArt hue={it.hue} type={it.product.type} className="h-16 w-24 shrink-0 rounded-xl" />
+                  <ProductImage
+                    imageUrl={it.product.image_url ?? it.product.images?.[0] ?? null}
+                    hue={it.hue}
+                    type={it.product.type}
+                    alt={it.product.name}
+                    sizes="96px"
+                    className="h-16 w-24 shrink-0 rounded-xl"
+                  />
                   <div className="flex flex-1 flex-col">
                     <div className="flex items-start justify-between">
                       <h4 className="text-sm font-bold leading-tight">{it.product.name}</h4>
