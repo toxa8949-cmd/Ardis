@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Star, ShieldCheck, Truck, Factory, ShoppingCart, Check, Plus, Sparkles } from "lucide-react";
+import { Star, ShieldCheck, Truck, Factory, ShoppingCart, Check, Plus, Sparkles, Ruler } from "lucide-react";
 import { ProductGallery } from "./ProductGallery";
 import { useCart } from "./CartProvider";
 import { useToast } from "./ToastProvider";
-import { uah } from "@/lib/site";
+import { uah, frameSizeHintForWheel } from "@/lib/site";
 import { BADGE_LABELS, type Product, type AccessoryOffer } from "@/types";
 
 // Інтерактивна частина сторінки товару: галерея + вибір кольору + кнопка
@@ -61,9 +61,22 @@ export function ProductDetail({
   for (const s of [...extraSpecs, ...baseSpecs]) {
     const key = synonym(s.label).toLowerCase();
     if (seen.has(key)) continue;
+    // Розмір рами не показуємо числом — відправляємо уточнювати в менеджера.
+    if (key === "розмір рами") {
+      seen.add(key);
+      specs.push({ label: "Розмір рами", value: "Уточняйте в менеджера" });
+      continue;
+    }
     seen.add(key);
     specs.push({ label: synonym(s.label), value: s.value });
   }
+  // Для велосипедів завжди показуємо рядок розміру рами, навіть якщо його не було у specs.
+  if (p.type === "bike" && !seen.has("розмір рами")) {
+    specs.push({ label: "Розмір рами", value: "Уточняйте в менеджера" });
+  }
+
+  // Орієнтовний розмір рами за діаметром коліс товару (підказка для покупця).
+  const frameHint = p.type === "bike" ? frameSizeHintForWheel(p.wheel_size ?? p.wheel) : null;
 
   const toggleAcc = (id: string) =>
     setSelectedAcc((prev) => {
@@ -255,6 +268,19 @@ export function ProductDetail({
             </p>
           )}
         </div>
+
+        {/* Підказка розміру рами за діаметром коліс */}
+        {frameHint && (
+          <div className="mt-5 flex items-start gap-3 rounded-2xl border border-accent/20 bg-accent/[0.04] px-4 py-3">
+            <Ruler size={18} className="mt-0.5 shrink-0 text-accent" />
+            <div className="text-sm">
+              <span className="font-bold text-ink">Орієнтовний розмір рами: {frameHint}</span>
+              <p className="mt-0.5 text-xs text-gray-500">
+                Розраховано за діаметром коліс ({p.wheel_size ?? p.wheel}). Точний розмір під ваш зріст уточнюйте в менеджера.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Переваги (під кнопкою, заповнює праву колонку) */}
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">

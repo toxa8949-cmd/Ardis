@@ -60,3 +60,22 @@ export function wheelSizeForHeight(height: number): string | null {
   if (height < 135) return "20";
   return null;
 }
+
+// Орієнтовний розмір рами за діаметром коліс товару.
+// Діаметр коліс прямо корелює з геометрією рами, тому це коректний орієнтир
+// на відміну від «розміру рами з назви» (там зазвичай саме діаметр коліс).
+// Приймає рядок типу '26"', '27.5', '29" дюймів' тощо. Повертає null, якщо не розпізнали.
+export function frameSizeHintForWheel(wheel: string | null | undefined): string | null {
+  if (!wheel) return null;
+  const d = parseFloat(String(wheel).replace(",", ".").replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(d) || d <= 0) return null;
+  if (d <= 12) return '8" (дитяча)';
+  if (d <= 14) return '9" (дитяча)';
+  if (d <= 16) return '10"–11" (дитяча)';
+  if (d <= 18) return '11"–12" (дитяча)';
+  if (d <= 20) return '12"–13" (підліткова)';
+  if (d <= 24) return '13"–14" (підліткова)';
+  if (d <= 26) return '15"–17" (S / M)';
+  if (d <= 27.5) return '16"–19" (S / L)';
+  return '17"–21" (M / XL)'; // 28"–29"
+}
