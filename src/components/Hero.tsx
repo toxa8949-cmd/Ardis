@@ -82,7 +82,7 @@ export function Hero({ product }: { product?: Product | null }) {
               🔥 Топ модель
             </span>
 
-            <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl shadow-accent/20">
+            <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white shadow-2xl shadow-accent/20">
               <Image
                 src="/hero-bike.webp"
                 alt={product ? `${product.name} — велосипед Ardis` : "Гірський велосипед Ardis 29 TUCAN"}
@@ -93,21 +93,21 @@ export function Hero({ product }: { product?: Product | null }) {
                 className="h-auto w-full object-contain"
               />
 
-              {/* Інфоблок товару під фото — компактний, в один рядок */}
+              {/* Інфоблок — скляна плашка поверх низу фото */}
               {product && (
-                <div className="flex items-center justify-between gap-3 border-t border-black/5 p-4">
+                <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-ink/55 px-4 py-3 shadow-lg backdrop-blur-md">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-ink">{product.name}</p>
+                    <p className="truncate text-sm font-bold text-white">{product.name}</p>
                     <div className="mt-0.5 flex items-baseline gap-2">
-                      <span className="text-xl font-bold text-ink">{uah(product.price)}</span>
+                      <span className="text-xl font-bold text-white">{uah(product.price)}</span>
                       {product.old_price && (
-                        <span className="text-xs font-medium text-gray-400 line-through">{uah(product.old_price)}</span>
+                        <span className="text-xs font-medium text-white/50 line-through">{uah(product.old_price)}</span>
                       )}
                     </div>
                   </div>
                   <Link
                     href={`/bikes/${product.slug}`}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-accent active:scale-95"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent/30 transition-all hover:bg-accent-600 active:scale-95"
                   >
                     Детальніше <ArrowRight size={15} />
                   </Link>
