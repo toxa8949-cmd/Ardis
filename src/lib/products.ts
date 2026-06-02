@@ -46,7 +46,7 @@ export interface ProductFilters {
 
 // Усі товари з опційними фільтрами
 export async function getProducts(filters: ProductFilters = {}): Promise<Product[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   let q = supabase.from("products").select(PRODUCT_SELECT);
 
   if (filters.category) q = q.eq("category_slug", filters.category);
@@ -100,7 +100,7 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
 export async function getFacetData(
   group: string
 ): Promise<{ category_slug: string | null; price: number; brand: string | null; wheel: string | null; frameSize: string | null }[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data: cats } = await supabase.from("categories").select("slug").eq("group", group);
   const slugs = (cats ?? []).map((c) => c.slug as string);
   if (slugs.length === 0) return [];
@@ -127,7 +127,7 @@ export async function getProductsPaged(
   page = 1,
   perPage = 24
 ): Promise<{ items: Product[]; total: number; page: number; perPage: number; pages: number }> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
 
   // brand тут фільтруємо на рівні brand_id, тож спершу резолвимо slug -> id
   const brandSlugs = filters.brands?.length ? filters.brands : (filters.brand ? [filters.brand] : []);
@@ -180,7 +180,7 @@ export async function getProductsPaged(
 
 // Ціновий діапазон усього каталогу — для меж повзунка
 export async function getPriceRange(): Promise<{ min: number; max: number }> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase
     .from("products")
     .select("price")
@@ -192,7 +192,7 @@ export async function getPriceRange(): Promise<{ min: number; max: number }> {
 
 // Унікальні розміри рам — для фільтра
 export async function getFrameSizes(): Promise<string[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase
     .from("products")
     .select("frame_size")
@@ -205,7 +205,7 @@ export async function getFrameSizes(): Promise<string[]> {
 
 // Один товар за slug
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)
@@ -234,7 +234,7 @@ export async function getRelatedProducts(
   limit = 4
 ): Promise<Product[]> {
   if (!categorySlug) return [];
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)
@@ -248,7 +248,7 @@ export async function getRelatedProducts(
 
 // --- Довідники ---
 export async function getBrands(): Promise<Brand[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase
     .from("brands")
     .select("*")
@@ -258,7 +258,7 @@ export async function getBrands(): Promise<Brand[]> {
 }
 
 export async function getCategories(group?: string): Promise<Category[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   let q = supabase.from("categories").select("*").order("sort_order");
   if (group) q = q.eq("group", group);
   const { data, error } = await q;
@@ -267,7 +267,7 @@ export async function getCategories(group?: string): Promise<Category[]> {
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const { data, error } = await supabase
     .from("categories")
     .select("*")
@@ -301,7 +301,7 @@ export async function getProductById(id: string): Promise<Product | null> {
 // Гібрид: якщо для товару є перевизначення (product_accessories) — беремо їх;
 // інакше — глобальний набір (accessory_offers). Ціни рахуємо зі знижкою.
 export async function getAccessoriesForProduct(product: Product): Promise<AccessoryOffer[]> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   const productId = product.id;
 
   // 1. перевизначення для товару (ручне — НЕ фільтруємо за сумісністю)
