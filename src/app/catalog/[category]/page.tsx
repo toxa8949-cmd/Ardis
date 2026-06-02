@@ -10,6 +10,7 @@ import {
   type SortOption,
 } from "@/lib/products";
 import { SITE } from "@/lib/site";
+import { CATEGORY_SEO } from "@/lib/category-seo";
 
 export async function generateStaticParams() {
   const slugs = await getAllCategorySlugs();
@@ -28,10 +29,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   const cat = await getCategoryBySlug(category);
   if (!cat) return { title: "Категорію не знайдено" };
+  const seo = CATEGORY_SEO[cat.slug];
   return {
-    title: `${cat.name} велосипеди`,
-    description: `${cat.name} велосипеди Ardis та інших брендів. Великий вибір, заводська гарантія, доставка по Україні.`,
+    title: seo?.title ?? `${cat.name} велосипеди`,
+    description:
+      seo?.description ??
+      `${cat.name} велосипеди Ardis та інших брендів. Великий вибір, заводська гарантія, доставка по Україні.`,
     alternates: { canonical: `/catalog/${cat.slug}` },
+    openGraph: {
+      type: "website",
+      title: seo?.title ?? `${cat.name} велосипеди`,
+      description: seo?.description ?? `${cat.name} велосипеди Ardis.`,
+      url: `${SITE.url}/catalog/${cat.slug}`,
+    },
   };
 }
 
@@ -78,6 +88,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           <span className="text-sm font-bold uppercase tracking-widest text-accent">Каталог</span>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{cat.name} велосипеди</h1>
           <p className="mt-1 text-sm text-gray-500">Знайдено: {products.length}</p>
+          {CATEGORY_SEO[cat.slug]?.intro && (
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
+              {CATEGORY_SEO[cat.slug].intro}
+            </p>
+          )}
         </div>
 
         <CatalogFilters
