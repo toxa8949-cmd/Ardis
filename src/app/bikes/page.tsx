@@ -4,10 +4,12 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { Pagination } from "@/components/Pagination";
+import { SEO_COLLECTIONS } from "@/lib/seo-collections";
 import {
   getProductsPaged, getFacetData, getBrands, getCategories, getPriceRange, getFrameSizes,
   type SortOption,
 } from "@/lib/products";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Велосипеди — купити в Києві | Ardis",
@@ -92,6 +94,22 @@ export default async function BikesPage({ searchParams }: Props) {
         )}
 
         <Pagination page={paged.page} pages={paged.pages} />
+
+        {/* Популярні підбірки — внутрішня перелінковка на SEO-сторінки */}
+        <div className="mt-12 border-t border-black/5 pt-8">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Популярні підбірки</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {SEO_COLLECTIONS.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/c/${c.slug}`}
+                className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-accent/40 hover:text-accent-600"
+              >
+                {c.h1}
+              </Link>
+            ))}
+          </div>
+        </div>
       </main>
       <Footer />
     </>

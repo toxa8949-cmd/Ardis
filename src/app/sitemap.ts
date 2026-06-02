@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllProductSlugs, getAllCategorySlugs } from "@/lib/products";
 import { getPublishedPostSlugs } from "@/lib/posts";
+import { SEO_COLLECTIONS } from "@/lib/seo-collections";
 import { SITE } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -19,6 +20,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryPages: MetadataRoute.Sitemap = catSlugs.map((slug) => ({
     url: `${SITE.url}/catalog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  const seoCollectionPages: MetadataRoute.Sitemap = SEO_COLLECTIONS.map((c) => ({
+    url: `${SITE.url}/c/${c.slug}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.7,
@@ -50,6 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE.url}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
     ...infoPages,
     ...categoryPages,
+    ...seoCollectionPages,
     ...postPages,
     ...productPages,
   ];
