@@ -3,21 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Ruler, ArrowRight } from "lucide-react";
-import { frameSizeForHeight, frameSizeValueForHeight, wheelSizeForHeight } from "@/lib/site";
+import { frameSizeForHeight, wheelSizeForHeight } from "@/lib/site";
 
 // Калькулятор ростовки + кнопка переходу в каталог із застосованим фільтром.
 export function FrameCalculator() {
   const [height, setHeight] = useState(175);
 
-  // Будуємо посилання на каталог із параметром під обраний зріст:
-  // дорослі/підлітки → за розміром рами; діти → за діаметром коліс.
-  const frameSize = frameSizeValueForHeight(height);
+  // Підбір ведеться ЗА ДІАМЕТРОМ КОЛІС для всіх зростів: це поле заповнене
+  // майже в усіх товарів, тож фільтр реально показує велосипеди (на відміну
+  // від розміру рами, який у більшості товарів порожній).
   const wheelSize = wheelSizeForHeight(height);
-  const catalogHref = frameSize
-    ? `/bikes?frameSize=${frameSize}`
-    : wheelSize
-    ? `/bikes?wheel=${wheelSize}`
-    : "/bikes";
+  const catalogHref = wheelSize ? `/bikes?wheel=${wheelSize}` : "/bikes";
 
   return (
     <section id="calculator" className="mx-auto max-w-4xl px-4 py-16">
@@ -28,7 +24,7 @@ export function FrameCalculator() {
           </span>
           <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">Калькулятор ростовки</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Вкажи свій зріст — покажемо рекомендований розмір рами
+            Вкажи свій зріст — підберемо велосипеди з відповідним діаметром коліс
           </p>
         </div>
 
@@ -36,11 +32,14 @@ export function FrameCalculator() {
           <div className="flex items-center justify-between gap-4 rounded-2xl border border-black/5 bg-gray-50 p-5">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">
-                Рекомендована рама
+                Діаметр коліс
               </span>
               <div className="text-lg font-bold text-accent sm:text-xl">
-                {frameSizeForHeight(height)}
+                {wheelSize ? `${wheelSize}"` : "—"}
               </div>
+              <span className="mt-0.5 block text-[11px] text-gray-400">
+                Рама (орієнтовно): {frameSizeForHeight(height)}
+              </span>
             </div>
             <div className="text-right">
               <span className="text-[11px] font-bold uppercase tracking-wide text-gray-400">

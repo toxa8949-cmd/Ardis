@@ -54,11 +54,18 @@ export function frameSizeValueForHeight(height: number): string | null {
   return "21";
 }
 
-// Для дитячих зростів орієнтуємось на діаметр коліс
+// Рекомендований діаметр коліс за зростом (см) — для ВСІХ зростів.
+// Використовується калькулятором ростовки: підбір ведеться за діаметром коліс,
+// бо це поле (wheel_size) заповнене майже в усіх товарів, на відміну від frame_size.
+// Значення збігаються з опціями фільтра WHEELS у каталозі: 16, 20, 24, 26, 27.5, 29.
 export function wheelSizeForHeight(height: number): string | null {
+  if (height < 105) return "12";
   if (height < 120) return "16";
   if (height < 135) return "20";
-  return null;
+  if (height < 150) return "24";
+  if (height < 165) return "26";
+  if (height < 178) return "27.5";
+  return "29";
 }
 
 // Орієнтовний розмір рами за діаметром коліс товару.
