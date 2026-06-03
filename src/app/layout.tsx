@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Unbounded, Manrope } from "next/font/google";
+import Script from "next/script";
 import { SITE } from "@/lib/site";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
+
+// Google Analytics 4
+const GA_ID = "G-N7FPEDKL54";
 
 const unbounded = Unbounded({
   subsets: ["latin", "cyrillic"],
@@ -154,6 +158,20 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
         <Providers>{children}</Providers>
+
+        {/* Google Analytics 4 */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );
