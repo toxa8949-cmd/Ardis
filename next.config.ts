@@ -29,11 +29,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Канонічний домен без www — узгоджено з SEO-налаштуваннями
+  // Канонічний домен без www — узгоджено з SEO-налаштуваннями.
+  // ВАЖЛИВО: тут редіректимо ТІЛЬКИ індексну /catalog → /bikes.
+  // Категорійні /catalog/:category НЕ редіректимо — це окремі SEO-сторінки
+  // з унікальними title/description/intro (див. src/lib/category-seo.ts).
   async redirects() {
     return [
       { source: "/catalog", destination: "/bikes", permanent: true },
-      { source: "/catalog/:category", destination: "/bikes?category=:category", permanent: true },
     ];
   },
 };

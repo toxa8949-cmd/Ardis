@@ -1,18 +1,21 @@
 // SEO-тексти для сторінок категорій аксесуарів (/accessories/[category]).
 // Ключ — slug категорії (acc-*), збігається з categories.slug у Supabase.
 // Поля опціональні: без запису сторінка використовує дефолти.
+//
+// УВАГА: суфікс " | Ardis" додається автоматично через title.template у layout.tsx.
+// Тому тут у title його НЕ дублюємо.
 
 export interface AccessoryCategorySeo {
-  name: string;         // людська назва категорії
-  title?: string;       // <title>
+  name: string; // людська назва категорії
+  title?: string; // <title>
   description?: string; // meta description
-  intro?: string;       // видимий SEO-текст під H1
+  intro?: string; // видимий SEO-текст під H1
 }
 
 export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   "acc-svitlo": {
     name: "Освітлення",
-    title: "Велосвітло — передні та задні фари для велосипеда | Ardis",
+    title: "Велосвітло — передні та задні фари для велосипеда",
     description:
       "Велосипедне освітлення в Києві: передні фари, задні габарити, мигалки. Безпека на дорозі вдень і вночі. Доставка Новою Поштою по Україні.",
     intro:
@@ -20,7 +23,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-zamky": {
     name: "Замки",
-    title: "Велозамки — надійний захист велосипеда від крадіжки | Ardis",
+    title: "Велозамки — надійний захист велосипеда від крадіжки",
     description:
       "Велосипедні замки в Києві: тросові, U-подібні, ланцюгові. Захистіть свій велосипед від крадіжки. Доставка Новою Поштою по Україні.",
     intro:
@@ -28,7 +31,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-kryla": {
     name: "Крила",
-    title: "Велосипедні крила — захист від бруду та води | Ardis",
+    title: "Велосипедні крила — захист від бруду та води",
     description:
       "Крила для велосипеда в Києві: пластикові та універсальні комплекти. Захист від бруду й води в негоду. Доставка Новою Поштою по Україні.",
     intro:
@@ -36,7 +39,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-nasosy": {
     name: "Насоси та ремонт",
-    title: "Велонасоси та ремкомплекти — купити в Києві | Ardis",
+    title: "Велонасоси та ремкомплекти — купити в Києві",
     description:
       "Велосипедні насоси, ремкомплекти, латки та інструмент в Києві. Все для підкачки коліс і дрібного ремонту. Доставка Новою Поштою по Україні.",
     intro:
@@ -44,7 +47,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-dzvinky": {
     name: "Дзвінки та сигнали",
-    title: "Велодзвінки та сигнали — купити в Києві | Ardis",
+    title: "Велодзвінки та сигнали — купити в Києві",
     description:
       "Велосипедні дзвінки та звукові сигнали в Києві. Попереджайте пішоходів і водіїв про свій рух. Доставка Новою Поштою по Україні.",
     intro:
@@ -52,7 +55,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-bagazhnyky": {
     name: "Багажники та корзини",
-    title: "Велобагажники та корзини — купити в Києві | Ardis",
+    title: "Велобагажники та корзини — купити в Києві",
     description:
       "Багажники, корзини та кріплення для велосипеда в Києві. Перевозьте речі та покупки зручно. Доставка Новою Поштою по Україні.",
     intro:
@@ -60,7 +63,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-zakhyst": {
     name: "Шоломи та захист",
-    title: "Велошоломи та захист — купити в Києві | Ardis",
+    title: "Велошоломи та захист — купити в Києві",
     description:
       "Велосипедні шоломи, наколінники та захист в Києві. Безпека для дорослих і дітей. Доставка Новою Поштою по всій Україні.",
     intro:
@@ -68,7 +71,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-sumky": {
     name: "Сумки",
-    title: "Велосумки — підсідельні, на раму, на кермо | Ardis",
+    title: "Велосумки — підсідельні, на раму, на кермо",
     description:
       "Велосипедні сумки в Києві: підсідельні, нарамні, на кермо. Зручне зберігання інструменту та речей у дорозі. Доставка по Україні.",
     intro:
@@ -76,7 +79,7 @@ export const ACCESSORY_CATEGORY_SEO: Record<string, AccessoryCategorySeo> = {
   },
   "acc-inshe": {
     name: "Інші аксесуари",
-    title: "Аксесуари для велосипеда — купити в Києві | Ardis",
+    title: "Аксесуари для велосипеда — купити в Києві",
     description:
       "Різноманітні аксесуари для велосипеда в Києві: тримачі, фляги, дзеркала та інше. Доставка Новою Поштою по всій Україні.",
     intro:
