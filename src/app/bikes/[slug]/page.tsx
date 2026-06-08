@@ -20,18 +20,67 @@ export async function generateStaticParams() {
 
 type Props = { params: Promise<{ slug: string }> };
 
+// Будує meta description зі структурованих характеристик товару.
+// Чому не з p.description: ~239 з 247 описів починаються однаково
+// («Основні переваги…»), тож обрізка перших 155 символів давала майже
+// однакові сніпети у видачі. Збірка з полів дає унікальний опис із
+// ключовими словами (тип, рама, колеса, гальма, ціна, Київ/доставка)
+// на ПОЧАТКУ — це і бачить користувач у Google перед кліком.
+function buildMetaDescription(p: {
+  name: string;
+  frame?: string | null;
+  wheel?: string | null;
+  wheel_size?: string | null;
+  drivetrain?: string | null;
+  brakes?: string | null;
+  speeds?: string | null;
+  price: number;
+  in_stock?: boolean;
+  description?: string | null;
+}): string {
+  const wheel = p.wheel_size || p.wheel || "";
+  // Технічні характеристики, які реально заповнені (рама/колеса/трансмісія/гальма — 100%).
+  const specs: string[] = [];
+  if (p.frame) specs.push(`рама ${String(p.frame).toLowerCase()}`);
+  if (wheel) specs.push(`колеса ${wheel}″`);
+  if (p.speeds) specs.push(`${p.speeds} швидкостей`);
+  if (p.drivetrain) specs.push(String(p.drivetrain));
+  if (p.brakes) specs.push(`гальма ${String(p.brakes).toLowerCase()}`);
+
+  const specPart = specs.slice(0, 4).join(", ");
+  const pricePart = p.price > 0 ? `Ціна ${uah(p.price)}.` : "";
+  const stockPart = p.in_stock === false ? "Під замовлення." : "В наявності.";
+
+  // Збираємо: Назва — характеристики. Ціна. Наявність. Купити в Києві + доставка.
+  let desc = `${p.name}`;
+  if (specPart) desc += ` — ${specPart}.`;
+  else desc += ".";
+  desc += ` ${pricePart} ${stockPart} Купити в Києві (Позняки, Осокорки) — самовивіз або доставка Новою Поштою по Україні.`;
+  desc = desc.replace(/\s+/g, " ").trim();
+
+  // Запасний варіант: якщо раптом характеристик зовсім нема — чистимо markdown з опису.
+  if (specPart === "" && p.description) {
+    const clean = p.description.replace(/[#*_>`-]/g, " ").replace(/\s+/g, " ").trim();
+    if (clean.length > 60) return clean.slice(0, 158);
+  }
+
+  // М'яко обрізаємо до ~158 символів по межі слова (Google показує ~155–160).
+  if (desc.length > 160) {
+    desc = desc.slice(0, 158);
+    const lastSpace = desc.lastIndexOf(" ");
+    if (lastSpace > 120) desc = desc.slice(0, lastSpace);
+    desc = desc.replace(/[.,;:\s]+$/, "") + "…";
+  }
+  return desc;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p) return { title: "Товар не знайдено" };
 
-  const title = `${p.name} — купити в Ardis`;
-  const cleanDesc = p.description
-    ? p.description.replace(/[#*_>`-]/g, " ").replace(/\s+/g, " ").trim()
-    : "";
-  const description = cleanDesc
-    ? cleanDesc.slice(0, 155)
-    : `${p.name}: ${p.frame}, колеса ${p.wheel}, ${p.drivetrain}. Ціна ${uah(p.price)}. Заводська гарантія Ardis.`;
+  const title = `${p.name} — купити в Києві`;
+  const description = buildMetaDescription(p);
 
   return {
     title,
