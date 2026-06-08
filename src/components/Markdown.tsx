@@ -4,11 +4,17 @@ import { marked } from "marked";
 // marked налаштований на GitHub-подібний markdown.
 marked.setOptions({ gfm: true, breaks: true });
 
-export function Markdown({ content }: { content: string }) {
+export function Markdown({
+  content,
+  className = "prose-ardis",
+}: {
+  content: string;
+  className?: string;
+}) {
   const html = marked.parse(content) as string;
   return (
     <div
-      className="prose-ardis max-w-none"
+      className={`${className} max-w-none`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

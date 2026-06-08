@@ -128,3 +128,31 @@ h1, h2, h3, .font-display {
   border: 1px solid rgba(0,0,0,0.08);
 }
 .prose-ardis tbody tr:nth-child(even) { background: #fafafa; }
+
+/* ---------------------------------------------------------------------------
+   Компактний варіант для ОПИСІВ ТОВАРІВ (не статей блогу).
+   Описи часто містять багато коротких рядків і <br> (marked breaks:true),
+   тому тут стискаємо вертикальні відступи, щоб текст був структурованим,
+   а не «розсипаним» із великими прогалинами.
+--------------------------------------------------------------------------- */
+.prose-compact { color: #374151; line-height: 1.65; }
+.prose-compact p { margin: 0.5rem 0; }
+.prose-compact p:first-child { margin-top: 0; }
+.prose-compact p:last-child { margin-bottom: 0; }
+.prose-compact ul, .prose-compact ol { margin: 0.5rem 0; padding-left: 1.4rem; }
+.prose-compact ul { list-style: disc; }
+.prose-compact ol { list-style: decimal; }
+.prose-compact li { margin: 0.15rem 0; }
+/* Прибираємо подвійні відступи від <br> усередині абзаців */
+.prose-compact br { line-height: 1.2; }
+.prose-compact h2, .prose-compact h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-ink);
+  margin: 1rem 0 0.4rem;
+}
+.prose-compact h2 { font-size: 1.3rem; }
+.prose-compact h3 { font-size: 1.1rem; }
+.prose-compact strong { font-weight: 700; color: var(--color-ink); }
+.prose-compact a { color: var(--color-accent-600); font-weight: 600; text-decoration: underline; }
+.prose-compact a:hover { color: var(--color-accent); }
