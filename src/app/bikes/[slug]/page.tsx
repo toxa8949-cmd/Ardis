@@ -50,19 +50,43 @@ function buildMetaDescription(p: {
   const specPart = specs.slice(0, 4).join(", ");
   const pricePart = p.price > 0 ? `Ціна ${uah(p.price)}.` : "";
   const stockPart = p.in_stock === false ? "Під замовлення." : "В наявності.";
+  const tail = "Купити в Києві (Позняки, Осокорки) — самовивіз або доставка Новою Поштою по Україні.";
 
-  // Збираємо: Назва — характеристики. Ціна. Наявність. Купити в Києві + доставка.
-  let desc = `${p.name}`;
-  if (specPart) desc += ` — ${specPart}.`;
-  else desc += ".";
-  desc += ` ${pricePart} ${stockPart} Купити в Києві (Позняки, Осокорки) — самовивіз або доставка Новою Поштою по Україні.`;
-  desc = desc.replace(/\s+/g, " ").trim();
-
-  // Запасний варіант: якщо раптом характеристик зовсім нема — чистимо markdown з опису.
-  if (specPart === "" && p.description) {
-    const clean = p.description.replace(/[#*_>`-]/g, " ").replace(/\s+/g, " ").trim();
-    if (clean.length > 60) return clean.slice(0, 158);
+  // ВЕЛОСИПЕДИ: рама/колеса/трансмісія/гальма заповнені на 100% → будуємо з них.
+  if (specPart) {
+    let desc = `${p.name} — ${specPart}. ${pricePart} ${stockPart} ${tail}`;
+    desc = desc.replace(/\s+/g, " ").trim();
+    return clampDescription(desc);
   }
+
+  // АКСЕСУАРИ: характеристик рами/коліс нема, але є опис із переліком
+  // властивостей, де переноси — це HTML-теги <br />, а не markdown.
+  // Чистимо ВСІ HTML-теги + markdown, беремо перші властивості як вступ.
+  if (p.description) {
+    const clean = p.description
+      .replace(/<[^>]*>?/g, " ")        // прибрати HTML-теги (зокрема обрізані «<br /»)
+      .replace(/&[a-z]+;/gi, " ")       // HTML-сутності (&nbsp; тощо)
+      .replace(/[#*_>`]/g, " ")         // markdown-символи
+      .replace(/\s+/g, " ")
+      .trim();
+    if (clean.length > 40) {
+      // Якщо назва ще не на початку — додаємо її як «якір» з ключовим словом.
+      const intro = clean.toLowerCase().startsWith(p.name.toLowerCase().slice(0, 12))
+        ? clean
+        : `${p.name}. ${clean}`;
+      let desc = `${intro} ${pricePart} ${tail}`.replace(/\s+/g, " ").trim();
+      return clampDescription(desc);
+    }
+  }
+
+  // Крайній випадок — мінімальний валідний опис.
+  let desc = `${p.name}. ${pricePart} ${stockPart} ${tail}`.replace(/\s+/g, " ").trim();
+  return clampDescription(desc);
+}
+
+// М'яке обрізання до ~158 символів по межі слова (Google показує ~155–160).
+function clampDescription(input: string): string {
+  let desc = input;
 
   // М'яко обрізаємо до ~158 символів по межі слова (Google показує ~155–160).
   if (desc.length > 160) {
