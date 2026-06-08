@@ -12,6 +12,7 @@ import {
   getAccessoriesForProduct,
 } from "@/lib/products";
 import { uah, SITE } from "@/lib/site";
+import type { Product } from "@/types";
 
 export async function generateStaticParams() {
   const slugs = await getAllProductSlugs();
@@ -26,18 +27,7 @@ type Props = { params: Promise<{ slug: string }> };
 // однакові сніпети у видачі. Збірка з полів дає унікальний опис із
 // ключовими словами (тип, рама, колеса, гальма, ціна, Київ/доставка)
 // на ПОЧАТКУ — це і бачить користувач у Google перед кліком.
-function buildMetaDescription(p: {
-  name: string;
-  frame?: string | null;
-  wheel?: string | null;
-  wheel_size?: string | null;
-  drivetrain?: string | null;
-  brakes?: string | null;
-  speeds?: string | null;
-  price: number;
-  in_stock?: boolean;
-  description?: string | null;
-}): string {
+function buildMetaDescription(p: Product): string {
   const wheel = p.wheel_size || p.wheel || "";
   // Технічні характеристики, які реально заповнені (рама/колеса/трансмісія/гальма — 100%).
   const specs: string[] = [];
