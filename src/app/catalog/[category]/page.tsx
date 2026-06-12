@@ -32,18 +32,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = await getCategoryBySlug(category);
   if (!cat) return { title: "Категорію не знайдено" };
   const seo = CATEGORY_SEO[cat.slug];
+  const year = new Date().getFullYear();
+  const nameLc = cat.name.toLowerCase();
+
+  // Сильніший фолбек title/description для CTR: «купити», Київ, рік, доставка.
+  const title = seo?.title ?? `${cat.name} велосипеди — купити в Києві | Ardis ${year}`;
+  const description =
+    seo?.description ??
+    `${cat.name} велосипеди Ardis ✔ В наявності ✔ Заводська гарантія ✔ Доставка Новою Поштою по Україні ✔ Самовивіз у Києві. Великий вибір ${nameLc} моделей за найкращою ціною.`;
+  const ogImage = `${SITE.url}/opengraph-image`;
+
   return {
-    title: seo?.title ?? `${cat.name} велосипеди`,
-    description:
-      seo?.description ??
-      `${cat.name} велосипеди Ardis та інших брендів. Великий вибір, заводська гарантія, доставка по Україні.`,
+    title,
+    description,
     alternates: { canonical: `/catalog/${cat.slug}` },
     openGraph: {
       type: "website",
-      title: seo?.title ?? `${cat.name} велосипеди`,
-      description: seo?.description ?? `${cat.name} велосипеди Ardis.`,
+      title,
+      description,
       url: `${SITE.url}/catalog/${cat.slug}`,
+      siteName: SITE.name,
+      locale: "uk_UA",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${cat.name} велосипеди Ardis` }],
     },
+    twitter: { card: "summary_large_image", title, description, images: [ogImage] },
   };
 }
 
@@ -81,9 +93,25 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     ],
   };
 
+  // ItemList — перелік товарів категорії. Допомагає Google показувати
+  // сторінку як список товарів і краще її ранжувати по комерційних запитах.
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${cat.name} велосипеди`,
+    numberOfItems: products.length,
+    itemListElement: products.slice(0, 30).map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${SITE.url}/bikes/${p.slug}`,
+      name: p.name,
+    })),
+  };
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
       <Header />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
         <div className="mb-6">

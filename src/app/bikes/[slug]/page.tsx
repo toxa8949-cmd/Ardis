@@ -39,8 +39,8 @@ function buildMetaDescription(p: Product): string {
 
   const specPart = specs.slice(0, 4).join(", ");
   const pricePart = p.price > 0 ? `Ціна ${uah(p.price)}.` : "";
-  const stockPart = p.in_stock === false ? "Під замовлення." : "В наявності.";
-  const tail = "Купити в Києві (Позняки, Осокорки) — самовивіз або доставка Новою Поштою по Україні.";
+  const stockPart = p.in_stock === false ? "Під замовлення." : "✔ В наявності.";
+  const tail = "✔ Доставка Новою Поштою по Україні ✔ Самовивіз у Києві (Позняки, Осокорки) ✔ Гарантія.";
 
   // ВЕЛОСИПЕДИ: рама/колеса/трансмісія/гальма заповнені на 100% → будуємо з них.
   if (specPart) {
@@ -93,14 +93,43 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await getProductBySlug(slug);
   if (!p) return { title: "Товар не знайдено" };
 
-  const title = `${p.name} — купити в Києві`;
+  // СИЛЬНИЙ title для CTR: назва + ціна + наявність + рік.
+  // Ціна й «в наявності» прямо в заголовку помітно підвищують клікабельність
+  // навіть із нижчої позиції. Тримаємо в межах ~60 символів, які показує Google.
+  const year = new Date().getFullYear();
+  const pricePart = p.price > 0 ? ` — ${uah(p.price)}` : "";
+  const stockPart = p.in_stock === false ? "" : " · в наявності";
+  let title = `${p.name}${pricePart}${stockPart} | Ardis Київ ${year}`;
+  // Якщо задовгий — спрощуємо хвіст, але назву й ціну зберігаємо.
+  if (title.length > 65) {
+    title = `${p.name}${pricePart} | Ardis Київ`;
+  }
+  if (title.length > 65) {
+    title = `${p.name} — купити в Києві | Ardis`;
+  }
+
   const description = buildMetaDescription(p);
+  const ogImage = p.image_url ?? p.images?.[0] ?? `${SITE.url}/opengraph-image`;
 
   return {
     title,
     description,
     alternates: { canonical: `/bikes/${p.slug}` },
-    openGraph: { type: "website", title, description, url: `${SITE.url}/bikes/${p.slug}` },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url: `${SITE.url}/bikes/${p.slug}`,
+      siteName: SITE.name,
+      locale: "uk_UA",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: p.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
