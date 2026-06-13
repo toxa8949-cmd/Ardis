@@ -24,6 +24,17 @@ const manrope = Manrope({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
+  // Явні іконки з версією у назві (-v2) — щоб Google переобійшов фавікон
+  // (Googlebot агресивно кешує старий). Білий логотип на чорному тлі читається
+  // і в світлій, і в темній темі видачі.
+  icons: {
+    icon: [
+      { url: "/icon-v2.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon-v2.ico",
+    apple: "/apple-icon-v2.png",
+  },
   title: {
     default: `${SITE.name} — велосипеди українського виробництва`,
     template: `%s | ${SITE.name}`,
