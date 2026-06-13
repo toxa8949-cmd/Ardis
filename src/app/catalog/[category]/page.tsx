@@ -173,6 +173,24 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         currentSlug={cat.slug}
         title="Інші категорії велосипедів"
       />
+
+      {(CATEGORY_SEO[cat.slug]?.seoText?.length ?? 0) > 0 && (
+        <section className="border-t border-black/5 bg-paper">
+          <div className="mx-auto max-w-3xl px-4 py-14">
+            <h2 className="text-2xl font-bold tracking-tight">
+              Про {cat.name.toLowerCase()} велосипеди
+            </h2>
+            <div className="mt-5 space-y-4">
+              {CATEGORY_SEO[cat.slug]!.seoText!.map((para, i) => (
+                <p key={i} className="leading-relaxed text-gray-600">
+                  {para}
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {CATEGORY_FAQ[cat.slug]?.length > 0 && (
         <Faq items={CATEGORY_FAQ[cat.slug]} title={`Питання про ${cat.name.toLowerCase()} велосипеди`} />
       )}
