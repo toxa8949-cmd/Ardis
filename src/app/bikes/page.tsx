@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { Pagination } from "@/components/Pagination";
-import { SEO_COLLECTIONS } from "@/lib/seo-collections";
+import { FEATURED_COLLECTIONS } from "@/lib/seo-collections";
 import {
   getProductsPaged, getFacetData, getBrands, getCategories, getPriceRange, getFrameSizes,
   type SortOption,
@@ -99,7 +99,7 @@ export default async function BikesPage({ searchParams }: Props) {
         <div className="mt-12 border-t border-black/5 pt-8">
           <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">Популярні підбірки</h2>
           <div className="mt-3 flex flex-wrap gap-2">
-            {SEO_COLLECTIONS.map((c) => (
+            {FEATURED_COLLECTIONS.map((c) => (
               <Link
                 key={c.slug}
                 href={`/c/${c.slug}`}

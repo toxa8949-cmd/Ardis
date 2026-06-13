@@ -2,12 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Factory, Phone } from "lucide-react";
 import { SITE } from "@/lib/site";
+import { GEO_COLLECTIONS } from "@/lib/seo-collections";
 
 export function Footer() {
   const c = SITE.contacts;
   return (
     <footer className="border-t border-white/5 bg-[#0a0c0f] text-white/60">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-5">
         <div>
           <div className="flex items-center">
             <Image
@@ -40,6 +41,17 @@ export function Footer() {
             <li><Link href="/warranty" className="hover:text-white">Гарантія</Link></li>
             <li><Link href="/about" className="hover:text-white">Про нас</Link></li>
             <li><Link href="/contacts" className="hover:text-white">Контакти</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-bold text-white">Магазин у Києві</h3>
+          <ul className="mt-3 space-y-2 text-sm">
+            {GEO_COLLECTIONS.map((g) => (
+              <li key={g.slug}>
+                <Link href={`/c/${g.slug}`} className="hover:text-white">{g.h1}</Link>
+              </li>
+            ))}
           </ul>
         </div>
 
