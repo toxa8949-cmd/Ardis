@@ -5,9 +5,10 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { CategoryLinks } from "@/components/CategoryLinks";
+import { Pagination } from "@/components/Pagination";
 import { Faq } from "@/components/Faq";
 import {
-  getProducts, getBrands, getCategories,
+  getProductsPaged, getFacetData, getBrands, getCategories,
   getCategoryBySlug, getAllCategorySlugs, getPriceRange, getFrameSizes,
   type SortOption,
 } from "@/lib/products";
@@ -24,7 +25,7 @@ type Props = {
   params: Promise<{ category: string }>;
   searchParams: Promise<{
     brand?: string; wheel?: string; frameSize?: string;
-    priceMin?: string; priceMax?: string; inStock?: string; sort?: string;
+    priceMin?: string; priceMax?: string; inStock?: string; sort?: string; page?: string;
   }>;
 };
 
@@ -67,22 +68,39 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const cat = await getCategoryBySlug(category);
   if (!cat) notFound();
 
-  const [products, brands, categories, priceRange, frameSizes] = await Promise.all([
-    getProducts({
+  // Мультивибір фільтрів передається в URL через кому — парсимо в масиви.
+  const csv = (v?: string) => (v ? v.split(",").filter(Boolean) : undefined);
+  const pageNum = sp.page ? Math.max(1, Number(sp.page)) : 1;
+
+  const [paged, facetRaw, brands, categories, priceRange, frameSizes] = await Promise.all([
+    getProductsPaged({
       category,
-      brand: sp.brand,
-      wheel: sp.wheel,
-      frameSize: sp.frameSize,
+      brands: csv(sp.brand),
+      wheels: csv(sp.wheel),
+      frameSizes: csv(sp.frameSize),
       priceMin: sp.priceMin ? Number(sp.priceMin) : undefined,
       priceMax: sp.priceMax ? Number(sp.priceMax) : undefined,
       inStock: sp.inStock === "1",
       sort: (sp.sort as SortOption) ?? "new",
-    }),
+    }, pageNum, 24),
+    getFacetData("velosypedy"),
     getBrands(),
     getCategories(),
     getPriceRange(),
     getFrameSizes(),
   ]);
+  const products = paged.items;
+
+  // Фасети (лічильники для брендів/коліс/рам) — лише в межах поточної категорії.
+  const facetData = facetRaw
+    .filter((r) => r.category_slug === cat.slug)
+    .map((r) => ({
+      brand: r.brand,
+      wheel: r.wheel,
+      frameSize: r.frameSize,
+      category: r.category_slug,
+      price: r.price,
+    }));
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -118,7 +136,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <div className="mb-6">
           <span className="text-sm font-bold uppercase tracking-widest text-accent">Каталог</span>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{cat.name} велосипеди</h1>
-          <p className="mt-1 text-sm text-gray-500">Знайдено: {products.length}</p>
+          <p className="mt-1 text-sm text-gray-500">Знайдено: {paged.total}</p>
           {CATEGORY_SEO[cat.slug]?.intro && (
             <p className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
               {CATEGORY_SEO[cat.slug].intro}
@@ -131,6 +149,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           categories={categories}
           priceRange={priceRange}
           frameSizes={frameSizes}
+          facetData={facetData}
           hideCategoryFilter
         />
 
@@ -146,6 +165,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <p className="mt-1 text-sm text-gray-400">Спробуйте змінити параметри</p>
           </div>
         )}
+
+        <Pagination page={paged.page} pages={paged.pages} />
       </main>
       <CategoryLinks
         categories={categories.filter((c) => c.group === "velosypedy")}
