@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { CatalogFilters } from "@/components/CatalogFilters";
+import { CategoryLinks } from "@/components/CategoryLinks";
 import { Faq } from "@/components/Faq";
 import {
   getProducts, getBrands, getCategories,
@@ -146,6 +147,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         )}
       </main>
+      <CategoryLinks
+        categories={categories.filter((c) => c.group === "velosypedy")}
+        currentSlug={cat.slug}
+        title="Інші категорії велосипедів"
+      />
       {CATEGORY_FAQ[cat.slug]?.length > 0 && (
         <Faq items={CATEGORY_FAQ[cat.slug]} title={`Питання про ${cat.name.toLowerCase()} велосипеди`} />
       )}

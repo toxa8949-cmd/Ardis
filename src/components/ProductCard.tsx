@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Star, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { ProductImage } from "./ProductImage";
 import { AddToCartButton } from "./AddToCartButton";
 import { uah } from "@/lib/site";
@@ -57,9 +57,8 @@ export function ProductCard({ p }: { p: Product }) {
 
       <div className="flex flex-1 flex-col px-2 pt-4">
         <div className="flex items-center justify-between text-xs">
-          <span className="inline-flex items-center gap-1 font-bold text-amber-500">
-            <Star size={13} fill="currentColor" /> {p.rating}
-            <span className="font-normal text-gray-400">({p.reviews})</span>
+          <span className="inline-flex items-center gap-1 font-bold text-gray-500">
+            {p.brand?.name ?? (p.type === "part" ? "Аксесуар" : "Велосипед")}
           </span>
           {p.in_stock ? (
             <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">

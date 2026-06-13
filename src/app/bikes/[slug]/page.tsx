@@ -7,10 +7,12 @@ import { Footer } from "@/components/Footer";
 import { ProductDetail } from "@/components/ProductDetail";
 import { ProductCard } from "@/components/ProductCard";
 import { Markdown } from "@/components/Markdown";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import {
   getProductBySlug, getRelatedProducts, getAllProductSlugs, getCategoryBySlug,
   getAccessoriesForProduct,
 } from "@/lib/products";
+import { getApprovedReviews, getReviewAggregate } from "@/lib/reviews";
 import { uah, SITE } from "@/lib/site";
 import type { Product } from "@/types";
 
@@ -138,9 +140,11 @@ export default async function ProductPage({ params }: Props) {
   const p = await getProductBySlug(slug);
   if (!p) notFound();
 
-  const [related, category] = await Promise.all([
+  const [related, category, reviews, aggregate] = await Promise.all([
     getRelatedProducts(p.category_slug, p.slug, 4),
     p.category_slug ? getCategoryBySlug(p.category_slug) : Promise.resolve(null),
+    getApprovedReviews(p.id),
+    getReviewAggregate(p.id),
   ]);
 
   // Аксесуари-крос-сел показуємо лише для велосипедів (не для самих аксесуарів)
@@ -163,9 +167,33 @@ export default async function ProductPage({ params }: Props) {
     sku: p.slug,
     category: catName,
     brand: { "@type": "Brand", name: p.brand?.name ?? "Ardis" },
+    // ВАЖЛИВО: aggregateRating рахується ЛИШЕ з реальних схвалених відгуків.
+    // Якщо їх нема — поле не віддаємо взагалі (Google не любить фейкові зірочки).
     aggregateRating:
-      p.reviews > 0
-        ? { "@type": "AggregateRating", ratingValue: p.rating, reviewCount: p.reviews }
+      aggregate.count > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: aggregate.average,
+            reviewCount: aggregate.count,
+            bestRating: 5,
+            worstRating: 1,
+          }
+        : undefined,
+    // Окремі відгуки в розмітці (до 10 свіжих) — підсилюють rich-результати.
+    review:
+      reviews.length > 0
+        ? reviews.slice(0, 10).map((r) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: r.author },
+            datePublished: r.created_at.slice(0, 10),
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: r.rating,
+              bestRating: 5,
+              worstRating: 1,
+            },
+            ...(r.body ? { reviewBody: r.body } : {}),
+          }))
         : undefined,
     offers: {
       "@type": "Offer",
@@ -223,7 +251,7 @@ export default async function ProductPage({ params }: Props) {
         </nav>
 
         <div className="mt-8">
-          <ProductDetail product={p} accessories={accessories} />
+          <ProductDetail product={p} accessories={accessories} aggregate={aggregate} />
         </div>
 
         {p.description && (
@@ -244,6 +272,13 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </section>
         )}
+
+        <ReviewsSection
+          productId={p.id}
+          slug={p.slug}
+          reviews={reviews}
+          aggregate={aggregate}
+        />
       </main>
 
       <Footer />

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Package, FileText, ShoppingBag, LogOut, Bike, ExternalLink, Sparkles } from "lucide-react";
+import { LayoutDashboard, Package, FileText, ShoppingBag, LogOut, Bike, ExternalLink, Sparkles, Star } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 const NAV = [
   { href: "/admin", label: "Дашборд", icon: LayoutDashboard, exact: true },
   { href: "/admin/products", label: "Товари", icon: Package },
   { href: "/admin/accessories", label: "Аксесуари-акції", icon: Sparkles },
+  { href: "/admin/reviews", label: "Відгуки", icon: Star },
   { href: "/admin/blog", label: "Блог", icon: FileText },
   { href: "/admin/orders", label: "Замовлення", icon: ShoppingBag },
 ];

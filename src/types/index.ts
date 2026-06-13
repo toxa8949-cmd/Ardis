@@ -158,3 +158,28 @@ export interface AccessoryOffer {
   discount_percent: number;
   discounted_price: number; // ціна зі знижкою (для купівлі з велосипедом)
 }
+
+// --- Відгуки покупців ---
+export type ReviewStatus = "pending" | "approved" | "rejected";
+
+export interface Review {
+  id: string;
+  product_id: string;
+  author: string;
+  rating: number;        // 1..5
+  body: string | null;
+  status: ReviewStatus;
+  created_at: string;
+}
+
+export const REVIEW_STATUS_LABELS: Record<ReviewStatus, string> = {
+  pending: "На модерації",
+  approved: "Опубліковано",
+  rejected: "Відхилено",
+};
+
+// Агрегат відгуків товару (для зірочок та JSON-LD AggregateRating)
+export interface ReviewAggregate {
+  average: number;       // середній рейтинг, округлений до 0.1
+  count: number;         // кількість схвалених відгуків
+}

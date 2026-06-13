@@ -8,16 +8,18 @@ import { ProductGallery } from "./ProductGallery";
 import { useCart } from "./CartProvider";
 import { useToast } from "./ToastProvider";
 import { uah, frameSizeHintForWheel } from "@/lib/site";
-import { BADGE_LABELS, type Product, type AccessoryOffer } from "@/types";
+import { BADGE_LABELS, type Product, type AccessoryOffer, type ReviewAggregate } from "@/types";
 
 // Інтерактивна частина сторінки товару: галерея + вибір кольору + кнопка
 // з єдиним станом кольору. SEO/JSON-LD/breadcrumbs лишаються на сервері (page.tsx).
 export function ProductDetail({
   product: p,
   accessories = [],
+  aggregate,
 }: {
   product: Product;
   accessories?: AccessoryOffer[];
+  aggregate?: ReviewAggregate;
 }) {
   const { add, open } = useCart();
   const toast = useToast();
@@ -173,10 +175,30 @@ export function ProductDetail({
         <h1 className="mt-1 text-3xl font-bold tracking-tight break-words sm:text-4xl">{p.name}</h1>
 
         <div className="mt-3 flex items-center gap-4">
-          <span className="inline-flex items-center gap-1 text-sm font-bold text-amber-500">
-            <Star size={16} fill="currentColor" /> {p.rating}
-            <span className="font-normal text-gray-400">({p.reviews} відгуків)</span>
-          </span>
+          {aggregate && aggregate.count > 0 ? (
+            <a
+              href="#reviews"
+              className="inline-flex items-center gap-1 text-sm font-bold text-amber-500 transition-opacity hover:opacity-80"
+            >
+              <Star size={16} fill="currentColor" /> {aggregate.average}
+              <span className="font-normal text-gray-400">
+                ({aggregate.count}{" "}
+                {aggregate.count === 1
+                  ? "відгук"
+                  : aggregate.count < 5
+                  ? "відгуки"
+                  : "відгуків"}
+                )
+              </span>
+            </a>
+          ) : (
+            <a
+              href="#reviews"
+              className="inline-flex items-center gap-1 text-sm font-medium text-gray-400 transition-colors hover:text-accent"
+            >
+              <Star size={16} /> Залишити відгук
+            </a>
+          )}
           {p.in_stock ? (
             <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-600">
               ● В наявності

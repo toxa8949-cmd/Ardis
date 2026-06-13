@@ -1,9 +1,11 @@
-import { getProducts } from "@/lib/products";
+import { getProducts, getCategories } from "@/lib/products";
 import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { FrameCalculator } from "@/components/FrameCalculator";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
+import { NewArrivals } from "@/components/NewArrivals";
+import { CategoryLinks } from "@/components/CategoryLinks";
 import { Showrooms } from "@/components/Showrooms";
 import { Faq } from "@/components/Faq";
 import { Footer } from "@/components/Footer";
@@ -27,8 +29,14 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const products = await getProducts({ group: "velosypedy" });
+  const [products, categories] = await Promise.all([
+    getProducts({ group: "velosypedy" }),
+    getCategories("velosypedy"),
+  ]);
   const featured = products.slice(0, 8);
+  // Новинки — найсвіжіші за датою (окремий запит, щоб мати окремий набір лінків).
+  const newest = await getProducts({ group: "velosypedy", sort: "new" });
+  const newArrivals = newest.slice(0, 8);
 
   // Товар для Hero: шукаємо TUCAN серед завантажених; якщо нема — перший наявний велосипед.
   const heroProduct =
@@ -61,6 +69,8 @@ export default async function HomePage() {
         <Hero product={heroProduct} />
         <FrameCalculator />
         <CategoryShowcase featured={featured} />
+        <NewArrivals products={newArrivals} />
+        <CategoryLinks categories={categories} />
         <Showrooms />
         <Faq items={HOME_FAQ} />
       </main>
