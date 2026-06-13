@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
@@ -14,6 +16,7 @@ import {
 } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { CATEGORY_SEO } from "@/lib/category-seo";
+import { AGE_COLLECTIONS } from "@/lib/seo-collections";
 import { CATEGORY_FAQ } from "@/lib/faq";
 
 export async function generateStaticParams() {
@@ -167,6 +170,26 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         )}
 
         <Pagination page={paged.page} pages={paged.pages} />
+
+        {cat.slug === "dytyachi" && AGE_COLLECTIONS.length > 0 && (
+          <div className="mt-12 border-t border-black/5 pt-8">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">
+              Підібрати за віком дитини
+            </h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {AGE_COLLECTIONS.map((a) => (
+                <Link
+                  key={a.slug}
+                  href={`/c/${a.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-accent/40 hover:text-accent-600"
+                >
+                  {a.age} {a.age >= 5 ? "років" : "роки"}
+                  <ArrowRight size={14} className="text-gray-300" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
       <CategoryLinks
         categories={categories.filter((c) => c.group === "velosypedy")}
