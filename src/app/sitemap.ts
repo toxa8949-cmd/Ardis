@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllProductSlugs, getAllCategorySlugs } from "@/lib/products";
 import { getPublishedPostSlugs } from "@/lib/posts";
 import { SEO_COLLECTIONS } from "@/lib/seo-collections";
+import { RU_LANDINGS } from "@/lib/ru-landings";
 import { ACCESSORY_CATEGORY_SLUGS } from "@/lib/accessory-category-seo";
 import { SITE } from "@/lib/site";
 
@@ -31,6 +32,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.7,
+  }));
+
+  const ruLandingPages: MetadataRoute.Sitemap = RU_LANDINGS.map((c) => ({
+    url: `${SITE.url}/ru/${c.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.6,
   }));
 
   const accessoryCategoryPages: MetadataRoute.Sitemap = ACCESSORY_CATEGORY_SLUGS.map((slug) => ({
@@ -67,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...infoPages,
     ...categoryPages,
     ...seoCollectionPages,
+    ...ruLandingPages,
     ...accessoryCategoryPages,
     ...postPages,
     ...productPages,
