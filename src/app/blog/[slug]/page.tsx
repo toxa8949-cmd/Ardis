@@ -9,6 +9,8 @@ import { Markdown } from "@/components/Markdown";
 import { getPublishedPostBySlug, getPublishedPostSlugs } from "@/lib/posts";
 import { SITE } from "@/lib/site";
 
+export const revalidate = 300;
+
 export async function generateStaticParams() {
   const slugs = await getPublishedPostSlugs();
   return slugs.map((slug) => ({ slug }));

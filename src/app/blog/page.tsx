@@ -7,6 +7,10 @@ import { PostCover } from "@/components/PostCover";
 import { getPublishedPosts } from "@/lib/posts";
 import { SITE } from "@/lib/site";
 
+// ISR: сторінка перебудовується раз на 5 хв — нові статті з БД зʼявляються
+// без повного редеплою.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Блог про велосипеди",
   description:
