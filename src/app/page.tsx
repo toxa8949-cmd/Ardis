@@ -5,6 +5,7 @@ import { Hero } from "@/components/Hero";
 import { FrameCalculator } from "@/components/FrameCalculator";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
 import { NewArrivals } from "@/components/NewArrivals";
+import { PopularCollections } from "@/components/PopularCollections";
 import { CategoryLinks } from "@/components/CategoryLinks";
 import { Showrooms } from "@/components/Showrooms";
 import { Faq } from "@/components/Faq";
@@ -70,6 +71,7 @@ export default async function HomePage() {
         <FrameCalculator />
         <CategoryShowcase featured={featured} />
         <NewArrivals products={newArrivals} />
+        <PopularCollections />
         <CategoryLinks categories={categories} />
         <Showrooms />
         <Faq items={HOME_FAQ} />
