@@ -277,6 +277,101 @@ export const SEO_COLLECTIONS: SeoCollection[] = [
       'Велосипед для хлопчика обирають за діаметром коліс і зростом дитини — це універсальний підхід для будь-якої дитини. Перевірте посадку: дитина має діставати ногами до землі, сидячи в сідлі. Орієнтири за віком: колеса 12" — 3–4 роки, 16" — 5–6, 20" — 7–9, 24" — 10–13 років. У каталозі Ardis представлені дитячі та підліткові велосипеди різних типів — від простих моделей зі страхувальними колесами до гірських із амортизацією. Усі — із заводською гарантією. Доступні самовивіз у Києві (вул. Ревуцького, 40В) і доставка Новою Поштою по Україні.',
     filters: { category: "dytyachi" },
   },
+
+  // --- Дитячі за діаметром коліс (доповнення: 12", 14", 18", 24") ---
+  {
+    slug: "dytyachi-velosypedy-12",
+    h1: 'Дитячі велосипеди з колесами 12 дюймів',
+    title: 'Дитячі велосипеди 12 дюймів — купити в Києві',
+    description:
+      'Дитячі велосипеди з колесами 12" для дітей приблизно 2–4 років. Зі страхувальними колесами та захистом ланцюга. Гарантія, доставка по Україні.',
+    intro:
+      'Колеса 12 дюймів — це найменший розмір «справжнього» двоколісного велосипеда, орієнтовно для дітей 2–4 років (зріст приблизно 90–105 см). Такі моделі комплектуються знімними страхувальними колесами, м\'якими накладками на кермі та повним захистом ланцюга. Головний критерій вибору — дитина має впевнено діставати ногами до землі, сидячи в сідлі. У добірці — усі моделі Ardis із колесами 12". Заводська гарантія та доставка Новою Поштою.',
+    filters: { wheels: ["12"] },
+  },
+  {
+    slug: "dytyachi-velosypedy-14",
+    h1: 'Дитячі велосипеди з колесами 14 дюймів',
+    title: 'Дитячі велосипеди 14 дюймів — купити в Києві',
+    description:
+      'Дитячі велосипеди з колесами 14" для дітей приблизно 3–5 років. Безпечні перші велосипеди зі страхувальними колесами. Гарантія, доставка по Україні.',
+    intro:
+      'Велосипеди з колесами 14 дюймів — проміжний розмір між 12" і 16", який орієнтовно підходить дітям 3–5 років (зріст приблизно 100–110 см). Це вдалий вибір, якщо 12" уже замалий, а 16" ще завеликий. Моделі оснащені страхувальними колесами та захистом ланцюга. У добірці — усі велосипеди Ardis із колесами 14". Заводська гарантія, самовивіз у Києві та доставка по Україні.',
+    filters: { wheels: ["14"] },
+  },
+  {
+    slug: "dytyachi-velosypedy-18",
+    h1: 'Дитячі велосипеди з колесами 18 дюймів',
+    title: 'Дитячі велосипеди 18 дюймів — купити в Києві',
+    description:
+      'Дитячі велосипеди з колесами 18" для дітей приблизно 5–7 років. Надійні моделі із захистом ланцюга. Заводська гарантія, доставка по Україні.',
+    intro:
+      'Колеса 18 дюймів орієнтовно підходять дітям 5–7 років (зріст приблизно 110–125 см). Це «золота середина» між 16" і 20": велосипед уже стабільніший і швидший, але все ще легкий та керований для дитини. Частина моделей має страхувальні колеса, які можна зняти, коли дитина навчиться тримати рівновагу. У добірці — усі моделі Ardis із колесами 18". Заводська гарантія та доставка Новою Поштою по Україні.',
+    filters: { wheels: ["18"] },
+  },
+  {
+    slug: "dytyachi-velosypedy-24",
+    h1: 'Підліткові велосипеди з колесами 24 дюйми',
+    title: 'Велосипеди 24 дюйми — купити в Києві',
+    description:
+      'Підліткові велосипеди з колесами 24" для дітей приблизно 10–13 років. Гірські та універсальні моделі з передачами. Гарантія, доставка по Україні.',
+    intro:
+      'Велосипеди з колесами 24 дюйми — підлітковий формат для дітей орієнтовно 10–13 років (зріст приблизно 135–155 см). Це вже «дорослі» велосипеди в зменшеному масштабі: з амортизаційною вилкою, кількома швидкостями та надійними гальмами. Якщо підліток вищий за 155 см — можливо, варто одразу дивитися дорослі моделі 26" з малою рамою. У добірці — усі велосипеди Ardis із колесами 24". Заводська гарантія, самовивіз у Києві та доставка по Україні.',
+    filters: { wheels: ["24"] },
+  },
+  // --- Ціновий сегмент (доповнення) ---
+  {
+    slug: "velosypedy-do-20000",
+    h1: 'Велосипеди до 20000 грн',
+    title: 'Велосипеди до 20000 грн — купити в Києві',
+    description:
+      'Велосипеди до 20000 грн ✔ В наявності ✔ Заводська гарантія ✔ Доставка Новою Поштою ✔ Самовивіз у Києві. Гірські, міські та електровелосипеди.',
+    intro:
+      'Велосипеди до 20000 грн — це топовий сегмент асортименту Ardis: просунуті гірські моделі з якісним обвісом і дисковими гальмами, двопідвіси та електровелосипеди. У цьому бюджеті можна обрати велосипед і для активного щоденного катання, і для серйозного бездоріжжя. У добірці — всі моделі за ціною до 20000 ₴ із заводською гарантією. Самовивіз у Києві (вул. Ревуцького, 40В) і доставка Новою Поштою по всій Україні.',
+    filters: { priceMax: 20000 },
+  },
+  // --- Тип/аудиторія ---
+  {
+    slug: "zhinochyi-velosyped",
+    h1: 'Жіночі велосипеди',
+    title: 'Жіночий велосипед — купити в Києві',
+    description:
+      'Жіночі велосипеди в Києві: комфортні моделі із заниженою рамою для зручної посадки. Заводська гарантія, самовивіз, доставка Новою Поштою по Україні.',
+    intro:
+      'Жіночий велосипед — це насамперед моделі із заниженою (відкритою) рамою: на такий велосипед зручно сідати й сходити, зокрема у спідниці чи сукні. Комфортна вертикальна посадка знімає навантаження зі спини та зап\'ясть і чудово підходить для міста, парку й неспішних прогулянок. Водночас жінки активно катаються і на звичайних гірських моделях — тут головне правильно підібрати розмір рами під зріст. У цій добірці зібрані комфортні велосипеди Ardis із заниженою рамою. Заводська гарантія, самовивіз у Києві та доставка по Україні.',
+    filters: { category: "komfortni" },
+  },
+  {
+    slug: "miskyi-velosyped",
+    h1: 'Міські велосипеди',
+    title: 'Міський велосипед — купити в Києві',
+    description:
+      'Міські велосипеди в Києві: дорожні моделі для щоденних поїздок містом. Зручна посадка, багажник, крила. Гарантія, доставка Новою Поштою по Україні.',
+    intro:
+      'Міський велосипед — це транспорт для щоденних поїздок: на роботу, у справах, на прогулянку. Дорожні моделі мають зручну вертикальну посадку, надійну просту конструкцію та часто вже укомплектовані багажником, крилами й захистом ланцюга — нічого не треба докуповувати. Такий велосипед невибагливий в обслуговуванні та розрахований на роки експлуатації. У добірці — дорожні та міські моделі Ardis. Заводська гарантія, самовивіз у Києві (вул. Ревуцького, 40В) та доставка по Україні.',
+    filters: { category: "dorozhni" },
+  },
+  // --- Гео (доповнення) ---
+  {
+    slug: "velosypedy-metro-poznyaky",
+    h1: 'Велосипеди біля метро Позняки',
+    title: 'Велосипеди біля метро Позняки — Ardis',
+    description:
+      'Магазин велосипедів Ardis біля метро Позняки: вул. Ревуцького, 40В. Гірські, міські, дитячі велосипеди та електротранспорт. Самовивіз і доставка.',
+    intro:
+      'Шукаєте магазин велосипедів біля метро Позняки? Шоурум Ardis розташований на вул. Ревуцького, 40В — за кілька хвилин від станції. Тут можна наживо оглянути велосипед, сісти на нього, підібрати розмір рами під свій зріст і одразу забрати покупку. В асортименті — гірські, міські, дитячі, підліткові велосипеди та електротранспорт. Якщо зручніше отримати замовлення додому — оформимо доставку Новою Поштою по Києву та Україні. Перед візитом радимо зателефонувати та уточнити наявність потрібної моделі.',
+    filters: {},
+  },
+  {
+    slug: "velosypedy-kyiv-livyi-bereh",
+    h1: 'Велосипеди на лівому березі Києва',
+    title: 'Велосипеди на лівому березі Києва — Ardis',
+    description:
+      'Магазин велосипедів на лівому березі Києва: Ardis, вул. Ревуцького, 40В (Позняки). Великий вибір велосипедів, самовивіз і доставка по Україні.',
+    intro:
+      'Ardis — велосипедний магазин на лівому березі Києва, у Дарницькому районі (Позняки, вул. Ревуцького, 40В). Мешканцям лівого берега — Позняків, Осокорків, Харківського масиву, Дарниці — не потрібно їхати через міст: увесь асортимент велосипедів доступний поруч. У шоурумі представлені гірські, міські, дитячі, підліткові велосипеди та електротранспорт; можна приміряти велосипед за зростом і забрати одразу. Також доступна доставка Новою Поштою по Києву та всій Україні. Наявність конкретної моделі краще уточнити телефоном.',
+    filters: {},
+  },
 ];
 
 export function getSeoCollection(slug: string): SeoCollection | undefined {
@@ -298,8 +393,10 @@ export const AGE_COLLECTIONS: { age: number; slug: string }[] = SEO_COLLECTIONS
 const GEO_SLUGS = [
   "velosypedy-poznyaky",
   "velosypedy-osokorky",
+  "velosypedy-metro-poznyaky",
   "velosypedy-metro-kharkivska",
   "velosypedy-darnytskyi-rajon",
+  "velosypedy-kyiv-livyi-bereh",
 ];
 export const GEO_COLLECTIONS: SeoCollection[] = GEO_SLUGS
   .map((slug) => SEO_COLLECTIONS.find((c) => c.slug === slug))
@@ -316,16 +413,159 @@ const FEATURED_SLUGS = new Set([
   "velosypedy-29",
   "velosypedy-27-5",
   "velosypedy-26",
+  "dytyachi-velosypedy-24",
   "dytyachi-velosypedy-20",
   "dytyachi-velosypedy-16",
   "velosypedy-do-5000",
   "velosypedy-do-7000",
   "velosypedy-do-10000",
   "velosypedy-do-15000",
+  "velosypedy-do-20000",
   "velosyped-dlya-pidlitka",
   "velosyped-dlya-divchynky",
   "velosyped-dlya-hlopchyka",
+  "zhinochyi-velosyped",
+  "miskyi-velosyped",
 ]);
 export const FEATURED_COLLECTIONS: SeoCollection[] = SEO_COLLECTIONS.filter((c) =>
   FEATURED_SLUGS.has(c.slug)
 );
+
+// --- Перелінковка між підбірками ---
+
+// Діаметр колеса → slug підбірки за колесами.
+const WHEEL_TO_COLLECTION: Record<string, string> = {
+  "12": "dytyachi-velosypedy-12",
+  "14": "dytyachi-velosypedy-14",
+  "16": "dytyachi-velosypedy-16",
+  "18": "dytyachi-velosypedy-18",
+  "20": "dytyachi-velosypedy-20",
+  "24": "dytyachi-velosypedy-24",
+  "26": "velosypedy-26",
+  "27.5": "velosypedy-27-5",
+  "29": "velosypedy-29",
+};
+
+// Діаметр колеса → вікові підбірки, яким він відповідає.
+const WHEEL_TO_AGES: Record<string, number[]> = {
+  "12": [3],
+  "14": [4],
+  "16": [5, 6],
+  "18": [6, 7],
+  "20": [7, 8, 9],
+  "24": [10, 11, 12],
+};
+
+const PRICE_BUCKETS = [5000, 7000, 10000, 15000, 20000];
+
+function bySlugs(slugs: string[]): SeoCollection[] {
+  const seen = new Set<string>();
+  const out: SeoCollection[] = [];
+  for (const s of slugs) {
+    if (seen.has(s)) continue;
+    const c = SEO_COLLECTIONS.find((x) => x.slug === s);
+    if (c) {
+      out.push(c);
+      seen.add(s);
+    }
+  }
+  return out;
+}
+
+// «Схожі підбірки» для сторінки /c/[slug]: логічно пов'язані лендінги
+// тієї ж групи + сусідні. Максимум 8 посилань.
+export function getRelatedCollections(slug: string): SeoCollection[] {
+  const related: string[] = [];
+
+  // Вікова підбірка → сусідні віки + відповідне колесо + стать.
+  const ageMatch = slug.match(/^velosyped-dytyni-(\d+)-rokiv$/);
+  if (ageMatch) {
+    const age = Number(ageMatch[1]);
+    for (const a of AGE_COLLECTIONS) {
+      if (a.age !== age && Math.abs(a.age - age) <= 2) related.push(a.slug);
+    }
+    for (const [wheel, ages] of Object.entries(WHEEL_TO_AGES)) {
+      if (ages.includes(age)) related.push(WHEEL_TO_COLLECTION[wheel]);
+    }
+    related.push("velosyped-dlya-divchynky", "velosyped-dlya-hlopchyka");
+  }
+
+  // Підбірка за колесами → віки цього колеса + сусідні діаметри.
+  const wheelEntry = Object.entries(WHEEL_TO_COLLECTION).find(([, s]) => s === slug);
+  if (wheelEntry) {
+    const [wheel] = wheelEntry;
+    for (const age of WHEEL_TO_AGES[wheel] ?? []) {
+      related.push(`velosyped-dytyni-${age}-rokiv`);
+    }
+    const wheels = Object.keys(WHEEL_TO_COLLECTION);
+    const idx = wheels.indexOf(wheel);
+    if (idx > 0) related.push(WHEEL_TO_COLLECTION[wheels[idx - 1]]);
+    if (idx < wheels.length - 1) related.push(WHEEL_TO_COLLECTION[wheels[idx + 1]]);
+    if (["24"].includes(wheel)) related.push("velosyped-dlya-pidlitka");
+  }
+
+  // Цінова підбірка → інші цінові.
+  if (/^velosypedy-do-\d+$/.test(slug)) {
+    for (const p of PRICE_BUCKETS) {
+      const s = `velosypedy-do-${p}`;
+      if (s !== slug) related.push(s);
+    }
+  }
+
+  // Гео → інші гео.
+  if (GEO_COLLECTIONS.some((g) => g.slug === slug)) {
+    for (const g of GEO_COLLECTIONS) {
+      if (g.slug !== slug) related.push(g.slug);
+    }
+  }
+
+  // Аудиторія/тип → перехресні.
+  if (slug === "velosyped-dlya-divchynky" || slug === "velosyped-dlya-hlopchyka") {
+    related.push(
+      slug === "velosyped-dlya-divchynky" ? "velosyped-dlya-hlopchyka" : "velosyped-dlya-divchynky",
+      "dytyachi-velosypedy-16",
+      "dytyachi-velosypedy-20",
+      "dytyachi-velosypedy-24",
+      "velosyped-dlya-pidlitka"
+    );
+  }
+  if (slug === "velosyped-dlya-pidlitka") {
+    related.push("dytyachi-velosypedy-24", "velosypedy-26", "velosyped-dytyni-11-rokiv", "velosyped-dytyni-12-rokiv");
+  }
+  if (slug === "zhinochyi-velosyped") {
+    related.push("miskyi-velosyped", "velosypedy-26", "velosypedy-do-10000", "velosypedy-do-15000");
+  }
+  if (slug === "miskyi-velosyped") {
+    related.push("zhinochyi-velosyped", "velosypedy-26", "velosypedy-27-5", "velosypedy-do-10000");
+  }
+
+  // Фолбек — популярні підбірки.
+  if (related.length === 0) {
+    for (const c of FEATURED_COLLECTIONS) {
+      if (c.slug !== slug) related.push(c.slug);
+    }
+  }
+
+  return bySlugs(related.filter((s) => s !== slug)).slice(0, 8);
+}
+
+// Підбірки для картки товару: за діаметром колеса + ціною конкретного товару.
+// Використовується для перелінковки з ~сотень карток на SEO-лендінги.
+export function getCollectionsForProduct(
+  wheelSize: string | null,
+  price: number | null
+): SeoCollection[] {
+  const slugs: string[] = [];
+  if (wheelSize && WHEEL_TO_COLLECTION[wheelSize]) {
+    slugs.push(WHEEL_TO_COLLECTION[wheelSize]);
+    for (const age of WHEEL_TO_AGES[wheelSize] ?? []) {
+      slugs.push(`velosyped-dytyni-${age}-rokiv`);
+    }
+    if (wheelSize === "24") slugs.push("velosyped-dlya-pidlitka");
+  }
+  if (typeof price === "number") {
+    const bucket = PRICE_BUCKETS.find((p) => price <= p);
+    if (bucket) slugs.push(`velosypedy-do-${bucket}`);
+  }
+  return bySlugs(slugs).slice(0, 6);
+}

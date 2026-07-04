@@ -13,6 +13,7 @@ import {
   getAccessoriesForProduct,
 } from "@/lib/products";
 import { getApprovedReviews, getReviewAggregate } from "@/lib/reviews";
+import { getCollectionsForProduct } from "@/lib/seo-collections";
 import { uah, SITE } from "@/lib/site";
 import type { Product } from "@/types";
 
@@ -279,6 +280,28 @@ export default async function ProductPage({ params }: Props) {
           reviews={reviews}
           aggregate={aggregate}
         />
+
+        {p.type === "bike" && (() => {
+          // Перелінковка на SEO-підбірки за колесом і ціною цього товару.
+          const collections = getCollectionsForProduct(p.wheel_size, p.price);
+          if (collections.length === 0) return null;
+          return (
+            <section className="mt-16">
+              <h2 className="text-xl font-bold tracking-tight">Дивіться також</h2>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {collections.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/c/${c.slug}`}
+                    className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
+                  >
+                    {c.h1}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })()}
       </main>
 
       <Footer />

@@ -7,7 +7,9 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Pagination } from "@/components/Pagination";
 import { getProductsPaged } from "@/lib/products";
-import { SEO_COLLECTIONS, getSeoCollection } from "@/lib/seo-collections";
+import { SEO_COLLECTIONS, getSeoCollection, getRelatedCollections } from "@/lib/seo-collections";
+import { buildCollectionFaq } from "@/lib/collection-faq";
+import { Faq } from "@/components/Faq";
 import { SITE } from "@/lib/site";
 
 // Генеруємо лише ті колекції, де реально є хоча б один товар (уникаємо thin content).
@@ -68,16 +70,25 @@ export default async function SeoCollectionPage({ params, searchParams }: Props)
 
   const itemListJsonLd = {
     "@context": "https://schema.org",
-    "@type": "ItemList",
+    "@type": "CollectionPage",
     name: col.h1,
-    numberOfItems: paged.total,
-    itemListElement: products.slice(0, 20).map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${SITE.url}/bikes/${p.slug}`,
-      name: p.name,
-    })),
+    description: col.description,
+    url: `${SITE.url}/c/${col.slug}`,
+    mainEntity: {
+      "@type": "ItemList",
+      name: col.h1,
+      numberOfItems: paged.total,
+      itemListElement: products.slice(0, 20).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `${SITE.url}/bikes/${p.slug}`,
+        name: p.name,
+      })),
+    },
   };
+
+  const related = getRelatedCollections(col.slug);
+  const faqItems = buildCollectionFaq(col);
 
   return (
     <>
@@ -116,6 +127,23 @@ export default async function SeoCollectionPage({ params, searchParams }: Props)
 
         <Pagination page={paged.page} pages={paged.pages} />
 
+        {related.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-xl font-bold tracking-tight">Схожі підбірки</h2>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {related.map((r) => (
+                <Link
+                  key={r.slug}
+                  href={`/c/${r.slug}`}
+                  className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  {r.h1}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="mt-12 rounded-2xl bg-ink p-6 text-center text-white">
           <p className="text-lg font-bold">Не визначились із вибором?</p>
           <p className="mt-1 text-sm text-white/60">
@@ -126,6 +154,7 @@ export default async function SeoCollectionPage({ params, searchParams }: Props)
           </Link>
         </div>
       </main>
+      <Faq items={faqItems} />
       <Footer />
     </>
   );
