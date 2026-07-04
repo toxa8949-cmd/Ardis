@@ -38,6 +38,7 @@ export function Footer() {
           <h3 className="text-sm font-bold text-white">Покупцям</h3>
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link href="/delivery" className="hover:text-white">Оплата та доставка</Link></li>
+            <li><Link href="/returns" className="hover:text-white">Повернення товару</Link></li>
             <li><Link href="/warranty" className="hover:text-white">Гарантія</Link></li>
             <li><Link href="/about" className="hover:text-white">Про нас</Link></li>
             <li><Link href="/contacts" className="hover:text-white">Контакти</Link></li>

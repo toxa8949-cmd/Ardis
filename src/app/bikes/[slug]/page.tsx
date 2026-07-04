@@ -221,8 +221,9 @@ export default async function ProductPage({ params }: Props) {
         applicableCountry: "UA",
         returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
         merchantReturnDays: 14,
-        returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
+        returnMethod: ["https://schema.org/ReturnByMail", "https://schema.org/ReturnInStore"],
+        returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+        merchantReturnLink: `${SITE.url}/returns`,
       },
     },
   };

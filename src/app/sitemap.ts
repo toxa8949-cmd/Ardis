@@ -58,6 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const infoPages: MetadataRoute.Sitemap = [
     "/about",
     "/delivery",
+    "/returns",
     "/warranty",
     "/contacts",
   ].map((path) => ({
