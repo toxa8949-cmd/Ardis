@@ -203,3 +203,29 @@ export const RU_LANDINGS: RuLanding[] = [
 export function getRuLanding(slug: string): RuLanding | undefined {
   return RU_LANDINGS.find((c) => c.slug === slug);
 }
+
+// --- hreflang: пари UA (/c/[slug]) ↔ RU (/ru/[slug]) ---
+// Ключ — український slug, значення — російський. Обидві сторінки мають
+// однакові фільтри/тему, тож для Google це мовні версії одна одної.
+export const UA_RU_PAIRS: Record<string, string> = {
+  "velosypedy-27-5": "velosiped-27-5",
+  "velosypedy-ardis": "velosiped-ardis",
+  "velosypedy-crossride": "velosiped-crossride",
+  "velosypedy-crossride-24": "velosiped-crossride-24",
+  "velosypedy-do-10000": "velosipedy-nedorogo-kiev",
+  "velosyped-dytyni-3-rokiv": "velosiped-rebenku-3-let",
+  "velosyped-dytyni-4-rokiv": "velosiped-rebenku-4-let",
+  "velosyped-dytyni-5-rokiv": "velosiped-rebenku-5-let",
+  "velosyped-dytyni-6-rokiv": "velosiped-rebenku-6-let",
+  "velosyped-dytyni-7-rokiv": "velosiped-rebenku-7-let",
+  "velosyped-dytyni-8-rokiv": "velosiped-rebenku-8-let",
+  "velosyped-dytyni-9-rokiv": "velosiped-rebenku-9-let",
+  "velosyped-dytyni-10-rokiv": "velosiped-rebenku-10-let",
+  "velosyped-dytyni-11-rokiv": "velosiped-rebenku-11-let",
+  "velosyped-dytyni-12-rokiv": "velosiped-rebenku-12-let",
+};
+
+// Зворотна мапа: російський slug → український.
+export const RU_UA_PAIRS: Record<string, string> = Object.fromEntries(
+  Object.entries(UA_RU_PAIRS).map(([ua, ru]) => [ru, ua])
+);

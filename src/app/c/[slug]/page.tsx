@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Pagination } from "@/components/Pagination";
 import { getProductsPaged } from "@/lib/products";
 import { SEO_COLLECTIONS, getSeoCollection, getRelatedCollections } from "@/lib/seo-collections";
+import { UA_RU_PAIRS } from "@/lib/ru-landings";
 import { buildCollectionFaq } from "@/lib/collection-faq";
 import { Faq } from "@/components/Faq";
 import { SITE } from "@/lib/site";
@@ -32,10 +33,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const col = getSeoCollection(slug);
   if (!col) return { title: "Сторінку не знайдено" };
+  // hreflang: якщо існує російська версія цієї підбірки — вказуємо мовні альтернативи.
+  const ruSlug = UA_RU_PAIRS[col.slug];
+  const languages = ruSlug
+    ? {
+        uk: `${SITE.url}/c/${col.slug}`,
+        ru: `${SITE.url}/ru/${ruSlug}`,
+        "x-default": `${SITE.url}/c/${col.slug}`,
+      }
+    : undefined;
   return {
     title: col.title,
     description: col.description,
-    alternates: { canonical: `/c/${col.slug}` },
+    alternates: { canonical: `/c/${col.slug}`, languages },
     openGraph: {
       type: "website",
       title: col.title,
