@@ -14,6 +14,8 @@ import {
 } from "@/lib/products";
 import { getApprovedReviews, getReviewAggregate } from "@/lib/reviews";
 import { getCollectionsForProduct } from "@/lib/seo-collections";
+import { buildProductFaq } from "@/lib/product-faq";
+import { Faq } from "@/components/Faq";
 import { uah, SITE } from "@/lib/site";
 import type { Product } from "@/types";
 
@@ -303,6 +305,10 @@ export default async function ProductPage({ params }: Props) {
           );
         })()}
       </main>
+
+      {p.type === "bike" && (
+        <Faq items={buildProductFaq(p)} title="Питання про цю модель" />
+      )}
 
       <Footer />
     </>
