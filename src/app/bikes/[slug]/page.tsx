@@ -283,7 +283,7 @@ export default async function ProductPage({ params }: Props) {
 
         {p.type === "bike" && (() => {
           // Перелінковка на SEO-підбірки за колесом і ціною цього товару.
-          const collections = getCollectionsForProduct(p.wheel_size, p.price);
+          const collections = getCollectionsForProduct(p.wheel_size, p.price, p.brand?.slug ?? null);
           if (collections.length === 0) return null;
           return (
             <section className="mt-16">

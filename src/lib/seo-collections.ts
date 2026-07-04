@@ -372,6 +372,57 @@ export const SEO_COLLECTIONS: SeoCollection[] = [
       'Ardis — велосипедний магазин на лівому березі Києва, у Дарницькому районі (Позняки, вул. Ревуцького, 40В). Мешканцям лівого берега — Позняків, Осокорків, Харківського масиву, Дарниці — не потрібно їхати через міст: увесь асортимент велосипедів доступний поруч. У шоурумі представлені гірські, міські, дитячі, підліткові велосипеди та електротранспорт; можна приміряти велосипед за зростом і забрати одразу. Також доступна доставка Новою Поштою по Києву та всій Україні. Наявність конкретної моделі краще уточнити телефоном.',
     filters: {},
   },
+  // --- Брендові лендінги (запити «велосипед ардіс», «crossride 24» тощо) ---
+  {
+    slug: "velosypedy-ardis",
+    h1: 'Велосипеди Ardis (Ардіс)',
+    title: 'Велосипеди Ardis (Ардіс) — каталог і ціни виробника',
+    description:
+      'Велосипеди Ардіс: повний каталог українського виробника Ardis. Гірські, міські, дитячі та підліткові моделі. Заводська гарантія, ціни від виробника, доставка по Україні.',
+    intro:
+      'Ardis (Ардіс) — український виробник велосипедів із багаторічною історією. Велосипеди Ардіс збираються в Україні та відомі надійними рамами власного виробництва, чесною комплектацією та доступними цінами. У модельному ряду — гірські, міські, дорожні, дитячі та підліткові велосипеди на будь-який зріст і бюджет. У цій добірці зібраний повний каталог велосипедів Ardis із цінами від виробника. Заводська гарантія на кожну модель, самовивіз у Києві (вул. Ревуцького, 40В) і доставка Новою Поштою по всій Україні.',
+    filters: { brands: ["ardis"] },
+  },
+  {
+    slug: "velosypedy-crossride",
+    h1: 'Велосипеди Crossride (Кросрайд)',
+    title: 'Велосипеди Crossride (Кросрайд) — купити в Києві',
+    description:
+      'Велосипеди Crossride (Кросрайд) у Києві: гірські та підліткові моделі за доступною ціною. Повний каталог, заводська гарантія, доставка Новою Поштою по Україні.',
+    intro:
+      'Crossride (Кросрайд) — український бренд велосипедів, який пропонує надійні гірські та підліткові моделі за доступною ціною. Велосипеди Crossride збираються на тих самих потужностях, що й Ardis, і мають міцні сталеві та алюмінієві рами, перевірену комплектацію та широку розмірну сітку коліс — від дитячих 20" до дорослих 29". У добірці — всі велосипеди Crossride з актуальними цінами та наявністю. Заводська гарантія, самовивіз у Києві та доставка по Україні.',
+    filters: { brands: ["crossride"] },
+  },
+  {
+    slug: "velosypedy-crossride-24",
+    h1: 'Велосипеди Crossride 24 дюйми',
+    title: 'Велосипед Crossride 24 — купити в Києві',
+    description:
+      'Велосипеди Crossride з колесами 24" для підлітків 10–13 років. Гірські моделі з передачами та амортизацією. Заводська гарантія, доставка по Україні.',
+    intro:
+      'Crossride 24 — підліткові велосипеди бренду Crossride (Кросрайд) із колесами 24 дюйми, орієнтовно для дітей 10–13 років зростом 135–155 см. Це «дорослі» гірські велосипеди у зменшеному форматі: з амортизаційною вилкою, кількома швидкостями та надійними гальмами, але легші та з меншою рамою. У добірці — всі моделі Crossride з колесами 24" з актуальними цінами. Заводська гарантія, самовивіз у Києві (вул. Ревуцького, 40В) та доставка Новою Поштою.',
+    filters: { brands: ["crossride"], wheels: ["24"] },
+  },
+  {
+    slug: "velosypedy-corrado",
+    h1: 'Велосипеди Corrado (Коррадо)',
+    title: 'Велосипеди Corrado (Коррадо) — купити в Києві',
+    description:
+      'Велосипеди Corrado (Коррадо) у Києві: повний каталог моделей бренду. Актуальні ціни та наявність, заводська гарантія, доставка Новою Поштою по Україні.',
+    intro:
+      'Corrado (Коррадо) — бренд велосипедів, представлений у каталозі Ardis. Моделі Corrado поєднують якісну збірку, сучасний дизайн і помірну ціну. У добірці зібрані всі велосипеди Corrado з актуальними цінами та наявністю на складі. Кожна модель продається із заводською гарантією. Доступні самовивіз у Києві (вул. Ревуцького, 40В, Позняки) та доставка Новою Поштою по всій Україні.',
+    filters: { brands: ["corrado"] },
+  },
+  {
+    slug: "velosypedy-royalbaby",
+    h1: 'Дитячі велосипеди RoyalBaby',
+    title: 'Дитячі велосипеди RoyalBaby — купити в Києві',
+    description:
+      'Дитячі велосипеди RoyalBaby у Києві: безпечні та яскраві моделі для дітей від 2 років. Повний каталог, заводська гарантія, доставка по Україні.',
+    intro:
+      'RoyalBaby — світовий бренд дитячих велосипедів, відомий продуманою безпекою: широкі стійкі колеса, надійні гальма під дитячу руку, повний захист ланцюга та міцні рами. Велосипеди RoyalBaby випускаються в розмірах від 12" до 20" — для дітей приблизно від 2 до 9 років — і в яскравих кольорах, які подобаються дітям. У добірці — всі моделі RoyalBaby з каталогу Ardis з актуальними цінами. Заводська гарантія, самовивіз у Києві та доставка Новою Поштою по Україні.',
+    filters: { brands: ["royalbaby"] },
+  },
 ];
 
 export function getSeoCollection(slug: string): SeoCollection | undefined {
@@ -426,6 +477,9 @@ const FEATURED_SLUGS = new Set([
   "velosyped-dlya-hlopchyka",
   "zhinochyi-velosyped",
   "miskyi-velosyped",
+  "velosypedy-ardis",
+  "velosypedy-crossride",
+  "velosypedy-royalbaby",
 ]);
 export const FEATURED_COLLECTIONS: SeoCollection[] = SEO_COLLECTIONS.filter((c) =>
   FEATURED_SLUGS.has(c.slug)
@@ -539,6 +593,26 @@ export function getRelatedCollections(slug: string): SeoCollection[] {
     related.push("zhinochyi-velosyped", "velosypedy-26", "velosypedy-27-5", "velosypedy-do-10000");
   }
 
+  // Брендові → інші бренди + логічні сусіди.
+  const BRAND_SLUGS = [
+    "velosypedy-ardis",
+    "velosypedy-crossride",
+    "velosypedy-corrado",
+    "velosypedy-royalbaby",
+  ];
+  if (BRAND_SLUGS.includes(slug) || slug === "velosypedy-crossride-24") {
+    for (const b of BRAND_SLUGS) {
+      if (b !== slug) related.push(b);
+    }
+    if (slug === "velosypedy-crossride") related.push("velosypedy-crossride-24");
+    if (slug === "velosypedy-crossride-24") {
+      related.push("dytyachi-velosypedy-24", "velosyped-dlya-pidlitka");
+    }
+    if (slug === "velosypedy-royalbaby") {
+      related.push("dytyachi-velosypedy-14", "dytyachi-velosypedy-16", "dytyachi-velosypedy-18");
+    }
+  }
+
   // Фолбек — популярні підбірки.
   if (related.length === 0) {
     for (const c of FEATURED_COLLECTIONS) {
@@ -549,13 +623,18 @@ export function getRelatedCollections(slug: string): SeoCollection[] {
   return bySlugs(related.filter((s) => s !== slug)).slice(0, 8);
 }
 
-// Підбірки для картки товару: за діаметром колеса + ціною конкретного товару.
+// Підбірки для картки товару: за брендом, діаметром колеса та ціною товару.
 // Використовується для перелінковки з ~сотень карток на SEO-лендінги.
 export function getCollectionsForProduct(
   wheelSize: string | null,
-  price: number | null
+  price: number | null,
+  brandSlug?: string | null
 ): SeoCollection[] {
   const slugs: string[] = [];
+  if (brandSlug) {
+    if (brandSlug === "crossride" && wheelSize === "24") slugs.push("velosypedy-crossride-24");
+    slugs.push(`velosypedy-${brandSlug}`);
+  }
   if (wheelSize && WHEEL_TO_COLLECTION[wheelSize]) {
     slugs.push(WHEEL_TO_COLLECTION[wheelSize]);
     for (const age of WHEEL_TO_AGES[wheelSize] ?? []) {
@@ -567,5 +646,5 @@ export function getCollectionsForProduct(
     const bucket = PRICE_BUCKETS.find((p) => price <= p);
     if (bucket) slugs.push(`velosypedy-do-${bucket}`);
   }
-  return bySlugs(slugs).slice(0, 6);
+  return bySlugs(slugs).slice(0, 7);
 }
