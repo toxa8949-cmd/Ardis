@@ -16,7 +16,7 @@ import {
 } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { CATEGORY_SEO } from "@/lib/category-seo";
-import { AGE_COLLECTIONS } from "@/lib/seo-collections";
+import { AGE_COLLECTIONS, getCollectionsForCategory } from "@/lib/seo-collections";
 import { CATEGORY_FAQ } from "@/lib/faq";
 
 export async function generateStaticParams() {
@@ -190,6 +190,30 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             </div>
           </div>
         )}
+
+        {(() => {
+          // Перелінковка: тематичні SEO-підбірки для цієї категорії.
+          const catCollections = getCollectionsForCategory(cat.slug);
+          if (catCollections.length === 0) return null;
+          return (
+            <div className="mt-12 border-t border-black/5 pt-8">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">
+                Популярні підбірки
+              </h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {catCollections.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/c/${c.slug}`}
+                    className="rounded-full border border-black/10 px-4 py-2 text-sm font-medium text-gray-600 transition-colors hover:border-accent/40 hover:text-accent-600"
+                  >
+                    {c.h1}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </main>
       <CategoryLinks
         categories={categories.filter((c) => c.group === "velosypedy")}

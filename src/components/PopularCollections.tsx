@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AGE_COLLECTIONS, PRICE_COLLECTIONS, GEO_COLLECTIONS, getSeoCollection } from "@/lib/seo-collections";
+import { AGE_COLLECTIONS, PRICE_COLLECTIONS, GEO_COLLECTIONS, BRAND_COLLECTIONS, getSeoCollection } from "@/lib/seo-collections";
 
 // Блок внутрішньої перелінковки на головній: посилання на SEO-підбірки,
 // згруповані за віком / ціною / типом / районом. Головна — найсильніша
@@ -67,6 +67,18 @@ export function PopularCollections() {
             <div className="flex flex-wrap gap-2">
               {typeCols.map((c) => (
                 <Chip key={c!.slug} href={`/c/${c!.slug}`}>{c!.h1}</Chip>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* За брендом */}
+        {BRAND_COLLECTIONS.length > 0 && (
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-gray-700">За брендом</h3>
+            <div className="flex flex-wrap gap-2">
+              {BRAND_COLLECTIONS.map((c) => (
+                <Chip key={c.slug} href={`/c/${c.slug}`}>{c.h1}</Chip>
               ))}
             </div>
           </div>

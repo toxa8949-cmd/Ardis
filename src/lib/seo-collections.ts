@@ -648,3 +648,62 @@ export function getCollectionsForProduct(
   }
   return bySlugs(slugs).slice(0, 7);
 }
+
+// Брендові підбірки — для головної та перелінковки.
+const BRAND_COLLECTION_SLUGS = [
+  "velosypedy-ardis",
+  "velosypedy-crossride",
+  "velosypedy-corrado",
+  "velosypedy-royalbaby",
+];
+export const BRAND_COLLECTIONS: SeoCollection[] = BRAND_COLLECTION_SLUGS
+  .map((slug) => SEO_COLLECTIONS.find((c) => c.slug === slug))
+  .filter((c): c is SeoCollection => c !== undefined);
+
+// Підбірки для сторінки категорії /catalog/[category]:
+// тематично близькі лендінги, куди сторінка категорії передає вагу.
+const CATEGORY_TO_COLLECTIONS: Record<string, string[]> = {
+  girski: [
+    "velosypedy-29",
+    "velosypedy-27-5",
+    "velosypedy-26",
+    "velosypedy-do-10000",
+    "velosypedy-do-15000",
+    "velosypedy-ardis",
+    "velosypedy-crossride",
+  ],
+  dvopidvisy: ["velosypedy-29", "velosypedy-27-5", "velosypedy-do-15000", "velosypedy-do-20000"],
+  komfortni: ["zhinochyi-velosyped", "miskyi-velosyped", "velosypedy-26", "velosypedy-do-10000"],
+  dorozhni: ["miskyi-velosyped", "zhinochyi-velosyped", "velosypedy-do-7000", "velosypedy-do-10000"],
+  pidlitkovi: [
+    "velosyped-dlya-pidlitka",
+    "dytyachi-velosypedy-24",
+    "velosypedy-crossride-24",
+    "velosyped-dytyni-10-rokiv",
+    "velosyped-dytyni-11-rokiv",
+    "velosyped-dytyni-12-rokiv",
+  ],
+  "girski-dytyachi": [
+    "dytyachi-velosypedy-20",
+    "dytyachi-velosypedy-24",
+    "velosyped-dlya-pidlitka",
+    "velosyped-dlya-hlopchyka",
+    "velosyped-dlya-divchynky",
+  ],
+  dytyachi: [
+    "dytyachi-velosypedy-12",
+    "dytyachi-velosypedy-14",
+    "dytyachi-velosypedy-16",
+    "dytyachi-velosypedy-18",
+    "dytyachi-velosypedy-20",
+    "velosypedy-royalbaby",
+    "velosyped-dlya-divchynky",
+    "velosyped-dlya-hlopchyka",
+  ],
+  elektrovelosipedi: ["velosypedy-do-20000", "miskyi-velosyped"],
+  bmx: ["velosypedy-do-7000", "velosypedy-do-10000", "velosyped-dlya-pidlitka"],
+};
+
+export function getCollectionsForCategory(categorySlug: string): SeoCollection[] {
+  return bySlugs(CATEGORY_TO_COLLECTIONS[categorySlug] ?? []).slice(0, 8);
+}
