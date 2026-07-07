@@ -40,25 +40,39 @@ export function CartSidebar() {
     setSubmitting(true);
     try {
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.from("orders").insert({
-        customer_name: form.name.trim(),
-        phone: form.phone.trim(),
-        city: delivery === "nova_poshta" ? form.city.trim() : null,
-        delivery,
-        total,
-        items: items.map((i) => ({
-          product_id: i.product.id,
-          name: i.product.name,
-          color: i.colorName,
-          qty: i.qty,
-          price: i.unitPrice ?? i.product.price,
-        })),
-      });
+      const { data: inserted, error } = await supabase
+        .from("orders")
+        .insert({
+          customer_name: form.name.trim(),
+          phone: form.phone.trim(),
+          city: delivery === "nova_poshta" ? form.city.trim() : null,
+          delivery,
+          total,
+          items: items.map((i) => ({
+            product_id: i.product.id,
+            name: i.product.name,
+            color: i.colorName,
+            qty: i.qty,
+            price: i.unitPrice ?? i.product.price,
+          })),
+        })
+        .select("id")
+        .single();
 
       if (error) {
         console.error(error);
         toast("Не вдалося оформити. Спробуйте ще раз", "err");
         return;
+      }
+
+      // Відстеження конверсії Google Ads (реальна сума + id замовлення)
+      if (typeof window !== "undefined" && typeof window.gtag === "function") {
+        window.gtag("event", "conversion", {
+          send_to: "AW-969652830/oqEqCNSlhswcEN70rs4D",
+          value: total,
+          currency: "UAH",
+          transaction_id: inserted?.id ? String(inserted.id) : "",
+        });
       }
 
       toast(`Дякуємо, ${form.name}! Замовлення прийнято ✓`, "ok");

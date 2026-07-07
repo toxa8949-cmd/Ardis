@@ -7,6 +7,8 @@ import "./globals.css";
 
 // Google Analytics 4
 const GA_ID = "G-N7FPEDKL54";
+// Google Ads (відстеження конверсій)
+const ADS_ID = "AW-969652830";
 
 const unbounded = Unbounded({
   subsets: ["latin", "cyrillic"],
@@ -181,6 +183,7 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${GA_ID}');
+            gtag('config', '${ADS_ID}');
           `}
         </Script>
       </body>
