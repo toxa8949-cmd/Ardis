@@ -33,6 +33,18 @@ const ALLOWED_TYPES: Record<string, string> = {
 // 8 МБ — стеля на файл. Захист від випадкового величезного зображення у фіді.
 const MAX_BYTES = 8 * 1024 * 1024;
 
+// Таймаути на кожен запит до постачальника.
+//
+// НАВІЩО: fetch без сигналу висить, доки не відповість інший бік. Якщо сервер
+// постачальника «підвисне», функція просто добіжить до ліміту Vercel і буде
+// вбита — у логах це виглядає як статус 0, а не як помилка, тому проблему
+// легко не помітити. Явний таймаут перетворює зависання на звичайний збій
+// одного зображення: пропускаємо його й ідемо далі.
+const HEAD_TIMEOUT_MS = 5_000;
+const GET_TIMEOUT_MS = 10_000;
+
+const UA_HEADER = { "User-Agent": "Mozilla/5.0 (compatible; ArdisImageMirror/1.0)" };
+
 /** Чи це вже наше зображення (у Supabase Storage)? */
 export function isMirrored(url: string | null | undefined): boolean {
   if (!url) return false;
@@ -84,7 +96,8 @@ export async function sourceContentLength(sourceUrl: string): Promise<number | n
     const res = await fetch(sourceUrl, {
       method: "HEAD",
       cache: "no-store",
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArdisImageMirror/1.0)" },
+      headers: UA_HEADER,
+      signal: AbortSignal.timeout(HEAD_TIMEOUT_MS),
     });
     if (!res.ok) return null;
     const len = res.headers.get("content-length");
@@ -107,7 +120,8 @@ export async function refreshImage(
   try {
     res = await fetch(sourceUrl, {
       cache: "no-store",
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArdisImageMirror/1.0)" },
+      headers: UA_HEADER,
+      signal: AbortSignal.timeout(GET_TIMEOUT_MS),
     });
   } catch {
     return null;
@@ -172,7 +186,8 @@ export async function mirrorImage(
     res = await fetch(sourceUrl, {
       cache: "no-store",
       // Деякі сервери віддають 403 без Referer/User-Agent.
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArdisImageMirror/1.0)" },
+      headers: UA_HEADER,
+      signal: AbortSignal.timeout(GET_TIMEOUT_MS),
     });
   } catch (e) {
     return { ok: false, reason: `fetch failed: ${(e as Error).message}` };

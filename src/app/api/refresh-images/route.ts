@@ -25,7 +25,10 @@ import {
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const TIME_BUDGET_MS = 45_000;
+// Ті самі міркування, що й у /api/mirror-images: перевірка часу має стояти
+// перед кожним мережевим запитом, а запас — покривати один таймаут.
+// HEAD (5 с) + можливе перезавантаження (10 с) = 15 с найгіршого вильоту.
+const TIME_BUDGET_MS = 38_000;
 const BATCH = 150;
 
 // Похибка в кілька байтів можлива через переупаковку на боці сервера —
