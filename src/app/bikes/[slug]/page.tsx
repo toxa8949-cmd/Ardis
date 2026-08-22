@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Markdown } from "@/components/Markdown";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import {
-  getProductBySlug, getRelatedProducts, getAllProductSlugs, getCategoryBySlug,
+  getProductBySlug, getRelatedProducts, getProductVariants, getAllProductSlugs, getCategoryBySlug,
   getAccessoriesForProduct,
 } from "@/lib/products";
 import { getApprovedReviews, getReviewAggregate } from "@/lib/reviews";
@@ -147,8 +147,9 @@ export default async function ProductPage({ params }: Props) {
   const p = await getProductBySlug(slug);
   if (!p) notFound();
 
-  const [related, category, reviews, aggregate] = await Promise.all([
+  const [related, variants, category, reviews, aggregate] = await Promise.all([
     getRelatedProducts(p.category_slug, p.slug, 4),
+    getProductVariants(p.group_key, p.slug, 12),
     p.category_slug ? getCategoryBySlug(p.category_slug) : Promise.resolve(null),
     getApprovedReviews(p.id),
     getReviewAggregate(p.id),
@@ -266,6 +267,20 @@ export default async function ProductPage({ params }: Props) {
           <section className="mt-12 sm:mt-16">
             <div className="rounded-3xl border border-black/5 bg-white p-6 sm:p-10">
               <Markdown content={p.description} className="prose-compact" untrusted />
+            </div>
+          </section>
+        )}
+
+        {variants.length > 0 && (
+          <section className="mt-12 sm:mt-16">
+            <h2 className="mb-2 text-2xl font-bold tracking-tight">Інші варіанти цієї моделі</h2>
+            <p className="mb-6 text-sm text-gray-500">
+              Той самий товар в іншому кольорі або розмірі.
+            </p>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {variants.slice(0, 8).map((v) => (
+                <ProductCard key={v.id} p={v} />
+              ))}
             </div>
           </section>
         )}

@@ -38,6 +38,22 @@ const nextConfig: NextConfig = {
       { source: "/catalog", destination: "/bikes", permanent: true },
     ];
   },
+  // Службові домени Vercel (ardis-drab.vercel.app тощо) віддають той самий
+  // сайт і теоретично можуть потрапити в індекс як дублікат. Canonical на
+  // ardis.kyiv.ua там уже стоїть, але X-Robots-Tag — надійніший запобіжник.
+  //
+  // Чому noindex, а не редірект: редірект із будь-якого «не нашого» хоста
+  // зламав би preview-деплої, на яких зручно перевіряти зміни до продакшену.
+  // Заголовок ставиться лише там, де хост НЕ ardis.kyiv.ua.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        missing: [{ type: "host", value: "ardis.kyiv.ua" }],
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

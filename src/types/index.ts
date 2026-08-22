@@ -63,6 +63,10 @@ export interface Product {
   specs: SpecItem[];
   image_url: string | null;
   images: string[];                // галерея фото (кілька ракурсів)
+  // Ключ групування варіантів: у товарів з фіду постачальника кольори
+  // приходять окремими позиціями зі спільним group_key.
+  group_key: string | null;
+  color: string | null;
   description: string | null;
   rating: number;
   reviews: number;

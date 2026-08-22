@@ -3,6 +3,8 @@ import { Unbounded, Manrope } from "next/font/google";
 import Script from "next/script";
 import { SITE } from "@/lib/site";
 import { Providers } from "@/components/Providers";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 // Google Analytics 4
@@ -186,6 +188,13 @@ export default function RootLayout({
             gtag('config', '${ADS_ID}');
           `}
         </Script>
+
+        {/* Core Web Vitals із реальних відвідувачів (LCP/INP/CLS).
+            GA4 таких даних не дає, а без них оптимізувати швидкість —
+            це стрільба наосліп. Скрипти вантажаться після інтерактиву
+            і на швидкість самі не впливають. */}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ const PRODUCT_SELECT = `
   id, slug, name, category, category_slug, brand_id, rider, type, price, old_price, badge,
   min_height, max_height, frame, wheel, wheel_size, frame_size, speeds, drivetrain, brakes,
   specs, image_url, images, description, rating, reviews, in_stock, created_at,
+  group_key, color,
   colors:product_colors ( id, product_id, name, hue, hex, image_url, images, sort_order ),
   brand:brands ( id, slug, name, is_own, sort_order )
 `;
@@ -294,6 +295,37 @@ export async function getProductSitemapEntries(): Promise<
       return slugs.map((slug) => ({ slug, lastModified: new Date() }));
     }
   }
+}
+
+/**
+ * Варіанти того самого товару — інші кольори/розміри.
+ *
+ * Постачальник віддає кожен колір окремою позицією. Спільний group_key
+ * (див. src/lib/veloportal-feed.ts) означає, що це один товар. Показуємо їх
+ * поруч: користувачу не треба шукати потрібний колір через каталог, а Google
+ * отримує внутрішні посилання, які пояснюють зв'язок між майже однаковими
+ * сторінками — без ризикованого схлопування їх канонікалами.
+ *
+ * Порожній group_key (велосипеди, старі рядки до синхронізації) — порожній масив.
+ */
+export async function getProductVariants(
+  groupKey: string | null,
+  excludeSlug: string,
+  limit = 12
+): Promise<Product[]> {
+  if (!groupKey) return [];
+  const supabase = createSupabaseStaticClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .eq("group_key", groupKey)
+    .neq("slug", excludeSlug)
+    .eq("in_stock", true)
+    .order("slug", { ascending: true })
+    .limit(limit);
+
+  if (error || !data) return [];
+  return (data as Record<string, unknown>[]).map(normalize);
 }
 
 // Схожі товари (та сама категорія_slug, крім поточного)
