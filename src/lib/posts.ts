@@ -53,3 +53,22 @@ export async function getPublishedPostSlugs(): Promise<string[]> {
   if (error || !data) return [];
   return data.map((r) => r.slug as string);
 }
+
+// Статті для sitemap із реальною датою публікації (а не часом білду).
+export async function getPublishedPostSitemapEntries(): Promise<
+  { slug: string; lastModified: Date }[]
+> {
+  const supabase = createSupabaseStaticClient();
+  const { data, error } = await supabase
+    .from("posts")
+    .select("slug, published_at, created_at")
+    .eq("published", true);
+  if (error || !data) return [];
+  return (data as Record<string, unknown>[]).map((r) => {
+    const raw = (r.published_at ?? r.created_at) as string | null;
+    return {
+      slug: r.slug as string,
+      lastModified: raw ? new Date(raw) : new Date(),
+    };
+  });
+}

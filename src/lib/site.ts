@@ -1,5 +1,23 @@
 // Глобальна конфігурація сайту. Один з джерел правди для SEO та контактів.
 
+/**
+ * Захист від подвійного бренду у <title>.
+ *
+ * У layout.tsx заданий title.template = "%s | Ardis". Next.js застосовує його
+ * до КОЖНОГО дочірнього сегмента. Якщо сторінка вже містить "Ardis" у своєму
+ * title, на виході отримуємо "… | Ardis | Ardis".
+ *
+ * metaTitle() повертає { absolute } для таких title — тоді шаблон не діє.
+ * Для title без бренду повертає рядок, і шаблон працює як задумано.
+ *
+ * Використовувати в generateMetadata: `title: metaTitle(col.title)`.
+ */
+export function metaTitle(title: string): string | { absolute: string } {
+  return title.includes("Ardis") || title.includes("Ардіс") || title.includes("Ардис")
+    ? { absolute: title }
+    : title;
+}
+
 export const SITE = {
   name: "Ardis",
   legalName: "Ardis — велосипеди українського виробництва",

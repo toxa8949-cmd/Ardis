@@ -17,7 +17,15 @@ export const metadata: Metadata = {
   title: "Купити велосипед у Києві — велосипеди Ardis (Ардіс)",
   description:
     "Велосипеди Ardis у Києві: гірські, дитячі, підліткові та електровелосипеди українського виробництва. Заводська гарантія, самовивіз у Києві, доставка Новою Поштою по Україні.",
-  alternates: { canonical: "/" },
+  // Взаємний hreflang із російським лендингом /ru/kupit-velosiped-kiev.
+  alternates: {
+    canonical: "/",
+    languages: {
+      uk: SITE.url,
+      ru: `${SITE.url}/ru/kupit-velosiped-kiev`,
+      "x-default": SITE.url,
+    },
+  },
   openGraph: {
     type: "website",
     locale: SITE.locale,

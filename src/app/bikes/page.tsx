@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Велосипеди — купити в Києві | Ardis",
+  title: { absolute: "Велосипеди — купити в Києві | Ardis" },
   description:
     "Каталог велосипедів Ardis: гірські, міські, дитячі, підліткові, BMX та електровелосипеди. Купити в Києві з самовивозом або доставкою Новою Поштою. Українське виробництво, заводська гарантія.",
   alternates: { canonical: "/bikes" },

@@ -244,6 +244,58 @@ export async function getAllProductSlugs(): Promise<string[]> {
   return slugs;
 }
 
+/**
+ * Товари для sitemap разом із реальною датою зміни.
+ *
+ * Раніше sitemap ставив lastModified: new Date() — тобто час БІЛДУ, однаковий
+ * для всіх 2300+ URL. Для Google це сигнал «нічого не змінилось / змінилось усе»,
+ * і він перестає довіряти lastmod узагалі.
+ *
+ * Читаємо updated_at; якщо колонки ще нема в БД (див. supabase/migration-updated-at.sql),
+ * тихо відкочуємось на created_at, щоб деплой коду й міграція могли їхати окремо.
+ */
+export async function getProductSitemapEntries(): Promise<
+  { slug: string; lastModified: Date }[]
+> {
+  const supabase = createSupabaseStaticClient();
+  const pageSize = 1000;
+
+  async function fetchAll(dateCol: "updated_at" | "created_at") {
+    const rows: { slug: string; lastModified: Date }[] = [];
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`slug, ${dateCol}`)
+        .order("slug", { ascending: true })
+        .range(from, from + pageSize - 1);
+      if (error) throw new Error(error.message);
+      if (!data || data.length === 0) break;
+      for (const r of data as Record<string, unknown>[]) {
+        const raw = r[dateCol];
+        rows.push({
+          slug: r.slug as string,
+          lastModified: raw ? new Date(raw as string) : new Date(),
+        });
+      }
+      if (data.length < pageSize) break;
+    }
+    return rows;
+  }
+
+  try {
+    return await fetchAll("updated_at");
+  } catch {
+    try {
+      return await fetchAll("created_at");
+    } catch (e) {
+      console.error("getProductSitemapEntries:", (e as Error).message);
+      // Останній рубіж: хоча б слаги, щоб sitemap не спорожнів.
+      const slugs = await getAllProductSlugs();
+      return slugs.map((slug) => ({ slug, lastModified: new Date() }));
+    }
+  }
+}
+
 // Схожі товари (та сама категорія_slug, крім поточного)
 export async function getRelatedProducts(
   categorySlug: string | null,

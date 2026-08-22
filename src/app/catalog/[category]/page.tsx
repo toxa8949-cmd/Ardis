@@ -15,6 +15,7 @@ import {
   type SortOption,
 } from "@/lib/products";
 import { SITE } from "@/lib/site";
+import { UA_PATH_RU_PAIRS } from "@/lib/ru-landings";
 import { CATEGORY_SEO } from "@/lib/category-seo";
 import { AGE_COLLECTIONS, getCollectionsForCategory } from "@/lib/seo-collections";
 import { CATEGORY_FAQ } from "@/lib/faq";
@@ -50,7 +51,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `/catalog/${cat.slug}` },
+    alternates: {
+      canonical: `/catalog/${cat.slug}`,
+      // Взаємний hreflang для категорій, що мають російський лендинг
+      // (гірські → /ru/gornyj-velosiped-kiev, електро → /ru/elektrovelosiped-kiev).
+      languages: UA_PATH_RU_PAIRS[`/catalog/${cat.slug}`]
+        ? {
+            uk: `${SITE.url}/catalog/${cat.slug}`,
+            ru: `${SITE.url}/ru/${UA_PATH_RU_PAIRS[`/catalog/${cat.slug}`]}`,
+            "x-default": `${SITE.url}/catalog/${cat.slug}`,
+          }
+        : undefined,
+    },
     openGraph: {
       type: "website",
       title,

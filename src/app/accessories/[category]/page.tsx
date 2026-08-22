@@ -12,7 +12,7 @@ import {
   ACCESSORY_CATEGORY_SLUGS,
   getAccessoryCategorySeo,
 } from "@/lib/accessory-category-seo";
-import { SITE } from "@/lib/site";
+import { SITE, metaTitle } from "@/lib/site";
 
 // Генеруємо лише ті категорії аксесуарів, де реально є товари.
 export async function generateStaticParams() {
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const seo = getAccessoryCategorySeo(category);
   if (!seo) return { title: "Категорію не знайдено" };
   return {
-    title: seo.title ?? `${seo.name} для велосипеда | Ardis`,
+    title: metaTitle(seo.title ?? `${seo.name} для велосипеда | Ardis`),
     description:
       seo.description ?? `${seo.name} для велосипедів. Доставка Новою Поштою по всій Україні.`,
     alternates: { canonical: `/accessories/${category}` },

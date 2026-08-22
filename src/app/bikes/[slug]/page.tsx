@@ -117,7 +117,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage = p.image_url ?? p.images?.[0] ?? `${SITE.url}/opengraph-image`;
 
   return {
-    title,
+    // absolute — title вже містить бренд ("| Ardis Київ 2026"), тому
+    // title.template з layout.tsx застосовувати НЕ треба, інакше вийде
+    // "… | Ardis Київ 2026 | Ardis". Перевірки довжини вище тепер
+    // рахують реальний фінальний рядок.
+    title: { absolute: title },
     description,
     alternates: { canonical: `/bikes/${p.slug}` },
     openGraph: {

@@ -225,7 +225,32 @@ export const UA_RU_PAIRS: Record<string, string> = {
   "velosyped-dytyni-12-rokiv": "velosiped-rebenku-12-let",
 };
 
-// Зворотна мапа: російський slug → український.
+// Зворотна мапа: російський slug → український slug підбірки /c/.
 export const RU_UA_PAIRS: Record<string, string> = Object.fromEntries(
   Object.entries(UA_RU_PAIRS).map(([ua, ru]) => [ru, ua])
 );
+
+// Повні УКРАЇНСЬКІ шляхи для hreflang. Потрібні там, де український
+// відповідник — не підбірка /c/…, а головна або сторінка категорії.
+// Без цього три найцінніші RU-лендинги віддавались зовсім без hreflang.
+const RU_UA_EXTRA_PATHS: Record<string, string> = {
+  "kupit-velosiped-kiev": "/",
+  "gornyj-velosiped-kiev": "/catalog/girski",
+  "elektrovelosiped-kiev": "/catalog/elektrovelosipedi",
+};
+
+// Зворотна мапа: український шлях → російський slug.
+// Використовується на головній і на /catalog/[category] для взаємного hreflang.
+export const UA_PATH_RU_PAIRS: Record<string, string> = Object.fromEntries(
+  Object.entries(RU_UA_EXTRA_PATHS).map(([ru, uaPath]) => [uaPath, ru])
+);
+
+/**
+ * Український шлях-відповідник для російського лендинга, або undefined.
+ * Спочатку шукає підбірку /c/…, потім спеціальні шляхи вище.
+ */
+export function getUaPathForRu(ruSlug: string): string | undefined {
+  const uaSlug = RU_UA_PAIRS[ruSlug];
+  if (uaSlug) return `/c/${uaSlug}`;
+  return RU_UA_EXTRA_PATHS[ruSlug];
+}

@@ -11,7 +11,7 @@ import { SEO_COLLECTIONS, getSeoCollection, getRelatedCollections } from "@/lib/
 import { UA_RU_PAIRS } from "@/lib/ru-landings";
 import { buildCollectionFaq } from "@/lib/collection-faq";
 import { Faq } from "@/components/Faq";
-import { SITE } from "@/lib/site";
+import { SITE, metaTitle } from "@/lib/site";
 
 // Генеруємо лише ті колекції, де реально є хоча б один товар (уникаємо thin content).
 export async function generateStaticParams() {
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       }
     : undefined;
   return {
-    title: col.title,
+    title: metaTitle(col.title),
     description: col.description,
     alternates: { canonical: `/c/${col.slug}`, languages },
     openGraph: {

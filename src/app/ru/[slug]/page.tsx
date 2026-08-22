@@ -7,8 +7,8 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Pagination } from "@/components/Pagination";
 import { getProductsPaged } from "@/lib/products";
-import { RU_LANDINGS, getRuLanding, RU_UA_PAIRS } from "@/lib/ru-landings";
-import { SITE } from "@/lib/site";
+import { RU_LANDINGS, getRuLanding, getUaPathForRu } from "@/lib/ru-landings";
+import { SITE, metaTitle } from "@/lib/site";
 
 // Генерируем только те страницы, где реально есть хотя бы один товар.
 export async function generateStaticParams() {
@@ -31,16 +31,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const col = getRuLanding(slug);
   if (!col) return { title: "Страница не найдена" };
   // hreflang: если есть украинская версия этой подборки — указываем языковые альтернативы.
-  const uaSlug = RU_UA_PAIRS[col.slug];
-  const languages = uaSlug
+  const uaPath = getUaPathForRu(col.slug);
+  const languages = uaPath
     ? {
-        uk: `${SITE.url}/c/${uaSlug}`,
+        uk: `${SITE.url}${uaPath === "/" ? "" : uaPath}`,
         ru: `${SITE.url}/ru/${col.slug}`,
-        "x-default": `${SITE.url}/c/${uaSlug}`,
+        "x-default": `${SITE.url}${uaPath === "/" ? "" : uaPath}`,
       }
     : undefined;
   return {
-    title: col.title,
+    title: metaTitle(col.title),
     description: col.description,
     // canonical на саму себя — страница самостоятельна, не дубль украинской.
     alternates: { canonical: `/ru/${col.slug}`, languages },
