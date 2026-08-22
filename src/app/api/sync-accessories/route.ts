@@ -52,6 +52,29 @@ export async function GET(request: Request) {
     await supabase.from("categories").upsert(catRows, { onConflict: "slug", ignoreDuplicates: true });
 
     // 5. Товари: upsert ціни + наявність + нові (з описом/фото/специфікаціями)
+
+    // ВАЖЛИВО: зображення, які вже перенесені у власне сховище
+    // (/api/mirror-images), НЕ можна затирати адресами з фіду постачальника —
+    // інакше кожна нічна синхронізація відкочувала б перенос назад на чужий
+    // домен. Тому спершу забираємо поточні наші адреси й лишаємо їх як є.
+    const mirroredBySlug = new Map<string, { image_url: string; images: string[] }>();
+    {
+      const slugs = items.map((it) => it.slug);
+      for (let i = 0; i < slugs.length; i += 500) {
+        const { data } = await supabase
+          .from("products")
+          .select("slug, image_url, images")
+          .in("slug", slugs.slice(i, i + 500))
+          .like("image_url", "%/storage/v1/object/public/%");
+        for (const r of data ?? []) {
+          mirroredBySlug.set(r.slug as string, {
+            image_url: r.image_url as string,
+            images: (r.images as string[] | null) ?? [],
+          });
+        }
+      }
+    }
+
     const productRows = items.map((it) => ({
       slug: it.slug,
       name: it.name,
@@ -63,8 +86,8 @@ export async function GET(request: Request) {
       price: it.price,
       in_stock: it.in_stock,
       specs: it.specs,
-      image_url: it.image_url,
-      images: it.images,
+      image_url: mirroredBySlug.get(it.slug)?.image_url ?? it.image_url,
+      images: mirroredBySlug.get(it.slug)?.images ?? it.images,
       description: it.description,
       group_key: it.group_key,
       mpn: it.mpn || null,

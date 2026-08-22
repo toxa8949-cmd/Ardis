@@ -4,6 +4,10 @@
     {
       "path": "/api/sync-accessories",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/mirror-images",
+      "schedule": "*/10 * * * *"
     }
   ]
 }
