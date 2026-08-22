@@ -13,6 +13,16 @@ export type FeedItem = {
   image_url: string;
   images: string[];
   description: string;
+  // Ключ групування варіантів. У постачальника кольори/розміри одного товару
+  // приходять окремими позиціями; slug у них збігається до обрізання на 70
+  // символів, а далі розходиться суфіксом -2, -3… Спільний base і є групою.
+  // Використовується для g:item_group_id у Merchant Center.
+  group_key: string;
+  // Артикул постачальника — це справжній MPN. Дає GMC ідентифікатор товару
+  // замість identifier_exists=false, який душить покази.
+  mpn: string;
+  color: string;
+  size: string;
 };
 
 // veloportal-категорія -> наша (slug, назва, sort)
@@ -70,6 +80,38 @@ function unent(s: string): string {
     .replace(/&apos;/g, "'").replace(/&laquo;/g, "«").replace(/&raquo;/g, "»").replace(/&deg;/g, "°");
 }
 
+// Витягує значення характеристики за списком можливих назв.
+function specValue(
+  specs: { label: string; value: string }[],
+  names: string[]
+): string {
+  const want = names.map((n) => n.toLowerCase());
+  for (const s of specs) {
+    if (want.includes(s.label.toLowerCase().replace(/:$/, "").trim())) return s.value;
+  }
+  return "";
+}
+
+/**
+ * Приводить опис постачальника до чистого тексту.
+ *
+ * ВАЖЛИВИЙ ПОРЯДОК: спершу декодуємо сутності, потім прибираємо теги.
+ * Раніше було навпаки — теги приходять як &lt;br /&gt;, регекси по них не
+ * влучали, а unent() уже ПІСЛЯ цього перетворював їх на справжні <br />,
+ * які так і осідали в базі та в Merchant-фіді.
+ *
+ * Додатково ловимо незакриті теги (<br без >), які теж трапляються у фіді.
+ */
+function htmlToText(raw: string): string {
+  let t = unent(raw);
+  t = unent(t); // подвійне кодування (&amp;lt;) трапляється у частини позицій
+  t = t.replace(/<br\s*\/?\s*>?/gi, "\n"); // <br>, <br/>, <br /> і навіть "<br /" без >
+  t = t.replace(/<\/(p|div|li|tr)\s*>?/gi, "\n");
+  t = t.replace(/<[^>]*>/g, " ");   // повноцінні теги
+  t = t.replace(/<[^<]*$/g, " ");   // «хвіст» незакритого тега в кінці рядка
+  return t;
+}
+
 function pick(block: string, tag: string): string {
   const m = block.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
   return m ? m[1].trim() : "";
@@ -98,11 +140,13 @@ export function parseVeloportalFeed(xml: string): FeedItem[] {
     let brandSlug = translit(brand) || "noname";
     if (!brand) brandSlug = "noname";
 
-    let base = translit(`${brand}-${title}`).slice(0, 70) || `acc-${translit(article)}`;
+    const base = translit(`${brand}-${title}`).slice(0, 70) || `acc-${translit(article)}`;
     let slug = base;
     let i = 2;
     while (usedSlugs.has(slug)) { slug = `${base}-${i}`; i++; }
     usedSlugs.add(slug);
+    // base спільний для всіх варіантів одного товару — це і є group_key.
+    const groupKey = base;
 
     const imgs = [...it.matchAll(/<image>([^<]*)<\/image>/g)]
       .map((m) => m[1].trim())
@@ -117,8 +161,7 @@ export function parseVeloportalFeed(xml: string): FeedItem[] {
     if (article) specs.push({ label: "Артикул", value: article });
 
     // опис
-    let descrRaw = pick(it, "descr");
-    descrRaw = unent(descrRaw.replace(/<br\s*\/?>/g, "\n").replace(/<[^>]+>/g, " "));
+    const descrRaw = htmlToText(pick(it, "descr"));
     const lines = descrRaw.split("\n").map((l) => l.replace(/^[\s•*\-\t]+/, "").trim())
       .filter((l) => l && l.toLowerCase() !== "опис:");
     let description: string;
@@ -134,6 +177,10 @@ export function parseVeloportalFeed(xml: string): FeedItem[] {
       brand_slug: brandSlug, brand_name: brand || "NoName",
       price: Math.round(price), in_stock: true,
       specs, image_url: imgs[0] || "", images: imgs, description,
+      group_key: groupKey,
+      mpn: article || "",
+      color: specValue(specs, ["Колір", "Цвет", "Color"]),
+      size: specValue(specs, ["Розмір", "Размер", "Size", "Ростовка"]),
     });
   }
   return result;

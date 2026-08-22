@@ -66,6 +66,10 @@ export async function GET(request: Request) {
       image_url: it.image_url,
       images: it.images,
       description: it.description,
+      group_key: it.group_key,
+      mpn: it.mpn || null,
+      color: it.color || null,
+      size_label: it.size || null,
     }));
 
     // upsert порціями (щоб не впертись у ліміти запиту)

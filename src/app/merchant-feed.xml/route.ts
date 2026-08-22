@@ -24,6 +24,10 @@ type FeedRow = {
   type: string | null;
   wheel_size: string | null;
   brand: { name: string } | { name: string }[] | null;
+  group_key: string | null;
+  mpn: string | null;
+  color: string | null;
+  size_label: string | null;
 };
 
 // Екранування спецсимволів XML.
@@ -36,10 +40,23 @@ function esc(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
-// Опис: прибираємо markdown-розмітку, обрізаємо до ліміту GMC (5000 симв.).
+// Опис: чистимо HTML і markdown, обрізаємо до ліміту GMC (5000 симв.).
+//
+// БУВ БАГ: `.replace(/[#*_`>]/g, "")` вирізав символ ">" усюди, а не лише
+// на початку рядка як markdown-цитату. Через це залишки тегів <br /> з фіду
+// постачальника перетворювались на "<br /" — саме це й бачив Merchant Center
+// у 2300 описах. Тепер спершу знімаємо теги цілком, а ">" чіпаємо тільки
+// там, де він справді означає цитату.
 function cleanDescription(raw: string | null, fallback: string): string {
   const text = (raw ?? "")
-    .replace(/[#*_`>]/g, "")
+    // теги (включно з незакритими на кшталт "<br /")
+    .replace(/<br\s*\/?\s*>?/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/<[^<]*$/g, " ")
+    // markdown-цитата — лише на початку рядка
+    .replace(/^\s*>+\s?/gm, "")
+    // решта markdown-розмітки
+    .replace(/[#*_`]/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
@@ -66,6 +83,13 @@ function googleCategory(row: FeedRow): string {
   return "Sporting Goods > Outdoor Recreation > Cycling > Bicycle Accessories";
 }
 
+// Власна таксономія магазину — GMC використовує g:product_type для угруповання
+// та правил у кампаніях. Не замінює google_product_category, а доповнює його.
+function productType(row: FeedRow): string {
+  const root = row.type === "bike" ? "Велосипеди" : "Аксесуари";
+  return row.category_slug ? `${root} > ${row.category_slug}` : root;
+}
+
 export async function GET() {
   const supabase = createSupabaseStaticClient();
 
@@ -76,7 +100,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from("products")
       .select(
-        "slug, name, description, price, old_price, in_stock, image_url, images, category_slug, type, wheel_size, brand:brands(name)"
+        "slug, name, description, price, old_price, in_stock, image_url, images, category_slug, type, wheel_size, group_key, mpn, color, size_label, brand:brands(name)"
       )
       .gt("price", 0)
       .order("slug", { ascending: true })
@@ -84,6 +108,13 @@ export async function GET() {
     if (error || !data || data.length === 0) break;
     rows.push(...(data as unknown as FeedRow[]));
     if (data.length < pageSize) break;
+  }
+
+  // Скільки позицій у кожній групі варіантів. item_group_id має сенс лише
+  // там, де група справді більша за одиницю — інакше GMC вважає це помилкою.
+  const groupSizes = new Map<string, number>();
+  for (const r of rows) {
+    if (r.group_key) groupSizes.set(r.group_key, (groupSizes.get(r.group_key) ?? 0) + 1);
   }
 
   const items = rows
@@ -115,9 +146,20 @@ export async function GET() {
           : `<g:price>${p.price.toFixed(2)} UAH</g:price>`,
         `<g:condition>new</g:condition>`,
         `<g:brand>${esc(brandName(p.brand))}</g:brand>`,
-        // GTIN/MPN у товарів немає — прямо кажемо про це, щоб GMC не відхиляв позиції.
-        `<g:identifier_exists>false</g:identifier_exists>`,
+        // Артикул постачальника = MPN. Якщо він є, у парі з brand цього
+        // достатньо для ідентифікації, і identifier_exists не потрібен.
+        // Якщо артикула нема — чесно кажемо GMC, щоб позицію не відхилили.
+        ...(p.mpn
+          ? [`<g:mpn>${esc(p.mpn)}</g:mpn>`]
+          : [`<g:identifier_exists>false</g:identifier_exists>`]),
+        // Варіанти одного товару: спільний item_group_id + атрибут, що їх різнить.
+        ...(p.group_key && (groupSizes.get(p.group_key) ?? 0) > 1
+          ? [`<g:item_group_id>${esc(p.group_key)}</g:item_group_id>`]
+          : []),
+        ...(p.color ? [`<g:color>${esc(p.color)}</g:color>`] : []),
+        ...(p.size_label ? [`<g:size>${esc(p.size_label)}</g:size>`] : []),
         `<g:google_product_category>${esc(googleCategory(p))}</g:google_product_category>`,
+        `<g:product_type>${esc(productType(p))}</g:product_type>`,
         "</item>",
       ].join("");
     });

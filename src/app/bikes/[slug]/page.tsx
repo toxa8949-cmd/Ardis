@@ -265,7 +265,7 @@ export default async function ProductPage({ params }: Props) {
         {p.description && (
           <section className="mt-12 sm:mt-16">
             <div className="rounded-3xl border border-black/5 bg-white p-6 sm:p-10">
-              <Markdown content={p.description} className="prose-compact" />
+              <Markdown content={p.description} className="prose-compact" untrusted />
             </div>
           </section>
         )}
