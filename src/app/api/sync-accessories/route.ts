@@ -88,6 +88,11 @@ export async function GET(request: Request) {
       specs: it.specs,
       image_url: mirroredBySlug.get(it.slug)?.image_url ?? it.image_url,
       images: mirroredBySlug.get(it.slug)?.images ?? it.images,
+      // Вихідні адреси з фіду пишемо ЗАВЖДИ — навіть коли картинка вже
+      // перенесена до нас. Це відновлює оригінали для товарів, перенесених
+      // до появи колонок source_*, і тримає їх актуальними далі.
+      source_image_url: it.image_url,
+      source_images: it.images.slice(0, 3),
       description: it.description,
       group_key: it.group_key,
       mpn: it.mpn || null,

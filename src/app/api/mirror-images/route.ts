@@ -48,7 +48,7 @@ export async function GET(request: Request) {
     // like 'http%' відсікає локальні шляхи, not like — уже перенесені.
     const { data: rows, error } = await supabase
       .from("products")
-      .select("slug, image_url, images")
+      .select("slug, image_url, images, source_image_url")
       .like("image_url", "http%")
       .not("image_url", "like", "%/storage/v1/object/public/%")
       .order("slug", { ascending: true })
@@ -72,7 +72,14 @@ export async function GET(request: Request) {
     const failures: { slug: string; reason: string }[] = [];
     let outOfTime = false;
 
-    for (const row of rows as { slug: string; image_url: string; images: string[] | null }[]) {
+    type Row = {
+      slug: string;
+      image_url: string;
+      images: string[] | null;
+      source_image_url: string | null;
+    };
+
+    for (const row of rows as Row[]) {
       if (Date.now() - startedAt > TIME_BUDGET_MS) {
         outOfTime = true;
         break;
@@ -107,9 +114,25 @@ export async function GET(request: Request) {
       // Головне зображення має бути першим у масиві.
       const images = [main.url, ...mirroredExtras.filter((u) => u !== main.url)];
 
+      // Вихідні адреси зберігаємо ПЕРЕД перезаписом. Без них неможливо ні
+      // перевірити, чи постачальник замінив фото, ні відкотитись назад.
+      // Пишемо лише якщо ще не збережені — щоб повторний прогін не затер
+      // оригінал уже нашою ж адресою.
+      const sourcePatch = row.source_image_url
+        ? {}
+        : {
+            source_image_url: row.image_url,
+            source_images: (row.images ?? []).slice(0, MAX_IMAGES_PER_PRODUCT),
+          };
+
       const { error: upErr } = await supabase
         .from("products")
-        .update({ image_url: main.url, images })
+        .update({
+          image_url: main.url,
+          images,
+          ...sourcePatch,
+          images_checked_at: new Date().toISOString(),
+        })
         .eq("slug", row.slug);
       if (upErr) {
         failures.push({ slug: row.slug, reason: `update failed: ${upErr.message}` });

@@ -53,6 +53,83 @@ function storagePath(sourceUrl: string, ext: string): string {
   return `acc/${hash.slice(0, 2)}/${hash}.${ext}`;
 }
 
+/**
+ * Шлях для ОНОВЛЕНОЇ версії зображення.
+ *
+ * Якщо постачальник замінив фото за тією самою адресою, перезаписувати старий
+ * об'єкт не можна: він віддається з cacheControl на рік, і CDN ще довго
+ * показував би стару картинку. Тому нова версія лягає за новим шляхом —
+ * до імені додається хеш ВМІСТУ. Адреса змінюється, кеш оминається,
+ * стара версія просто перестає використовуватись.
+ */
+function versionedPath(sourceUrl: string, bytes: Uint8Array, ext: string): string {
+  const urlHash = createHash("sha1").update(sourceUrl).digest("hex");
+  const contentHash = createHash("sha1").update(bytes).digest("hex").slice(0, 8);
+  return `acc/${urlHash.slice(0, 2)}/${urlHash}-${contentHash}.${ext}`;
+}
+
+/** Витягує шлях об'єкта з нашої публічної адреси. */
+export function pathFromPublicUrl(url: string): string | null {
+  const marker = `/storage/v1/object/public/${IMAGE_BUCKET}/`;
+  const i = url.indexOf(marker);
+  return i === -1 ? null : url.slice(i + marker.length);
+}
+
+/**
+ * Розмір файлу на боці постачальника — без завантаження тіла.
+ * Використовується як дешевий сигнал «фото замінили».
+ */
+export async function sourceContentLength(sourceUrl: string): Promise<number | null> {
+  try {
+    const res = await fetch(sourceUrl, {
+      method: "HEAD",
+      cache: "no-store",
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArdisImageMirror/1.0)" },
+    });
+    if (!res.ok) return null;
+    const len = res.headers.get("content-length");
+    return len ? Number(len) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Перезавантажує зображення й кладе його за версійним шляхом.
+ * Повертає нову адресу або null, якщо нічого не змінилось / не вдалось.
+ */
+export async function refreshImage(
+  supabase: SupabaseClient,
+  supabaseUrl: string,
+  sourceUrl: string
+): Promise<{ url: string } | null> {
+  let res: Response;
+  try {
+    res = await fetch(sourceUrl, {
+      cache: "no-store",
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ArdisImageMirror/1.0)" },
+    });
+  } catch {
+    return null;
+  }
+  if (!res.ok) return null;
+
+  const contentType = (res.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
+  const ext = ALLOWED_TYPES[contentType];
+  if (!ext) return null;
+
+  const buf = new Uint8Array(await res.arrayBuffer());
+  if (buf.byteLength === 0 || buf.byteLength > MAX_BYTES) return null;
+
+  const path = versionedPath(sourceUrl, buf, ext);
+  const { error } = await supabase.storage
+    .from(IMAGE_BUCKET)
+    .upload(path, buf, { contentType, upsert: true, cacheControl: "31536000" });
+  if (error) return null;
+
+  return { url: publicUrl(supabaseUrl, path) };
+}
+
 function publicUrl(supabaseUrl: string, path: string): string {
   return `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/${IMAGE_BUCKET}/${path}`;
 }
